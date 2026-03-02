@@ -13,7 +13,6 @@
 - `core`: 인증 유즈케이스(`AuthService`)
 - `starter`: Spring Boot 자동 설정, REST API, Security 필터
 - `common`: 공용 유틸
-
 ## 요청 처리 흐름
 
 ## 1) 로그인

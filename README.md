@@ -55,20 +55,13 @@
 
 ## 🚀 시작하기
 
-### 1️⃣ GitHub Packages 설정
+### 1️⃣ Maven Central 사용
 
-`settings.gradle` 또는 `build.gradle`에 GitHub Packages 저장소를 추가합니다.
+설치(consume)는 익명으로 가능합니다. `mavenCentral()`만 있으면 됩니다.
 
 ```gradle
 repositories {
     mavenCentral()
-    maven {
-        url = uri("https://maven.pkg.github.com/jho951/auth")
-        credentials {
-            username = project.findProperty("gprUser") ?: System.getenv("GITHUB_ACTOR")
-            password = project.findProperty("gprKey") ?: System.getenv("GITHUB_TOKEN")
-        }
-    }
 }
 
 dependencies {
@@ -152,9 +145,12 @@ public class AdminUserFinder implements UserFinder {
 
 
 ## 🔐 GitHub Actions Environment
-> GitHub Actions에서는 **GITHUB_ACTOR**, **GITHUB_TOKEN**이 자동으로 제공됩니다.
+> 배포(`publish`) 시에만 Maven Central 인증/서명 정보가 필요합니다.
 
->CI 환경에서는 별도의 시크릿 설정 없이 GitHub Packages에 안전하게 접근할 수 있습니다.
+- `MAVEN_CENTRAL_USERNAME`
+- `MAVEN_CENTRAL_PASSWORD`
+- `MAVEN_CENTRAL_GPG_PRIVATE_KEY`
+- `MAVEN_CENTRAL_GPG_PASSPHRASE`
 
 ---
 

@@ -51,11 +51,13 @@
 - 수행:
   1. `./gradlew clean build`
   2. `./gradlew publish`
-- 대상: GitHub Packages
+- 대상: Maven Central
 
 ## CI 환경 변수
 
-- `GITHUB_ACTOR`
-- `GITHUB_TOKEN`
+- `MAVEN_CENTRAL_USERNAME`
+- `MAVEN_CENTRAL_PASSWORD`
+- `MAVEN_CENTRAL_GPG_PRIVATE_KEY`
+- `MAVEN_CENTRAL_GPG_PASSPHRASE`
 
 publish 시 credentials가 없으면 루트 `build.gradle`의 검증 로직에서 실패하도록 되어 있습니다.

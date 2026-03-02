@@ -8,7 +8,6 @@ jobs:
   notify:
     runs-on: ubuntu-latest
 
-    # ✅ Fork PR에서는 secrets가 전달되지 않으므로(보안), 내부 PR만 알림
     if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
 
     env:

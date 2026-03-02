@@ -59,8 +59,9 @@
 ## 7) publish 단계 인증 실패
 
 원인:
-- GitHub Packages credentials 미설정/권한 부족
+- Maven Central credentials/서명키 미설정 또는 권한 부족
 
 해결:
-- `GITHUB_ACTOR`, `GITHUB_TOKEN` 설정
-- 토큰 권한 확인(`packages:write`)
+- `MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD` 설정
+- `MAVEN_CENTRAL_GPG_PRIVATE_KEY`, `MAVEN_CENTRAL_GPG_PASSPHRASE` 설정
+- Sonatype(OSSRH) 권한 확인

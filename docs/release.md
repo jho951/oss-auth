@@ -43,6 +43,7 @@ git push origin vX.Y.Z
 
 ## 실패 시 점검
 
-- `GITHUB_ACTOR`, `GITHUB_TOKEN` 유효성
+- `MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD` 유효성
+- `MAVEN_CENTRAL_GPG_PRIVATE_KEY`, `MAVEN_CENTRAL_GPG_PASSPHRASE` 유효성
 - 태그 형식이 `v*` 패턴인지
-- GitHub Packages 권한(`packages: write`) 확인
+- Sonatype(OSSRH) 계정/권한 확인

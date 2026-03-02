@@ -35,7 +35,6 @@ on:
 
 permissions:
   contents: read
-  packages: read
 
 concurrency:
   group: backend-ci-${{ github.workflow }}-${{ github.ref }}
@@ -64,8 +63,6 @@ jobs:
 
       - name: Build & Test
         run: ./gradlew build --no-daemon --parallel --build-cache --stacktrace
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN || github.token }}
 
       - name: Upload test reports (always)
         if: always()
