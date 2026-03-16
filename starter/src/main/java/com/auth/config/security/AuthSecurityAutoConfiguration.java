@@ -11,8 +11,12 @@ import org.springframework.core.annotation.Order;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.nio.charset.StandardCharsets;
 
@@ -29,7 +33,11 @@ public class AuthSecurityAutoConfiguration {
 	public SecurityFilterChain authDefaultSecurityFilterChain(
 		HttpSecurity http,
 		AuthOncePerRequestFilter authFilter,
-		AuthProperties props
+		AuthProperties props,
+		@Qualifier("authOAuth2AuthenticationSuccessHandler")
+		ObjectProvider<AuthenticationSuccessHandler> oauth2SuccessHandlerProvider,
+		@Qualifier("authOAuth2AuthenticationFailureHandler")
+		ObjectProvider<AuthenticationFailureHandler> oauth2FailureHandlerProvider
 	) throws Exception {
 
 		http
@@ -54,8 +62,29 @@ public class AuthSecurityAutoConfiguration {
 			)
 			.authorizeHttpRequests(auth -> auth
 				.requestMatchers("/auth/**").permitAll()
+				.requestMatchers(
+					props.getOauth2().getAuthorizationBaseUri() + "/**",
+					props.getOauth2().getLoginProcessingBaseUri()
+				).permitAll()
 				.anyRequest().authenticated()
 			);
+
+		AuthenticationSuccessHandler oauth2SuccessHandler = oauth2SuccessHandlerProvider.getIfAvailable();
+		if (props.getOauth2().isEnabled() && oauth2SuccessHandler != null) {
+			http.oauth2Login(oauth2 -> {
+				oauth2.authorizationEndpoint(endpoint ->
+					endpoint.baseUri(props.getOauth2().getAuthorizationBaseUri())
+				);
+				oauth2.redirectionEndpoint(endpoint ->
+					endpoint.baseUri(props.getOauth2().getLoginProcessingBaseUri())
+				);
+				oauth2.successHandler(oauth2SuccessHandler);
+				AuthenticationFailureHandler oauth2FailureHandler = oauth2FailureHandlerProvider.getIfAvailable();
+				if (oauth2FailureHandler != null) {
+					oauth2.failureHandler(oauth2FailureHandler);
+				}
+			});
+		}
 
 		http.addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class);
 		return http.build();

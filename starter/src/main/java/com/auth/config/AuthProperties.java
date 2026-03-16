@@ -22,6 +22,8 @@ public class AuthProperties {
 	// (호스트가 이미 SecurityConfig를 가지고 있으면 자동 구성 안 함)
 	private boolean autoSecurity = true;
 
+	private final OAuth2 oauth2 = new OAuth2();
+
 	public boolean isEndpointsEnabled() { return endpointsEnabled; }
 	public void setEndpointsEnabled(boolean endpointsEnabled) { this.endpointsEnabled = endpointsEnabled; }
 
@@ -48,4 +50,21 @@ public class AuthProperties {
 
 	public boolean isAutoSecurity() { return autoSecurity; }
 	public void setAutoSecurity(boolean autoSecurity) { this.autoSecurity = autoSecurity; }
+
+	public OAuth2 getOauth2() { return oauth2; }
+
+	public static final class OAuth2 {
+		private boolean enabled = true;
+		private String authorizationBaseUri = "/oauth2/authorization";
+		private String loginProcessingBaseUri = "/login/oauth2/code/*";
+
+		public boolean isEnabled() { return enabled; }
+		public void setEnabled(boolean enabled) { this.enabled = enabled; }
+
+		public String getAuthorizationBaseUri() { return authorizationBaseUri; }
+		public void setAuthorizationBaseUri(String authorizationBaseUri) { this.authorizationBaseUri = authorizationBaseUri; }
+
+		public String getLoginProcessingBaseUri() { return loginProcessingBaseUri; }
+		public void setLoginProcessingBaseUri(String loginProcessingBaseUri) { this.loginProcessingBaseUri = loginProcessingBaseUri; }
+	}
 }

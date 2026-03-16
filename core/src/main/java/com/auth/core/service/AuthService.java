@@ -98,14 +98,24 @@ public final class AuthService {
 
 		if (!ok) {throw new AuthException(ErrorCode.INVALID_CREDENTIALS, "invalid credentials");}
 
-		Principal principal = new Principal(user.getUserId(), user.getRoles());
+		return login(new Principal(user.getUserId(), user.getRoles()));
+	}
 
-		String access = tokenService.issueAccessToken(principal);
-		String refresh = tokenService.issueRefreshToken(principal);
+	/**
+	 * 이미 외부에서 인증이 끝난 사용자를 기준으로 새로운 토큰 세트를 발급합니다.
+	 * <p>OAuth2/OIDC 로그인처럼 비밀번호 검증을 이 모듈 밖에서 수행한 경우에 사용합니다.</p>
+	 * @param principal 내부 사용자 식별자와 권한을 담은 Principal
+	 * @return 발급된 Access Token과 Refresh Token 쌍
+	 */
+	public Tokens login(Principal principal) {
+		Principal authenticatedPrincipal = Strings.requireNonNull(principal, "principal");
+
+		String access = tokenService.issueAccessToken(authenticatedPrincipal);
+		String refresh = tokenService.issueRefreshToken(authenticatedPrincipal);
 
 		Instant expiresAt = Instant.now(clock).plus(refreshTtl);
 
-		refreshTokenStore.save(principal.getUserId(), refresh, expiresAt);
+		refreshTokenStore.save(authenticatedPrincipal.getUserId(), refresh, expiresAt);
 
 		return new Tokens(access, refresh);
 	}

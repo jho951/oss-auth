@@ -3,7 +3,7 @@
 ## 버전 관리
 
 - 루트 버전: `build.gradle`의 `allprojects.version`
-- 현재 값: `1.1.0`
+- 현재 값: `1.1.4`
 - Java/Spring/JJWT/JUnit 버전: `gradle.properties`
 
 ## 배포 좌표 규칙

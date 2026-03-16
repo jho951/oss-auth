@@ -29,6 +29,16 @@
 - `starter/src/main/java/com/auth/config/controller/AuthController.java`
 - `core/src/main/java/com/auth/core/service/AuthService.java`
 
+### OAuth 로그인 확장
+
+OAuth2/OIDC 로그인에서는 Provider 인증 자체를 서비스 애플리케이션이 담당합니다.
+
+1. 서비스 애플리케이션이 Google/GitHub/Kakao 인증 완료
+2. Provider 사용자 정보를 내부 사용자로 매핑
+3. 내부 사용자 ID/권한으로 `Principal` 생성
+4. `AuthService.login(Principal)` 호출
+5. 이후 access/refresh 발급 및 refresh 저장 흐름은 일반 로그인과 동일
+
 ## 2) 토큰 재발급 (Refresh Rotation)
 
 1. 클라이언트가 `POST /auth/refresh` 호출

@@ -26,6 +26,7 @@
   - `PasswordVerifier`
   - `TokenService`
   - `RefreshTokenStore`
+  - `OAuth2PrincipalResolver`
 - 특징:
   - 코어는 구현이 아닌 인터페이스에만 의존
 
@@ -44,6 +45,7 @@
   - Spring Boot 자동 설정
   - 기본 JWT 구현(`JwtTokenService`)
   - REST 컨트롤러(`/auth/*`)
+  - OAuth2 로그인 성공/실패 핸들러
   - 보안 필터/기본 SecurityFilterChain
   - refresh cookie 처리
 

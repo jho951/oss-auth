@@ -37,9 +37,7 @@
 - Response Body:
 
 ```json
-{
-  "accessToken": "..."
-}
+{ "accessToken": "..." }
 ```
 
 - 부가 동작:
@@ -55,6 +53,26 @@
 - 부가 동작:
   - refresh 저장소 revoke
   - `Max-Age=0` 쿠키로 클라이언트 쿠키 만료
+
+## 4) OAuth2 로그인 완료 응답
+
+- 시작 경로 예시: `GET /oauth2/authorization/google`
+- callback 경로 기본값: `GET /login/oauth2/code/{registrationId}`
+- 동작 조건:
+  - 서비스 애플리케이션에 `spring.security.oauth2.client.registration.*` 설정 존재
+  - `OAuth2PrincipalResolver` 빈 등록
+  - `auth.oauth2.enabled=true`
+
+- 성공 응답:
+
+```json
+{
+  "accessToken": "..."
+}
+```
+
+- 부가 동작:
+  - refresh cookie 활성화 시 `Set-Cookie` 헤더에 refresh token 추가
 
 ## 에러 처리
 

@@ -29,11 +29,21 @@
 | `auth.jwt.access-seconds` | `900` | access token 만료(초) |
 | `auth.jwt.refresh-seconds` | `1209600` | refresh token 만료(초) |
 
+## `auth.oauth2.*`
+
+| 키 | 기본값 | 설명 |
+| --- | --- | --- |
+| `auth.oauth2.enabled` | `true` | OAuth2 starter 자동 구성 활성화 여부 |
+| `auth.oauth2.authorization-base-uri` | `/oauth2/authorization` | OAuth2 로그인 시작 경로 |
+| `auth.oauth2.login-processing-base-uri` | `/login/oauth2/code/*` | Provider callback 처리 경로 |
+
 ## 최소 설정 예시
 
 ```yaml
 auth:
   refresh-cookie-name: "ADMIN_REFRESH_TOKEN"
+  oauth2:
+    enabled: true
   jwt:
     secret: ${AUTH_JWT_SECRET}
     access-seconds: 3600
@@ -46,6 +56,7 @@ auth:
 - `auth.jwt.secret` 길이가 32바이트 미만이면 앱 시작/토큰 생성 시 예외가 발생할 수 있습니다.
 - `auth.refresh-cookie-secure=true`는 HTTPS 환경에서 사용하는 것이 안전합니다.
 - `auth.refresh-cookie-enabled=false`로 설정하면 refresh는 쿠키가 아닌 다른 방식으로 전달해야 합니다.
+- OAuth2 provider 등록 정보는 `auth.oauth2.*`가 아니라 `spring.security.oauth2.client.*` 에서 설정해야 합니다.
 
 ## refresh 수명 동기화
 

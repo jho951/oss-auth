@@ -32,6 +32,10 @@
 - API 가이드: [docs/api.md](./docs/api.md)
 - 보안 동작: [docs/security.md](./docs/security.md)
 - SPI 확장 가이드: [docs/extension-guide.md](./docs/extension-guide.md)
+- OAuth2 Starter 설계: [docs/oauth2-design.md](./docs/oauth2-design.md)
+- Google OAuth2 빠른 시작: [docs/oauth2-google-quickstart.md](./docs/oauth2-google-quickstart.md)
+- GitHub OAuth2 빠른 시작: [docs/oauth2-github-quickstart.md](./docs/oauth2-github-quickstart.md)
+- Kakao OAuth2 빠른 시작: [docs/oauth2-kakao-quickstart.md](./docs/oauth2-kakao-quickstart.md)
 - 테스트/CI 가이드: [docs/testing-and-ci.md](./docs/testing-and-ci.md)
 - 릴리즈 가이드: [docs/release.md](./docs/release.md)
 - 트러블슈팅: [docs/troubleshooting.md](./docs/troubleshooting.md)
@@ -65,11 +69,11 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.jho951:auth-contract:1.1.3")
-    implementation("io.github.jho951:auth-core:1.1.3")
-    implementation("io.github.jho951:auth-spi:1.1.3")
-    implementation("io.github.jho951:auth-starter:1.1.3")
-    implementation("io.github.jho951:auth-common:1.1.3")
+    implementation("io.github.jho951:auth-contract:1.1.4")
+    implementation("io.github.jho951:auth-core:1.1.4")
+    implementation("io.github.jho951:auth-spi:1.1.4")
+    implementation("io.github.jho951:auth-starter:1.1.4")
+    implementation("io.github.jho951:auth-common:1.1.4")
 }
 ```
 ---
@@ -141,6 +145,17 @@ public class AdminUserFinder implements UserFinder {
 | POST   | `/auth/refresh` | access token 재발급          |
 | POST   | `/auth/logout`  | refresh token 무효화         |
 
+### 6️⃣ OAuth2/OIDC와 함께 사용
+> Google/GitHub/Kakao 같은 Provider 설정은 각 서비스 애플리케이션에서 처리하고, 인증이 끝난 내부 사용자에게 이 모듈이 JWT를 발급하도록 연결합니다.
+
+```java
+Principal principal = new Principal(user.getId(), user.getRoles());
+Tokens tokens = authService.login(principal);
+```
+
+`starter`에 `spring-boot-starter-oauth2-client`가 함께 있고 `OAuth2PrincipalResolver` 빈을 제공하면,
+이 모듈은 OAuth2 로그인 성공 후 `{"accessToken":"..."}` JSON 응답과 refresh cookie 작성까지 자동 처리합니다.
+
 
 
 
@@ -185,16 +200,16 @@ SecurityFilterChain filterChain(HttpSecurity http,
 >릴리즈는 명확한 책임 분리를 원칙으로 합니다.
 
 * 버전은 루트 `build.gradle`의 `version`에서 관리합니다.
-* 태그(`v1.1.3`)는 직접 생성합니다. ***(현재 `v1.1.3`)***
+* 태그(`v1.1.4`)는 직접 생성합니다. ***(현재 `v1.1.4`)***
 * CI는 태그가 `push` 될 때만 `publish`를 수행합니다.
 
 ### 릴리즈 절차
 ```bash
 git add -A                            
-git commit -m "release: v1.1.3"
-git tag -a v1.1.3 -m "release: v1.1.3"
+git commit -m "release: v1.1.4"
+git tag -a v1.1.4 -m "release: v1.1.4"
 git push origin main           
-git push origin v1.1.3
+git push origin v1.1.4
 ```
 
 ## 📄 License

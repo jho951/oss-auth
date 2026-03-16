@@ -5,6 +5,7 @@ dependencies {
     compileOnly "org.springframework.boot:spring-boot-autoconfigure:${springBootVersion}"
     compileOnly "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
     compileOnly "org.springframework.boot:spring-boot-starter-security:${springBootVersion}"
+    compileOnly "org.springframework.boot:spring-boot-starter-oauth2-client:${springBootVersion}"
 
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor:${springBootVersion}"
 
@@ -13,4 +14,7 @@ dependencies {
     runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwtVersion}"
 
     testImplementation "org.springframework.boot:spring-boot-starter-web:${springBootVersion}"
+    testImplementation "org.springframework.boot:spring-boot-starter-security:${springBootVersion}"
+    testImplementation "org.springframework.boot:spring-boot-starter-oauth2-client:${springBootVersion}"
+    testImplementation "org.springframework.boot:spring-boot-starter-test:${springBootVersion}"
 }

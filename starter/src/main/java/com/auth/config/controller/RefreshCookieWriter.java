@@ -6,7 +6,6 @@ import org.springframework.http.ResponseEntity;
 
 import com.auth.api.model.Tokens;
 import com.auth.config.AuthProperties;
-import com.auth.config.dto.LoginResponse;
 import com.auth.config.jwt.AuthJwtProperties;
 
 /**
@@ -22,7 +21,7 @@ public class RefreshCookieWriter {
 		this.jwtProps = jwtProps;
 	}
 
-	public ResponseEntity<LoginResponse> write(Tokens tokens, ResponseEntity<LoginResponse> base) {
+	public <T> ResponseEntity<T> write(Tokens tokens, ResponseEntity<T> base) {
 		if (!props.isRefreshCookieEnabled()) return base;
 
 		ResponseCookie cookie = ResponseCookie.from(props.getRefreshCookieName(), tokens.getRefreshToken())

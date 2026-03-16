@@ -9,6 +9,10 @@
 3. [설정 레퍼런스](./configuration.md)
 4. [API 가이드](./api.md)
 5. [SPI 확장 가이드](./extension-guide.md)
+6. [OAuth2 Starter 설계](./oauth2-design.md)
+7. [Google OAuth2 빠른 시작](./oauth2-google-quickstart.md)
+8. [GitHub OAuth2 빠른 시작](./oauth2-github-quickstart.md)
+9. [Kakao OAuth2 빠른 시작](./oauth2-kakao-quickstart.md)
 
 ## 문서 목록
 
@@ -18,6 +22,10 @@
 - [API 가이드](./api.md)
 - [보안 동작](./security.md)
 - [SPI 확장 가이드](./extension-guide.md)
+- [OAuth2 Starter 설계](./oauth2-design.md)
+- [Google OAuth2 빠른 시작](./oauth2-google-quickstart.md)
+- [GitHub OAuth2 빠른 시작](./oauth2-github-quickstart.md)
+- [Kakao OAuth2 빠른 시작](./oauth2-kakao-quickstart.md)
 - [테스트/CI 가이드](./testing-and-ci.md)
 - [릴리즈 가이드](./release.md)
 - [트러블슈팅](./troubleshooting.md)
