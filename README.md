@@ -200,13 +200,13 @@ AuthService authService = new AuthService(
 
 
 ## 🔐 GitHub Actions Environment
-> 배포(`publish`) 시에만 Maven Central 인증/서명 정보가 필요합니다.
+> 배포(`publish`) 시에만 Central Portal 인증/서명 정보가 필요합니다.
 
-- `MAVEN_CENTRAL_USERNAME`
-- `MAVEN_CENTRAL_PASSWORD`
+- `MAVEN_CENTRAL_USERNAME` - Central Portal user token username
+- `MAVEN_CENTRAL_PASSWORD` - Central Portal user token password
 - `MAVEN_CENTRAL_GPG_PRIVATE_KEY`
 - `MAVEN_CENTRAL_GPG_PASSPHRASE`
-- `MAVEN_CENTRAL_NAMESPACE` (예: `io.github.jho951`)
+- `MAVEN_CENTRAL_NAMESPACE` (예: `io.github.jho951`, 자동 publish 시 필요)
 
 ---
 
@@ -241,7 +241,7 @@ SecurityFilterChain filterChain(HttpSecurity http,
 
 * 버전은 루트 `build.gradle`의 `version`에서 관리합니다.
 * 태그(`v1.1.4`)는 직접 생성합니다. ***(현재 `v1.1.4`)***
-* CI는 태그가 `push` 될 때만 `publish`를 수행합니다.
+* CI는 태그가 `push` 될 때 `publish`를 수행하고, Central Portal에 자동 게시합니다.
 
 ### 릴리즈 절차
 ```bash

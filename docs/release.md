@@ -2,7 +2,7 @@
 
 ## 현재 퍼블리싱 구조
 
-루트 `build.gradle`은 각 서브프로젝트를 Maven Central에 publish 하도록 설정합니다.
+루트 `build.gradle`은 각 서브프로젝트를 Central Portal 경유 Maven Central publish 경로로 연결합니다.
 현재 artifactId는 `project.name`을 그대로 사용합니다.
 
 예:
@@ -21,11 +21,11 @@
 
 ## 환경 변수 / 시크릿
 
-- `MAVEN_CENTRAL_USERNAME`
-- `MAVEN_CENTRAL_PASSWORD`
+- `MAVEN_CENTRAL_USERNAME` - Central Portal user token username
+- `MAVEN_CENTRAL_PASSWORD` - Central Portal user token password
 - `MAVEN_CENTRAL_GPG_PRIVATE_KEY`
 - `MAVEN_CENTRAL_GPG_PASSPHRASE`
-- `MAVEN_CENTRAL_NAMESPACE` (선택, finalize 단계에서 사용)
+- `MAVEN_CENTRAL_NAMESPACE` (선택, 자동 publish 단계에서 사용)
 
 ## 릴리즈 절차 예시
 

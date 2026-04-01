@@ -50,7 +50,7 @@
 - 수행:
   1. `./gradlew clean build`
   2. `./gradlew publish`
-  3. 조건부로 Central Portal finalize 호출
+  3. 조건부로 Central Portal에 `publishing_type=automatic`으로 업로드 및 게시
 
 ### `discord-pr-notify.yml`
 

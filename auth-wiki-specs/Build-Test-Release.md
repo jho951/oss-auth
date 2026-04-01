@@ -45,8 +45,7 @@
 - `MAVEN_CENTRAL_PASSWORD`
 - `MAVEN_CENTRAL_GPG_PRIVATE_KEY`
 - `MAVEN_CENTRAL_GPG_PASSPHRASE`
-
-하위 호환으로 `OSSRH_USERNAME`, `OSSRH_PASSWORD` 도 읽습니다.
+- `MAVEN_CENTRAL_NAMESPACE` (자동 publish 시 필요)
 
 ---
 
@@ -93,7 +92,7 @@
 3. 위키 문서 최신화
 4. 샘플 애플리케이션 실행 검증
 5. 태그 생성
-6. Maven Central publish
+6. Central Portal 자동 publish
 
 ---
 
