@@ -19,7 +19,7 @@
 
 - Git tag `v*` push
 - 또는 `workflow_dispatch`
-- 현재 릴리스 예시: `v5.0.0`
+- 현재 릴리스 예시: `v1.0`
 
 ## 환경 변수 / 시크릿
 
@@ -33,10 +33,10 @@
 
 ```bash
 git add -A
-git commit -m "release: v5.0.0"
-git tag -a v5.0.0 -m "release: v5.0.0"
+git commit -m "release: v1.0"
+git tag -a v1.0 -m "release: v1.0"
 git push origin main
-git push origin v5.0.0
+git push origin v1.0
 ```
 
 ## 주의사항

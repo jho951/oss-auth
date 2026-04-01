@@ -21,7 +21,7 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.jho951:auth-spring-boot-starter:5.0.0")
+    implementation("io.github.jho951:auth-spring-boot-starter:1.0.0")
 }
 ```
 
@@ -41,7 +41,7 @@ flowchart LR
     P --> D[Downstream authorization]
 ```
 
-현재 릴리스 기준 버전은 `5.0.0`입니다.
+현재 릴리스 기준 버전은 `1.0.0`입니다.
 
 ## 🚀 목표
 
@@ -126,8 +126,8 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.jho951:auth-core:5.0.0")
-    implementation("io.github.jho951:auth-spring-boot-starter:5.0.0")
+    implementation("io.github.jho951:auth-core:1.0.0")
+    implementation("io.github.jho951:auth-spring-boot-starter:1.0.0")
 }
 ```
 
@@ -277,16 +277,16 @@ SecurityFilterChain filterChain(HttpSecurity http,
 > 릴리즈는 명확한 책임 분리를 원칙으로 합니다.
 
 * 버전은 루트 `build.gradle`의 `version`에서 관리합니다.
-* 태그(`v5.0.0`)는 직접 생성합니다. ***(현재 `v5.0.0`)***
+* 태그(`v1.0`)는 직접 생성합니다. ***(현재 `v1.0`)***
 * CI는 태그가 `push` 될 때 `publish`를 수행하고, Central Portal에 자동 게시합니다.
 
 ### 릴리즈 절차
 ```bash
 git add -A
-git commit -m "release: v5.0.0"
-git tag -a v5.0.0 -m "release: v5.0.0"
+git commit -m "release: v1.0"
+git tag -a v1.0 -m "release: v1.0"
 git push origin main
-git push origin v5.0.0
+git push origin v1.0
 ```
 
 ## 📄 License

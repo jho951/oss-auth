@@ -1,3 +1,6 @@
+# AGENTS.md instructions for /Users/jhons/Downloads/BE/module/auth
+
+<INSTRUCTIONS>
 # Architecture boundary: auth vs authorization
 
 ## Core principle
@@ -38,3 +41,4 @@ This repository implements authentication infrastructure, not authorization poli
 ## Design rule
 Authentication modules supply identity and security metadata.
 Authorization is evaluated in a separate permission layer or domain service.
+</INSTRUCTIONS>
