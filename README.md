@@ -1,9 +1,54 @@
+## Auth OSS
+
+[![Build](https://github.com/jho951/auth/actions/workflows/build.yml/badge.svg)](https://github.com/jho951/auth/actions/workflows/build.yml)
+[![Publish](https://github.com/jho951/auth/actions/workflows/publish.yml/badge.svg)](https://github.com/jho951/auth/actions/workflows/publish.yml)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.jho951/auth-spring-boot-starter?label=maven%20central)](https://central.sonatype.com/search?q=io.github.jho951)
+[![License](https://img.shields.io/github/license/jho951/auth)](./License)
+[![Tag](https://img.shields.io/github/v/tag/jho951/auth)](https://github.com/jho951/auth/tags)
+
+이 저장소는 인증(Authentication) 인프라를 제공하는 OSS auth 레이어입니다.
+
+- JWT, 세션, OAuth2 기반 인증 흐름을 모듈별로 분리
+- Principal 생성과 전달, token/session 검증을 책임
+- roles/scopes/tenantId 같은 인가 메타데이터는 claim/attribute로만 전달
+- 최종 authorization 판단은 downstream 서비스가 담당
+
+### 30초 요약
+
+```gradle
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("io.github.jho951:auth-spring-boot-starter:5.0.0")
+}
+```
+
+```java
+Principal principal = new Principal(user.getId(), user.getRoles());
+Tokens tokens = authService.login(principal);
+```
+
+```mermaid
+flowchart LR
+    U[Application] --> S[auth-spring-boot-starter]
+    S --> H[auth-hybrid]
+    H --> J[JWT verification]
+    H --> C[Session verification]
+    J --> P[Principal]
+    C --> P
+    P --> D[Downstream authorization]
+```
+
+현재 릴리스 기준 버전은 `5.0.0`입니다.
+
 ## 🚀 목표
 
 - 인증 로직을 애플리케이션 코드에서 분리
-- JWT 기반 토큰 인증의 표준화
-- 서비스별 사용자 저장소(DB) 차이를 SPI로 분리
-- 설정(application.yml)만으로 빠른 적용
+- JWT, 세션, OAuth2 기반 인증 흐름을 모듈별로 분리
+- 서비스별 사용자 저장소 차이를 SPI로 분리
+- 설정 `application.yml`과 스타터 의존성만으로 빠르게 적용
 
 ---
 
@@ -15,9 +60,7 @@
 ├─ auth-session
 ├─ auth-hybrid
 ├─ auth-spring
-├─ auth-jwt-spring-boot-starter
-├─ auth-session-spring-boot-starter
-├─ auth-hybrid-spring-boot-starter
+├─ auth-spring-boot-starter
 ├─ samples
 │  ├─ sample-jwt-api
 │  ├─ sample-session-web
@@ -37,9 +80,6 @@
 - SPI 확장 가이드: [docs/extension-guide.md](./docs/extension-guide.md)
 - OAuth2 Starter 설계: [docs/oauth2-design.md](./docs/oauth2-design.md)
 - Redis RefreshTokenStore 가이드: [docs/redis-refresh-token-store.md](./docs/redis-refresh-token-store.md)
-- Google OAuth2 빠른 시작: [docs/oauth2-google-quickstart.md](./docs/oauth2-google-quickstart.md)
-- GitHub OAuth2 빠른 시작: [docs/oauth2-github-quickstart.md](./docs/oauth2-github-quickstart.md)
-- Kakao OAuth2 빠른 시작: [docs/oauth2-kakao-quickstart.md](./docs/oauth2-kakao-quickstart.md)
 - 테스트/CI 가이드: [docs/testing-and-ci.md](./docs/testing-and-ci.md)
 - 릴리즈 가이드: [docs/release.md](./docs/release.md)
 - 트러블슈팅: [docs/troubleshooting.md](./docs/troubleshooting.md)
@@ -48,29 +88,31 @@
 ---
 
 ## 📦 모듈 (Modules)
-> 새로운 레이어드 아키텍처로 구성되며, 책임 중심으로 필요한 부분만 선택하여 사용합니다.
+> 이 저장소는 **OSS auth** 레이어입니다.
+
+OSS auth는 공통 원리, 확장 포인트, 기본 구현, 프레임워크 연동 책임을 제공합니다.
 
 | Module | 설명 |
 | --- | --- |
-| `auth-core` | 모델(`Principal`, `Tokens`, `User`, `OAuth2UserIdentity`), 예외, SPI(`UserFinder`, `TokenService` 등)와 `AuthService`를 제공하며, 권한 메타데이터는 `authorities`/`attributes`로만 전달합니다. |
-| `auth-common-test` | 테스트 픽스처(`AuthTestFixtures`)와 샘플/통합 테스트용 `InMemoryRefreshTokenStore`를 담습니다. |
-| `auth-jwt` | JWT 전용 `TokenService` 구현(`JwtTokenService`)과 관련 유틸을 갖춰 `auth-core` 위에서 동작합니다. |
-| `auth-session` | 세션 저장소/매퍼/추출기 추상(`SessionStore`, `SessionAuthenticationProvider`, `SessionPrincipalMapper`, `SessionCookieExtractor`)과 `SimpleSessionStore`를 제공합니다. |
-| `auth-hybrid` | JWT와 세션을 조합하는 추상(`HybridAuthenticationProvider`, `CompositeAuthenticationProvider`)을 제공합니다. |
-| `auth-spring` | `AuthProperties` 같은 Spring 설정만 제공하는 브리지 모듈로, 구체적 쿠키/필터 구현은 스타터에서 담당합니다. |
-| `auth-jwt-spring-boot-starter` | `AuthAutoConfiguration`, `AuthSecurityAutoConfiguration`, `AuthJwtProperties`로 JWT + Spring 보안 자동 설정을 구성하고, `AuthOncePerRequestFilter`, `RefreshTokenExtractor`, `BCryptPasswordVerifier`, `RefreshTokenStore`(InMemory) 등을 등록합니다. |
-| `auth-session-spring-boot-starter` | `AuthSessionAutoConfiguration`으로 기본 세션 빈(`SessionStore`, `SessionService`, `SessionAuthenticationFilter`)을 제공합니다. |
-| `auth-hybrid-spring-boot-starter` | OAuth2 로그인 + JWT 발급 흐름(`AuthOAuth2AutoConfiguration`, 성공/실패 핸들러, `RefreshCookieWriter`)을 묶고 `auth-jwt-spring-boot-starter`를 의존합니다. |
+| `auth-core` | `Principal`, `Tokens`, `User`, `OAuth2UserIdentity`, `AuthException`, `AuthService`, SPI(`UserFinder`, `TokenService`, `RefreshTokenStore`, `PasswordVerifier`, `OAuth2PrincipalResolver`)를 제공합니다. 권한 메타데이터는 claim/attribute로만 전달합니다. |
+| `auth-common-test` | 테스트 픽스처(`AuthTestFixtures`)와 샘플/통합 테스트용 `InMemoryRefreshTokenStore`를 담는 테스트 전용 모듈입니다. |
+| `auth-jwt` | JWT 토큰 발급/검증 구현(`JwtTokenService`)을 제공합니다. |
+| `auth-session` | 세션 저장소/매퍼/추출기/필터 추상과 기본 구현(`SessionService`, `SimpleSessionStore`, `SessionAuthenticationFilter`)을 제공합니다. |
+| `auth-hybrid` | JWT와 세션을 조합하는 `HybridAuthenticationProvider` 계층과 기본 조합 구현을 제공합니다. |
+| `auth-spring` | `AuthProperties`처럼 Spring 연동에 필요한 공통 설정 바인딩을 제공합니다. |
+| `auth-spring-boot-starter` | JWT, 세션, hybrid, OAuth2 연동용 자동 구성(`AuthAutoConfiguration`, `AuthSecurityAutoConfiguration`, `AuthSessionAutoConfiguration`, `AuthHybridAutoConfiguration`, `AuthHybridCookieAutoConfiguration`, `AuthOAuth2AutoConfiguration`)과 기본 브리지를 제공합니다. |
 | `samples/*` | `sample-jwt-api`, `sample-session-web`, `sample-hybrid-sso`의 데모 앱 |
 | `docs` | 문서 소스와 멀티 모듈 안내 |
 
 ## 🧪 샘플 앱
 
-- `sample-jwt-api`: `/api/login`으로 JWT를 발급하고 `auth-hybrid-spring-boot-starter`가 제공하는 `RefreshCookieWriter`로 쿠키를 내려줍니다. `/api/profile`로 로그인 정보를 확인할 수 있습니다.
-- `sample-session-web`: `/session/login`, `/session/logout`, `/session/me`를 통해 `auth-session` SPI/필터의 흐름을 확인할 수 있습니다.
-- `sample-hybrid-sso`: OAuth2 클라이언트를 설정하면 `/hybrid/me`가 성공 핸들러가 만든 `Principal`을 보여줍니다.
+- `sample-jwt-api`: JWT + refresh cookie의 최소 연결 예시
+- `sample-session-web`: 세션 인증의 최소 연결 예시
+- `sample-hybrid-sso`: OAuth2 연동을 켤 수 있는 최소 hybrid 예시
 
-`auth-session`과 `auth-hybrid`는 이번 단계에서는 의존 뼈대만 확보하고 실제 구현을 확장할 수 있도록 간결하게 유지됩니다.
+`sample-hybrid-sso`는 기본 설정에서 OAuth2 로그인을 비활성화합니다. 실제 Provider 설정을 넣을 때만 `auth.oauth2.enabled=true`와 `spring.security.oauth2.client.*`를 함께 구성하세요.
+
+샘플별 실행 방법은 [docs/samples.md](./docs/samples.md)를 참고하세요.
 
 ---
 
@@ -84,24 +126,20 @@ repositories {
 }
 
 dependencies {
-    implementation("io.github.jho951:auth-core:2.0.5")
-    implementation("io.github.jho951:auth-jwt:2.0.5")
-    implementation("io.github.jho951:auth-spring:2.0.5")
-    implementation("io.github.jho951:auth-jwt-spring-boot-starter:2.0.5")
+    implementation("io.github.jho951:auth-core:5.0.0")
+    implementation("io.github.jho951:auth-spring-boot-starter:5.0.0")
 }
 ```
 
 ### 2️⃣ 스타터 선택
 
-- `auth-jwt-spring-boot-starter`은 일반적인 JWT 시나리오에 필요한 `AuthAutoConfiguration`, `AuthSecurityAutoConfiguration`, `AuthJwtProperties`를 제공합니다. 이 스타터는 `auth-core`, `auth-jwt`, `auth-spring`을 기반으로 동작합니다.
-- 세션 기반 인증을 준비 중이라면 `auth-session-spring-boot-starter`를 추가하고 `auth-session` SPI를 구현하면 됩니다. 현재 버전에서는 `SimpleSessionStore` 같은 얇은 기본 구현만 제공하므로, 필요하다면 자체 구현으로 대체할 수 있습니다.
-- OAuth2 + JWT 하이브리드 경로를 사용하려면 `auth-hybrid-spring-boot-starter`를 사용하세요. `AuthOAuth2AutoConfiguration`, 성공/실패 핸들러, 쿠키/토큰 연결 로직을 묶어서 제공합니다.
-
-`auth-session`과 `auth-hybrid` 모듈은 이번 릴리즈에서 최소한의 인터페이스만 노출하며, 향후 구체 구현을 이곳에 추가할 계획입니다.
+- `auth-spring-boot-starter` 하나만 추가하면 JWT, 세션, hybrid, OAuth2 연동용 자동 구성이 함께 제공됩니다.
+- 필요한 경우 `auth-core`, `auth-jwt`, `auth-session`, `auth-hybrid`, `auth-spring`의 개별 구현체나 SPI를 추가로 조립하면 됩니다.
+- 서비스별 정책은 애플리케이션이 구현해야 하며, 이 저장소는 인증 기술 부품과 범용 starter까지만 책임집니다.
 ---
 
 ### 3️⃣ 공통 유틸 사용
-> `Strings` 같은 유틸리티는 이제 `auth-core`에 머물러 있고, 어디서든 그대로 import 해서 사용하면 됩니다.
+> `Strings` 같은 유틸리티는 `auth-core`에 있습니다.
 
 ```java
 import com.auth.common.utils.Strings;
@@ -115,7 +153,7 @@ TokenService tokenService = Strings.requireNonNull(customTokenService, "tokenSer
 ---
 
 ### 4️⃣ application.yml 설정
-- `auth-jwt-spring-boot-starter`가 `auth.jwt.secret`을 감지하면 기본 `TokenService`, `RefreshTokenExtractor`, `BCryptPasswordVerifier`, `RefreshTokenStore`(auth-common-test의 InMemory) 등을 자동 등록합니다. 쿠키 기반 refresh가 필요하면 동시에 `auth-hybrid-spring-boot-starter`를 추가하여 `RefreshCookieWriter`도 함께 등록하세요.
+- `auth-spring-boot-starter`가 `auth.jwt.secret`을 감지하면 기본 `TokenService`, `RefreshTokenExtractor`, `BCryptPasswordVerifier`, `RefreshTokenStore`(기본은 `auth-common-test`의 in-memory 구현) 등을 자동 등록합니다. 쿠키 기반 refresh, 세션 인증, OAuth2 성공 후 처리도 같은 starter 안에서 연결할 수 있습니다.
 
 ```yml
 auth:
@@ -158,13 +196,12 @@ public class AdminUserFinder implements UserFinder {
 }
 ```
 
-`auth-jwt-spring-boot-starter`는 구성 계층이고, JWT 기반 `TokenService`, `PasswordVerifier`, `RefreshTokenStore` 구현은 `auth-jwt`/`auth-core`에서 제공됩니다.
-
-운영 환경에서 중앙 Redis를 사용한다면, Redis 연결과 `RefreshTokenStore` 구현은 인증 서버 애플리케이션이 직접 제공하는 것을 권장합니다.
+`auth-spring-boot-starter`는 구성 계층이고, JWT 기반 `TokenService` 구현은 `auth-jwt`에서 제공합니다.
+운영 환경에서 중앙 Redis를 사용한다면, `RefreshTokenStore` 구현은 인증 서버 애플리케이션이 직접 제공하는 것을 권장합니다.
 
 ### 6️⃣ 애플리케이션에서 API 구성
 - 이 모듈은 기본 로그인/재발급/로그아웃 컨트롤러를 제공하지 않습니다.
-- 서비스 애플리케이션이 `AuthService`와 `RefreshTokenExtractor`로 API를 구성하며, 쿠키 기반 refresh가 필요할 때는 `auth-hybrid-spring-boot-starter`를 함께 도입해 `RefreshCookieWriter`를 활용합니다.
+- 서비스 애플리케이션이 `AuthService`, `RefreshTokenExtractor`, `RefreshCookieWriter`로 API를 구성합니다.
 
 ### 7️⃣ OAuth2/OIDC와 함께 사용
 > Google/GitHub/Kakao 같은 Provider 설정은 각 서비스 애플리케이션에서 처리하고, 인증이 끝난 내부 사용자에게 이 모듈이 JWT를 발급하도록 연결합니다.
@@ -176,8 +213,8 @@ Tokens tokens = authService.login(principal);
 
 > `Principal`이 노출하는 `getAuthorities()`/`getAttributes()`는 권한 선택지에 대한 메타데이터일 뿐이며, 실제 `roles`/`scopes` 판단은 downstream 구성(예: Spring Security의 `GrantedAuthority`)에서 처리해야 합니다.
 
-`auth-hybrid-spring-boot-starter`에는 `spring-boot-starter-oauth2-client`가 포함되어 있으며 `OAuth2PrincipalResolver`를 제공하면,
-이 모듈은 OAuth2 로그인 성공 후 `{"accessToken":"..."}` JSON 응답과 refresh cookie 작성까지 자동 처리합니다.
+`auth-spring-boot-starter`는 `spring-boot-starter-oauth2-client`와 함께 사용하며 `OAuth2PrincipalResolver`를 제공하면,
+OAuth2 로그인 성공 후 `{"accessToken":"..."}` JSON 응답과 refresh cookie 작성까지 자동 처리합니다.
 
 ### 8️⃣ 순수 Java 사용
 > 이 모듈은 Spring Boot 없이도 사용할 수 있습니다.
@@ -219,7 +256,7 @@ AuthService authService = new AuthService(
 ---
 
 ### 🔐 Security Integration
-> AuthOncePerRequestFilter가 자동으로 빈으로 등록됩니다.
+> `AuthOncePerRequestFilter`가 자동으로 빈으로 등록됩니다.
 
 ```java
 @Bean
@@ -237,20 +274,20 @@ SecurityFilterChain filterChain(HttpSecurity http,
 ```
 
 ## 🏷 Release Policy
->릴리즈는 명확한 책임 분리를 원칙으로 합니다.
+> 릴리즈는 명확한 책임 분리를 원칙으로 합니다.
 
 * 버전은 루트 `build.gradle`의 `version`에서 관리합니다.
-* 태그(`v1.1.4`)는 직접 생성합니다. ***(현재 `v1.1.4`)***
+* 태그(`v5.0.0`)는 직접 생성합니다. ***(현재 `v5.0.0`)***
 * CI는 태그가 `push` 될 때 `publish`를 수행하고, Central Portal에 자동 게시합니다.
 
 ### 릴리즈 절차
 ```bash
-git add -A                            
-git commit -m "release: v1.1.4"
-git tag -a v1.1.4 -m "release: v1.1.4"
-git push origin main           
-git push origin v1.1.4
+git add -A
+git commit -m "release: v5.0.0"
+git tag -a v5.0.0 -m "release: v5.0.0"
+git push origin main
+git push origin v5.0.0
 ```
 
 ## 📄 License
-> [MIT LICENSE](./License)
+> [Apache License 2.0](./License)

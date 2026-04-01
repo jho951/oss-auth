@@ -7,17 +7,19 @@
 
 예:
 
-- `io.github.jho951:contract:<version>`
-- `io.github.jho951:spi:<version>`
-- `io.github.jho951:common:<version>`
-- `io.github.jho951:core:<version>`
-- `io.github.jho951:support:<version>`
-- `io.github.jho951:boot-support:<version>`
+- `io.github.jho951:auth-core:<version>`
+- `io.github.jho951:auth-common-test:<version>`
+- `io.github.jho951:auth-jwt:<version>`
+- `io.github.jho951:auth-session:<version>`
+- `io.github.jho951:auth-hybrid:<version>`
+- `io.github.jho951:auth-spring:<version>`
+- `io.github.jho951:auth-spring-boot-starter:<version>`
 
 ## 트리거
 
 - Git tag `v*` push
 - 또는 `workflow_dispatch`
+- 현재 릴리스 예시: `v5.0.0`
 
 ## 환경 변수 / 시크릿
 
@@ -31,14 +33,13 @@
 
 ```bash
 git add -A
-git commit -m "release: vX.Y.Z"
-git tag -a vX.Y.Z -m "release: vX.Y.Z"
+git commit -m "release: v5.0.0"
+git tag -a v5.0.0 -m "release: v5.0.0"
 git push origin main
-git push origin vX.Y.Z
+git push origin v5.0.0
 ```
 
 ## 주의사항
 
-- 현재 아카이브에는 `grade.properties`라는 파일명이 보일 수 있습니다. Gradle의 일반적인 자동 로드 파일명은 `gradle.properties`입니다.
-- 실제 배포 파이프라인에서 property 파일을 사용한다면 파일명 정합성을 먼저 확인하는 것이 좋습니다.
-- 문서에서 목표 구조 artifact(`auth-core`, `auth-jwt-spring-boot-starter` 등)를 언급하더라도, 현재 퍼블리싱 좌표와 혼동하면 안 됩니다.
+- 문서에서 `auth-core`, `auth-spring-boot-starter` 같은 좌표를 언급할 때는 현재 퍼블리싱 좌표와 혼동하면 안 됩니다.
+- 현재 publish는 `artifactId = project.name` 규칙을 따릅니다.

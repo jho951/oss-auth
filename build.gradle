@@ -12,11 +12,11 @@ subprojects {
     apply plugin: "maven-publish"
     apply plugin: "signing"
 
-    def jVersion = (findProperty("java_version") ?: "17").toString().trim() as Integer
-    def springVer = (findProperty("springBoot_version") ?: "3.3.0").toString().trim()
-    def jjwtVer = (findProperty("jjwt_version") ?: "0.12.6").toString().trim()
-    def junitVer = (findProperty("junit_version") ?: "5.10.0").toString().trim()
-    def encoding = (findProperty('encoding_method') ?: 'UTF-8').toString()
+    def jVersion = findProperty("java_version").toString().trim() as Integer
+    def springVer = findProperty("spring_boot_version").toString().trim()
+    def jjwtVer = findProperty("jjwt_version").toString().trim()
+    def junitVer = findProperty("junit_version").toString().trim()
+    def encoding = findProperty("encoding").toString().trim()
 
     def normalizeSigningKey = { raw ->
         def text = (raw ?: "").toString().trim()
@@ -35,6 +35,47 @@ subprojects {
         jjwtVersion = jjwtVer
     }
 
+    def pomMetadataByProject = [
+            "auth-core": [
+                    name       : "Auth Core",
+                    description: "Core authentication primitives, identity models, and SPI contracts for JWT and session-based auth flows."
+            ],
+            "auth-common-test": [
+                    name       : "Auth Common Test Fixtures",
+                    description: "Reusable test fixtures and helpers for the auth modules."
+            ],
+            "auth-jwt": [
+                    name       : "Auth JWT",
+                    description: "JWT token issuance and verification implementation for the auth stack."
+            ],
+            "auth-session": [
+                    name       : "Auth Session",
+                    description: "Session authentication primitives, stores, and filters for auth flows."
+            ],
+            "auth-hybrid": [
+                    name       : "Hybrid Auth Core",
+                    description: "Hybrid authentication strategies that compose JWT and session verification."
+            ],
+            "auth-spring": [
+                    name       : "Auth Spring Support",
+                    description: "Spring integration support and configuration properties for the auth stack."
+            ],
+            "auth-spring-boot-starter": [
+                    name       : "Auth Spring Boot Starter",
+                    description: "Spring Boot auto-configuration for JWT, session, hybrid, and OAuth2 authentication flows."
+            ],
+    ]
+
+    def fallbackProjectName = project.name
+            .replace('-', ' ')
+            .split(' ')
+            .collect { part -> part.capitalize() }
+            .join(' ')
+    def pomMetadata = pomMetadataByProject.get(project.name, [
+            name       : fallbackProjectName,
+            description: "Authentication module for the auth multi-module repository."
+    ])
+
     java {
         toolchain {
             languageVersion = JavaLanguageVersion.of(jVersion)
@@ -45,7 +86,7 @@ subprojects {
 
     tasks.withType(JavaCompile).configureEach {
         options.release.set(jVersion)
-        options.encoding = findProperty("encoding_method")
+        options.encoding = encoding
     }
     tasks.withType(Javadoc).configureEach {
         options.addStringOption("Xdoclint:none", "-quiet")
@@ -97,19 +138,21 @@ subprojects {
                 version = project.version.toString()
 
                 pom {
-                    name = "auth-${project.name}"
-                    description = "jho951 auth module: ${project.name}"
+                    name = pomMetadata.name
+                    description = pomMetadata.description
                     url = "https://github.com/jho951/auth"
                     licenses {
                         license {
-                            name = "MIT License"
-                            url = "https://opensource.org/licenses/MIT"
+                            name = "The Apache License, Version 2.0"
+                            url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
                         }
                     }
                     developers {
                         developer {
                             id = "jho951"
-                            name = "jho951"
+                            name = "YJH (jho951)"
+                            email = "jho951@naver.com"
+                            url = "https://github.com/jho951"
                         }
                     }
                     scm {
