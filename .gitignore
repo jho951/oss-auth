@@ -1,55 +1,47 @@
+# System
+.DS_Store
+Thumbs.db
+ehthumbs.db
+*.swp
 
-  # System
-  .DS_Store
-  Thumbs.db
-  ehthumbs.db
-  *.swp
+# Java
+*.class
+*.log
 
-  # Java
-  *.class
-  *.log
+# Gradle
+.gradle/
+.gradle-local/
+build/
+**/build/
+*.kotlin_module
+*.lck
 
-  # Gradle
-  .gradle/
-  .gradle-local/
-  build/
-  **/build/
-  **/build/reports/
-  **/build/test-results/
-  **/build/tmp/
-  **/build/classes/
-  **/build/generated/
-  *.kotlin_module
-  *.lck
+# Secrets
+.env*
+.envrc
+docker/.generated
+*.key
+*.pem
+*.p12
 
-  # Secret
-  .env*
-  .envrc
-  docker/.generated
-  *.key
-  *.pem
-  *.p12
+# IntelliJ
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
 
-  # IntelliJ
-  .idea/
-  *.iws
-  *.iml
-  *.ipr
-  out/
+# Eclipse / editor leftovers
+*.tmp
+*.orig
+.project
+.settings/
 
-  # Data
-  data/
+# Data
+data/
 
-  # Logs / runtime
-  *.pid
-  *.seed
-  *.out
-  *.err
-
-  # Docs or helpers
-  HELP.md
-  .gitattributes
-
-  # Gradle Wrapper
-  !gradle/wrapper/gradle-wrapper.jar
-  !gradle/wrapper/gradle-wrapper.properties
+# Logs / runtime
+*.pid
+*.seed
+*.out
+*.err
