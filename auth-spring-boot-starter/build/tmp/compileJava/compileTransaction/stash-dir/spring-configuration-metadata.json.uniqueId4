@@ -1,0 +1,42 @@
+{
+  "groups": [
+    {
+      "name": "auth.jwt",
+      "type": "com.auth.config.jwt.AuthJwtProperties",
+      "sourceType": "com.auth.config.jwt.AuthJwtProperties"
+    },
+    {
+      "name": "auth.session",
+      "type": "com.auth.session.config.AuthSessionProperties",
+      "sourceType": "com.auth.session.config.AuthSessionProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "auth.jwt.access-seconds",
+      "type": "java.lang.Long",
+      "sourceType": "com.auth.config.jwt.AuthJwtProperties"
+    },
+    {
+      "name": "auth.jwt.refresh-seconds",
+      "type": "java.lang.Long",
+      "sourceType": "com.auth.config.jwt.AuthJwtProperties"
+    },
+    {
+      "name": "auth.jwt.secret",
+      "type": "java.lang.String",
+      "sourceType": "com.auth.config.jwt.AuthJwtProperties"
+    },
+    {
+      "name": "auth.session.cookie-name",
+      "type": "java.lang.String",
+      "sourceType": "com.auth.session.config.AuthSessionProperties"
+    },
+    {
+      "name": "auth.session.ttl",
+      "type": "java.time.Duration",
+      "sourceType": "com.auth.session.config.AuthSessionProperties"
+    }
+  ],
+  "hints": []
+}

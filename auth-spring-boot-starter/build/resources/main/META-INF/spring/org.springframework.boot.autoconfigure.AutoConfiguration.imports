@@ -1,0 +1,6 @@
+com.auth.config.AuthAutoConfiguration
+com.auth.config.security.AuthSecurityAutoConfiguration
+com.auth.session.config.AuthSessionAutoConfiguration
+com.auth.config.hybrid.AuthHybridAutoConfiguration
+com.auth.config.hybrid.AuthHybridCookieAutoConfiguration
+com.auth.config.oauth.AuthOAuth2AutoConfiguration

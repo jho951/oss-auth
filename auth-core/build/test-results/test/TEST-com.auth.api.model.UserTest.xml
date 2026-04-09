@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.auth.api.model.UserTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-04-07T15:58:08.723Z" hostname="jhonui-MacBookPro-2.local" time="0.003">
+  <properties/>
+  <testcase name="User 객체 생성 시 필드 값이 올바르게 할당된다." classname="com.auth.api.model.UserTest" time="0.001"/>
+  <testcase name="필수 필드(userId, username, passwordHash)가 비어있으면 IllegalArgumentException이 발생한다." classname="com.auth.api.model.UserTest" time="0.001"/>
+  <testcase name="userId가 같으면 같은 객체로 판단한다 (equals/hashCode)." classname="com.auth.api.model.UserTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

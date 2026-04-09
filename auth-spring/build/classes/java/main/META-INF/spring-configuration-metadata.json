@@ -1,0 +1,84 @@
+{
+  "groups": [
+    {
+      "name": "auth",
+      "type": "com.auth.config.AuthProperties",
+      "sourceType": "com.auth.config.AuthProperties"
+    },
+    {
+      "name": "auth.oauth2",
+      "type": "com.auth.config.AuthProperties$OAuth2",
+      "sourceType": "com.auth.config.AuthProperties",
+      "sourceMethod": "getOauth2()"
+    }
+  ],
+  "properties": [
+    {
+      "name": "auth.auto-security",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.auth.config.AuthProperties",
+      "defaultValue": true
+    },
+    {
+      "name": "auth.bearer-prefix",
+      "type": "java.lang.String",
+      "sourceType": "com.auth.config.AuthProperties",
+      "defaultValue": "Bearer "
+    },
+    {
+      "name": "auth.oauth2.authorization-base-uri",
+      "type": "java.lang.String",
+      "sourceType": "com.auth.config.AuthProperties$OAuth2",
+      "defaultValue": "\/oauth2\/authorization"
+    },
+    {
+      "name": "auth.oauth2.enabled",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.auth.config.AuthProperties$OAuth2",
+      "defaultValue": true
+    },
+    {
+      "name": "auth.oauth2.login-processing-base-uri",
+      "type": "java.lang.String",
+      "sourceType": "com.auth.config.AuthProperties$OAuth2",
+      "defaultValue": "\/login\/oauth2\/code\/*"
+    },
+    {
+      "name": "auth.refresh-cookie-enabled",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.auth.config.AuthProperties",
+      "defaultValue": true
+    },
+    {
+      "name": "auth.refresh-cookie-http-only",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.auth.config.AuthProperties",
+      "defaultValue": true
+    },
+    {
+      "name": "auth.refresh-cookie-name",
+      "type": "java.lang.String",
+      "sourceType": "com.auth.config.AuthProperties",
+      "defaultValue": "refresh_token"
+    },
+    {
+      "name": "auth.refresh-cookie-path",
+      "type": "java.lang.String",
+      "sourceType": "com.auth.config.AuthProperties",
+      "defaultValue": "\/"
+    },
+    {
+      "name": "auth.refresh-cookie-same-site",
+      "type": "java.lang.String",
+      "sourceType": "com.auth.config.AuthProperties",
+      "defaultValue": "Lax"
+    },
+    {
+      "name": "auth.refresh-cookie-secure",
+      "type": "java.lang.Boolean",
+      "sourceType": "com.auth.config.AuthProperties",
+      "defaultValue": true
+    }
+  ],
+  "hints": []
+}

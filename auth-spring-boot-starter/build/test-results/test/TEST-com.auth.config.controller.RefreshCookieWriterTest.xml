@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.auth.config.controller.RefreshCookieWriterTest" tests="4" skipped="0" failures="0" errors="0" timestamp="2026-04-09T01:31:02.049Z" hostname="jhonui-MacBookPro-2.local" time="0.052">
+  <properties/>
+  <testcase name="refresh cookie가 비활성화면 write는 기존 응답을 그대로 반환한다." classname="com.auth.config.controller.RefreshCookieWriterTest" time="0.034"/>
+  <testcase name="refresh cookie가 활성화면 write는 Set-Cookie 헤더를 추가하고 상태/바디를 유지한다." classname="com.auth.config.controller.RefreshCookieWriterTest" time="0.015"/>
+  <testcase name="refresh cookie가 비활성화면 clear는 기존 응답을 그대로 반환한다." classname="com.auth.config.controller.RefreshCookieWriterTest" time="0.001"/>
+  <testcase name="refresh cookie가 활성화면 clear는 만료 쿠키를 설정한다." classname="com.auth.config.controller.RefreshCookieWriterTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

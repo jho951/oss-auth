@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.auth.support.jwt.JwtTokenServiceTest" tests="6" skipped="0" failures="0" errors="0" timestamp="2026-04-07T15:58:09.607Z" hostname="jhonui-MacBookPro-2.local" time="0.144">
+  <properties/>
+  <testcase name="issueAccessToken_RoundsTripRolesAndAttributes()" classname="com.auth.support.jwt.JwtTokenServiceTest" time="0.133"/>
+  <testcase name="verifyRefreshToken_PrefersAuthoritiesOverRolesClaim()" classname="com.auth.support.jwt.JwtTokenServiceTest" time="0.002"/>
+  <testcase name="verifyAccessToken_PrefersAuthoritiesOverRolesClaim()" classname="com.auth.support.jwt.JwtTokenServiceTest" time="0.002"/>
+  <testcase name="verifyAccessToken_FallsBackToRolesClaimWhenAuthoritiesMissing()" classname="com.auth.support.jwt.JwtTokenServiceTest" time="0.002"/>
+  <testcase name="issueAccessToken_WritesAuthoritiesAndRolesClaims()" classname="com.auth.support.jwt.JwtTokenServiceTest" time="0.002"/>
+  <testcase name="accessTokenWithoutRolesReturnsEmptyList()" classname="com.auth.support.jwt.JwtTokenServiceTest" time="0.002"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

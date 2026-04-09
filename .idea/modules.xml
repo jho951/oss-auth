@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth.iml" filepath="$PROJECT_DIR$/.idea/modules/auth.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-common-test/auth.auth-common-test.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-common-test/auth.auth-common-test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-common-test/auth.auth-common-test.main.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-common-test/auth.auth-common-test.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-common-test/auth.auth-common-test.test.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-common-test/auth.auth-common-test.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-core/auth.auth-core.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-core/auth.auth-core.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-core/auth.auth-core.main.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-core/auth.auth-core.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-core/auth.auth-core.test.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-core/auth.auth-core.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-hybrid/auth.auth-hybrid.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-hybrid/auth.auth-hybrid.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-hybrid/auth.auth-hybrid.main.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-hybrid/auth.auth-hybrid.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-hybrid/auth.auth-hybrid.test.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-hybrid/auth.auth-hybrid.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-jwt/auth.auth-jwt.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-jwt/auth.auth-jwt.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-jwt/auth.auth-jwt.main.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-jwt/auth.auth-jwt.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-jwt/auth.auth-jwt.test.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-jwt/auth.auth-jwt.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-session/auth.auth-session.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-session/auth.auth-session.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-session/auth.auth-session.main.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-session/auth.auth-session.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-session/auth.auth-session.test.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-session/auth.auth-session.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-spring/auth.auth-spring.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-spring/auth.auth-spring.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-spring-boot-starter/auth.auth-spring-boot-starter.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-spring-boot-starter/auth.auth-spring-boot-starter.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-spring-boot-starter/auth.auth-spring-boot-starter.main.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-spring-boot-starter/auth.auth-spring-boot-starter.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-spring-boot-starter/auth.auth-spring-boot-starter.test.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-spring-boot-starter/auth.auth-spring-boot-starter.test.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-spring/auth.auth-spring.main.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-spring/auth.auth-spring.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/auth-spring/auth.auth-spring.test.iml" filepath="$PROJECT_DIR$/.idea/modules/auth-spring/auth.auth-spring.test.iml" />
+    </modules>
+  </component>
+</project>

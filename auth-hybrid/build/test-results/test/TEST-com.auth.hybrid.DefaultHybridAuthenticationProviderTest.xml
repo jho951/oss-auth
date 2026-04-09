@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.auth.hybrid.DefaultHybridAuthenticationProviderTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-04-07T15:58:09.213Z" hostname="jhonui-MacBookPro-2.local" time="0.027">
+  <properties/>
+  <testcase name="JWT가 불량이면 세션으로 폴백한다" classname="com.auth.hybrid.DefaultHybridAuthenticationProviderTest" time="0.025"/>
+  <testcase name="접근 토큰이 유효하면 세션보다 우선해서 반환한다" classname="com.auth.hybrid.DefaultHybridAuthenticationProviderTest" time="0.0"/>
+  <testcase name="JWT가 없으면 세션 인증으로 대체한다" classname="com.auth.hybrid.DefaultHybridAuthenticationProviderTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

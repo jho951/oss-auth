@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module external.linked.project.id=":auth-hybrid:main" external.linked.project.path="$MODULE_DIR$/../../../auth-hybrid" external.root.project.path="$MODULE_DIR$/../../.." external.system.id="GRADLE" external.system.module.group="io.github.jho951" external.system.module.type="sourceSet" external.system.module.version="1.0.1" type="JAVA_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <output url="file://$MODULE_DIR$/../../../auth-hybrid/build/classes/java/main" />
+    <exclude-output />
+    <content url="file://$MODULE_DIR$/../../../auth-hybrid/src/main">
+      <sourceFolder url="file://$MODULE_DIR$/../../../auth-hybrid/src/main/java" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module" module-name="auth.auth-session.main" />
+    <orderEntry type="module" module-name="auth.auth-jwt.main" />
+    <orderEntry type="module" module-name="auth.auth-core.main" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: io.jsonwebtoken:jjwt-impl:0.11.5" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: io.jsonwebtoken:jjwt-jackson:0.11.5" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: io.jsonwebtoken:jjwt-api:0.11.5" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: com.fasterxml.jackson.core:jackson-databind:2.12.6.1" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: com.fasterxml.jackson.core:jackson-annotations:2.12.6" level="project" />
+    <orderEntry type="library" scope="RUNTIME" name="Gradle: com.fasterxml.jackson.core:jackson-core:2.12.6" level="project" />
+  </component>
+</module>

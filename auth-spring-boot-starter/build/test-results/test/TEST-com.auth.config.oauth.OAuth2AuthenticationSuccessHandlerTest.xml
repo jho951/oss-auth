@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.auth.config.oauth.OAuth2AuthenticationSuccessHandlerTest" tests="1" skipped="0" failures="0" errors="0" timestamp="2026-04-09T01:31:02.103Z" hostname="jhonui-MacBookPro-2.local" time="0.051">
+  <properties/>
+  <testcase name="OAuth2 로그인 성공 시 JWT 응답과 refresh 쿠키를 반환한다." classname="com.auth.config.oauth.OAuth2AuthenticationSuccessHandlerTest" time="0.051"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

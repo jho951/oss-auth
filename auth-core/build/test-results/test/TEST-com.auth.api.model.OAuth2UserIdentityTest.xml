@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="com.auth.api.model.OAuth2UserIdentityTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-04-07T15:58:08.681Z" hostname="jhonui-MacBookPro-2.local" time="0.005">
+  <properties/>
+  <testcase name="attributes는 외부에서 수정할 수 없다." classname="com.auth.api.model.OAuth2UserIdentityTest" time="0.003"/>
+  <testcase name="OAuth2 사용자 정보를 생성한다." classname="com.auth.api.model.OAuth2UserIdentityTest" time="0.001"/>
+  <testcase name="provider와 providerUserId는 비어 있을 수 없다." classname="com.auth.api.model.OAuth2UserIdentityTest" time="0.001"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

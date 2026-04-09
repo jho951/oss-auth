@@ -1,28 +1,55 @@
-# --- Build Artifacts ---
-.gradle/
-build/
-bin/
-out/
 
-# --- Operating System ---
-.DS_Store
-__MACOSX/
+  # System
+  .DS_Store
+  Thumbs.db
+  ehthumbs.db
+  *.swp
 
-# --- IDEs ---
-.idea/
-*.iml
-*.iws
-.vscode/
-.settings/
-.classpath
-.project
-.factorypath
+  # Java
+  *.class
+  *.log
 
-# --- Environment & Secrets ---
-.env
-.env.*
+  # Gradle
+  .gradle/
+  .gradle-local/
+  build/
+  **/build/
+  **/build/reports/
+  **/build/test-results/
+  **/build/tmp/
+  **/build/classes/
+  **/build/generated/
+  *.kotlin_module
+  *.lck
 
+  # Secret
+  .env*
+  .envrc
+  docker/.generated
+  *.key
+  *.pem
+  *.p12
 
-# --- Gradle Wrapper ---
-!gradle/wrapper/gradle-wrapper.jar
-!gradle/wrapper/gradle-wrapper.properties
+  # IntelliJ
+  .idea/
+  *.iws
+  *.iml
+  *.ipr
+  out/
+
+  # Data
+  data/
+
+  # Logs / runtime
+  *.pid
+  *.seed
+  *.out
+  *.err
+
+  # Docs or helpers
+  HELP.md
+  .gitattributes
+
+  # Gradle Wrapper
+  !gradle/wrapper/gradle-wrapper.jar
+  !gradle/wrapper/gradle-wrapper.properties
