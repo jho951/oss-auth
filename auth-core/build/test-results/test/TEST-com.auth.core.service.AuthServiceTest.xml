@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="com.auth.core.service.AuthServiceTest" tests="3" skipped="0" failures="0" errors="0" timestamp="2026-04-10T10:39:24.943Z" hostname="jhonui-MacBookPro-2.local" time="0.004">
-  <properties/>
-  <testcase name="username/password 로그인은 기존과 동일하게 토큰을 발급한다." classname="com.auth.core.service.AuthServiceTest" time="0.003"/>
-  <testcase name="이미 인증된 Principal로 access/refresh 토큰을 발급한다." classname="com.auth.core.service.AuthServiceTest" time="0.001"/>
-  <testcase name="OAuth 경로에서 Principal이 없으면 예외가 발생한다." classname="com.auth.core.service.AuthServiceTest" time="0.0"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
