@@ -1,7 +1,5 @@
 # SPI 확장 가이드
 
-이 문서는 애플리케이션이 직접 구현하거나 교체할 포인트를 설명합니다.
-
 ## 인터페이스 위치
 
 - `auth-core/src/main/java/com/auth/spi/UserFinder.java`
@@ -12,6 +10,14 @@
 - `auth-session/src/main/java/com/auth/session/SessionStore.java`
 - `auth-session/src/main/java/com/auth/session/SessionPrincipalMapper.java`
 - `auth-hybrid/src/main/java/com/auth/hybrid/HybridAuthenticationProvider.java`
+
+## 보안 주의점
+
+- `TokenService` 구현은 토큰 서명, 검증 실패 처리, 만료 규칙을 명확히 가져가야 합니다.
+- `RefreshTokenStore` 구현은 여러 인스턴스 환경에서 안전하게 동작해야 합니다.
+- `SessionStore` 구현은 세션 탈취를 막기 위해 저장소와 만료 정책을 일관되게 가져가야 합니다.
+- `SessionPrincipalMapper` 구현은 세션 식별자와 사용자 주체를 섞지 않도록 책임을 분리해야 합니다.
+- `OAuth2PrincipalResolver` 구현은 외부 provider 식별자를 내부 `Principal`로 바꾸는 경계만 담당해야 합니다.
 
 ## 필수 구현
 
@@ -117,6 +123,12 @@ public class DefaultOAuth2PrincipalResolver implements OAuth2PrincipalResolver {
 - 세션 저장소를 Redis/DB로 바꾸고 싶을 때
 - 세션 principal에 추가 메타데이터를 주입하고 싶을 때
 
+보안 관점:
+
+- 세션 식별자를 그대로 사용자 식별자로 쓰지 않습니다.
+- 저장소 외부 노출이 가능한 값과 내부 주체 값을 분리합니다.
+- 여러 인스턴스에서 일관된 만료 정책을 유지합니다.
+
 ### 7) Hybrid 관련 확장 포인트
 
 기본값:
@@ -127,6 +139,11 @@ public class DefaultOAuth2PrincipalResolver implements OAuth2PrincipalResolver {
 
 - JWT와 session을 함께 시도하는 순서를 바꾸고 싶을 때
 - 추가 인증 경로를 넣고 싶을 때
+
+보안 관점:
+
+- JWT가 유효하면 세션보다 먼저 받아들이는지, 반대로 세션을 우선하는지 정책을 명확히 합니다.
+- 조합 우선순위는 서비스마다 다를 수 있으므로, 교체 가능하게 유지합니다.
 
 ## 권장 책임 분리
 
