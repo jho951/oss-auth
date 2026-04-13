@@ -2,35 +2,54 @@
 
 ## 로컬 테스트 실행
 
-전체 빌드:
+### 전체 빌드:
 
 ```bash
 ./gradlew clean build
 ```
 
-모듈 단위 테스트:
+### 모듈 단위 테스트:
 
 ```bash
 ./gradlew :auth-core:test
 ./gradlew :auth-jwt:test
 ./gradlew :auth-session:test
 ./gradlew :auth-hybrid:test
+./gradlew :auth-apikey:test
+./gradlew :auth-hmac:test
+./gradlew :auth-oidc:test
+./gradlew :auth-service-account:test
 ```
 
 ## 현재 테스트 범위
 
 - `auth-core`
-  - `AuthExceptionTest`, `OAuth2UserIdentityTest`, `PrincipalTest`, `TokensTest`, `UserTest`, `AuthServiceTest`, `StringsTest`
+  - `AuthExceptionTest`
+  - `OAuth2UserIdentityTest`
+  - `PrincipalTest`
+  - `TokensTest`
+  - `UserTest`
+  - `AuthServiceTest`
+  - `StringsTest`
 - `auth-jwt`
   - `JwtTokenServiceTest`
 - `auth-session`
-  - `DefaultSessionAuthenticationProviderTest`, `SessionServiceTest`
+  - `DefaultSessionAuthenticationProviderTest`
+  - `SessionServiceTest`
 - `auth-hybrid`
   - `DefaultHybridAuthenticationProviderTest`
+- `auth-apikey`
+  - `ApiKeyAuthenticationProviderTest`
+- `auth-hmac`
+  - 현재 provider/SPI compile 검증
+- `auth-oidc`
+  - 현재 provider/SPI compile 검증
+- `auth-service-account`
+  - 현재 provider/SPI compile 검증
 
 ## GitHub Actions
 
-현재 워크플로우 파일:
+### 현재 워크플로우 파일
 
 - `.github/workflows/build.yml`
 - `.github/workflows/publish.yml`
@@ -50,4 +69,5 @@
 
 ## 참고
 
-CI와 문서는 소스 트리 기준으로 설명합니다. generated build 산출물은 문서 기준이 아닙니다.
+- CI와 문서는 소스 트리 기준으로 설명합니다.
+- generated build 산출물은 문서 기준이 아닙니다.

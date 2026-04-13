@@ -2,7 +2,6 @@ def requiredRootProp = { List<String> keys ->
     def value = keys.collect { key ->
         rootProject.findProperty(key)?.toString()?.trim()
     }.find { it }
-
     if (!value) {
         throw new GradleException("Missing required property. Expected one of: ${keys.join(', ')}")
     }
@@ -56,6 +55,26 @@ def modules = [
                 artifactId : "auth-hybrid",
                 pomName    : "Hybrid Auth Core",
                 description: "Hybrid authentication strategies that compose JWT and session verification."
+        ],
+        "auth-apikey": [
+                artifactId : "auth-apikey",
+                pomName    : "Auth API Key",
+                description: "API key authentication contracts and provider implementations."
+        ],
+        "auth-hmac": [
+                artifactId : "auth-hmac",
+                pomName    : "Auth HMAC",
+                description: "HMAC request signature verification contracts and provider implementations."
+        ],
+        "auth-oidc": [
+                artifactId : "auth-oidc",
+                pomName    : "Auth OIDC",
+                description: "OIDC identity token verification and principal mapping contracts."
+        ],
+        "auth-service-account": [
+                artifactId : "auth-service-account",
+                pomName    : "Auth Service Account",
+                description: "Service account credential verification contracts and provider implementations."
         ],
 ]
 

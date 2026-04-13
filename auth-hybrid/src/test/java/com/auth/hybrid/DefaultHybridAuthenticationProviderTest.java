@@ -10,7 +10,10 @@ import org.junit.jupiter.api.Test;
 
 import com.auth.api.exception.AuthException;
 import com.auth.api.exception.AuthFailureReason;
+import com.auth.api.authentication.AuthenticationSource;
 import com.auth.api.model.Principal;
+import com.auth.hybrid.strategy.MatchingPrincipalConflictResolver;
+import com.auth.hybrid.strategy.SourceFirstHybridResolutionStrategy;
 import com.auth.spi.TokenService;
 import com.auth.session.SessionAuthenticationProvider;
 
@@ -47,6 +50,37 @@ class DefaultHybridAuthenticationProviderTest {
 		HybridAuthenticationContext context = HybridAuthenticationContext.of("invalid", "session-ok");
 
 		assertThat(provider.authenticate(context)).contains(sessionPrincipal);
+	}
+
+	@Test
+	@DisplayName("전략을 바꾸면 세션을 JWT보다 우선할 수 있다")
+	void supportsSessionFirstStrategy() {
+		HybridAuthenticationProvider sessionFirstProvider = new DefaultHybridAuthenticationProvider(
+			tokenService,
+			sessionProvider,
+			SourceFirstHybridResolutionStrategy.sessionThenJwt(),
+			(preferredSource, preferred, otherSource, other) -> preferred
+		);
+
+		HybridAuthenticationContext context = HybridAuthenticationContext.of("valid-token", "session-ok");
+
+		assertThat(sessionFirstProvider.authenticate(context)).contains(sessionPrincipal);
+	}
+
+	@Test
+	@DisplayName("충돌 resolver는 서로 다른 principal을 거부할 수 있다")
+	void supportsConflictResolver() {
+		HybridAuthenticationProvider strictProvider = new DefaultHybridAuthenticationProvider(
+			tokenService,
+			sessionProvider,
+			new SourceFirstHybridResolutionStrategy(List.of(AuthenticationSource.JWT, AuthenticationSource.SESSION)),
+			new MatchingPrincipalConflictResolver()
+		);
+
+		HybridAuthenticationContext context = HybridAuthenticationContext.of("valid-token", "session-ok");
+
+		org.assertj.core.api.Assertions.assertThatThrownBy(() -> strictProvider.authenticate(context))
+			.isInstanceOf(AuthException.class);
 	}
 
 	private final class FakeTokenService implements TokenService {

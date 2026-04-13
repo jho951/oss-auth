@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.time.Duration;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -11,8 +12,11 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.auth.api.model.Principal;
+import com.auth.support.jwt.spi.StaticJwtKeyResolver;
+import com.auth.support.jwt.spi.StaticJwtSigningKeyProvider;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
@@ -73,8 +77,31 @@ class JwtTokenServiceTest {
 		assertThat(verified.getAuthorities()).containsExactly("REFRESH_A");
 	}
 
+	@Test
+	void supportsKidBasedVerification() {
+		Key oldKey = Keys.hmacShaKeyFor("old-012345678901234567890123456789".getBytes(StandardCharsets.UTF_8));
+		Key newKey = Keys.hmacShaKeyFor("new-012345678901234567890123456789".getBytes(StandardCharsets.UTF_8));
+		JwtTokenService rotatingService = new JwtTokenService(
+			new StaticJwtSigningKeyProvider(newKey, "new"),
+			new StaticJwtKeyResolver(oldKey, Map.of("new", newKey)),
+			new DefaultJwtClaimsMapper(),
+			new JwtTokenOptions(Duration.ofMinutes(1), Duration.ofMinutes(2), SignatureAlgorithm.HS256, null)
+		);
+
+		String token = rotatingService.issueAccessToken(new Principal("user-rotated"));
+
+		assertThat(parseClaims(token, newKey).getSubject()).isEqualTo("user-rotated");
+		assertThat(Jwts.parserBuilder().setSigningKey(newKey).build().parseClaimsJws(token).getHeader().get(JwsHeader.KEY_ID))
+			.isEqualTo("new");
+		assertThat(rotatingService.verifyAccessToken(token).getUserId()).isEqualTo("user-rotated");
+	}
+
 	private Claims parseClaims(String token) {
 		Key key = Keys.hmacShaKeyFor(SECRET.getBytes(StandardCharsets.UTF_8));
+		return parseClaims(token, key);
+	}
+
+	private Claims parseClaims(String token, Key key) {
 		return Jwts.parserBuilder()
 			.setSigningKey(key)
 			.build()
