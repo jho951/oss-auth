@@ -1,28 +1,25 @@
 package com.auth.api.model;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import com.auth.common.utils.Strings;
 
-/** OAuth2/OIDC provider 인증이 끝난 뒤 내부 사용자 매핑에 사용하는 표준 모델입니다. */
+import java.util.Map;
+import java.util.Collections;
+import java.util.LinkedHashMap;
+
+/** OAuth2/OIDC provider 인증이 끝난 뒤 데이터를 지정 양식으로 정리한 신분증 */
 public final class OAuth2UserIdentity {
 
+	/** 제공 주체 (예: GOOGLE, GitHub, KaKao 등) */
 	private final String provider;
+	/** 제공 주체 (예: GOOGLE, GitHub, KaKao 등) */
 	private final String providerUserId;
+	/** 사용자 이메일 */
 	private final String email;
+	/** 사용자 이름 */
 	private final String name;
+	/** 추가로 넘어온 모든 데이터(프로필 이미지, 성별 등) */
 	private final Map<String, Object> attributes;
 
-	/**
-	 * 생성자
-	 * @param provider
-	 * @param providerUserId
-	 * @param email
-	 * @param name
-	 * @param attributes
-	 */
 	public OAuth2UserIdentity(
 		String provider,
 		String providerUserId,

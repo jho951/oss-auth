@@ -1,8 +1,5 @@
 # auth
 
-`auth`는 Java 17 기반의 순수 인증 capability OSS 모듈입니다.
-`principal`, `token`, `session`, `JWT`, API key, HMAC, OIDC, service account 관련 핵심 모델과 SPI를 제공합니다.
-
 [![Build](https://github.com/jho951/auth/actions/workflows/build.yml/badge.svg)](https://github.com/jho951/auth/actions/workflows/build.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/io.github.jho951/auth-core?label=maven%20central)](https://central.sonatype.com/search?q=jho951)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)](./LICENSE)
@@ -34,7 +31,7 @@
 
 이 저장소는 1계층 인증 기능만 제공합니다.
 
-포함합니다:
+### 포함
 
 - 인증 수단
 - 토큰/세션 처리 기술
@@ -42,7 +39,7 @@
 - 인증 SPI와 범용 구현
 - source priority와 conflict resolver 같은 generic 조합 메커니즘
 
-포함하지 않습니다:
+### 포함 X
 
 - 특정 서비스 URL 정책
 - 특정 조직 헤더 규약

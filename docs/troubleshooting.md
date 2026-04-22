@@ -46,9 +46,13 @@
 
 ### 원인
 - 외부에서 인증이 끝난 주체를 전달하지 않았습니다.
+- 로그인하지 않은 사람을 단순히 `null`로 표현하면, 상위 코드 곳곳에서 `if (user == null)` 같은 분기 처리가 퍼집니다.
+- 이 방식은 null 체크를 한 군데라도 빼먹으면 `NullPointerException`이나 잘못된 인가 분기로 이어지기 쉽습니다.
 
 ### 조치
 - `Principal`을 먼저 생성한 뒤 호출합니다.
+- `AuthService.login(Principal)`에는 인증이 끝난 주체만 넘기고, "아직 로그인하지 않은 사람"을 표현해야 하는 경로에서는 `null` 대신 `AnonymousPrincipal.create()`를 사용합니다.
+- `AnonymousPrincipal`은 `PrincipalType.ANONYMOUS`를 가진 `AuthenticatedSubject`를 만들어 주므로, downstream 코드는 null 체크 대신 주체 타입으로 분기할 수 있습니다.
 
 ## 7. `AuthService.refresh(refreshToken)` 또는 `logout(refreshToken)`에서 refresh token이 비어 있다
 
@@ -117,7 +121,19 @@
 ### 조치
 - 사용자 최소 모델에 필요한 값을 모두 넣습니다.
 
-## 14. `Tokens` 생성이 실패한다
+## 14. `getRoles()`가 아직 남아 있다
+
+### 원인
+- `Principal.getRoles()`와 `User.getRoles()`는 하위 호환성을 위해 `@Deprecated` 상태로 유지됩니다.
+- 내부 용어는 `roles`에서 `authorities`로 정리되었지만, 기존 호출 코드와 직렬화/매핑 코드가 바로 깨지지 않도록 브리지 메서드를 남겨둔 상태입니다.
+- 현재 구현에서 `getRoles()`는 별도 데이터를 가지지 않고 `getAuthorities()`와 같은 리스트를 그대로 반환합니다.
+
+### 조치
+- 신규 코드는 `getAuthorities()`를 사용합니다.
+- 기존 통합 코드에서 `getRoles()`를 사용 중이라면 점진적으로 `getAuthorities()`로 마이그레이션합니다.
+- 브레이킹 체인지가 허용되는 시점에만 `getRoles()` 제거를 검토합니다.
+
+## 15. `Tokens` 생성이 실패한다
 
 ### 원인
 - access token 또는 refresh token이 blank 입니다.
@@ -125,7 +141,7 @@
 ### 조치
 - 두 토큰 문자열을 모두 채워서 생성합니다.
 
-## 15. `OAuth2UserIdentity` 생성이 실패한다
+## 16. `OAuth2UserIdentity` 생성이 실패한다
 
 ### 원인
 - provider 또는 providerUserId가 blank 입니다.
@@ -133,7 +149,7 @@
 ### 조치
 - 외부 provider 식별 정보를 모두 채워서 생성합니다.
 
-## 16. 세션을 생성할 수 없다
+## 17. 세션을 생성할 수 없다
 
 ### 원인
 - `SessionService` 생성 시 필요한 저장소나 식별자 생성기가 주입되지 않았습니다.
@@ -142,7 +158,7 @@
 ### 조치
 - `SessionStore`, `SessionIdGenerator`, `Principal`을 모두 준비합니다.
 
-## 17. 세션이 조회되지 않는다
+## 18. 세션이 조회되지 않는다
 
 ### 원인
 - session id가 blank 이거나 잘못됐습니다.
@@ -154,7 +170,7 @@
 - 저장소 구현과 만료 정책을 확인합니다.
 - 운영에서는 외부 저장소를 사용합니다.
 
-## 18. 세션 인증 결과가 예상과 다르다
+## 19. 세션 인증 결과가 예상과 다르다
 
 ### 원인
 - `SessionPrincipalMapper`가 저장된 `Principal`을 원하는 형태로 매핑하지 않습니다.
@@ -162,7 +178,7 @@
 ### 조치
 - 매핑 규칙을 확인하고 필요하면 구현을 교체합니다.
 
-## 19. `HybridAuthenticationProvider`가 JWT 대신 세션을 사용한다
+## 20. `HybridAuthenticationProvider`가 JWT 대신 세션을 사용한다
 
 ### 원인
 - access token이 없거나 검증에 실패했습니다.
@@ -172,7 +188,7 @@
 - JWT와 session 중 어떤 경로를 우선할지 확인합니다.
 - 조합 순서를 바꾸려면 `HybridAuthenticationProvider` 구현을 교체합니다.
 
-## 20. Gradle property가 안 읽힌다
+## 21. Gradle property가 안 읽힌다
 
 원인:
 
@@ -183,7 +199,7 @@
 
 - 파일명을 확인하고 필요하면 `gradle.properties`로 정리
 
-## 21. artifact 이름이 문서와 다르다
+## 22. artifact 이름이 문서와 다르다
 
 원인:
 

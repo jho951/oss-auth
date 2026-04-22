@@ -6,23 +6,19 @@ import java.util.Collections;
 import com.auth.common.utils.Strings;
 
 /**
- * 코어가 다루는 "인증용 유저 최소 모델"
- * DB 엔티티(UserEntity)랑 분리
- * 인증/인가에 필요한 정보만 포함
+ * 인증 전용 사용자 정보 원본
+ * UserEntity와 분리
  */
 public final class User {
+	/** DB에서 사용하는 고유 번호(PK) */
 	private final String userId;
+	/** 사용자가 로그인할 때 입력하는 아이디나 이메일 */
 	private final String username;
+	/** 보안을 위해 암호화된 비밀번호 (해시값) */
 	private final String passwordHash;
+	/** 주체가 어떤 권한을 가졌는지 담고 있는 목록 */
 	private final List<String> authorities;
 
-	/**
-	 * 생성자
-	 * @param userId 내부 고유 ID (PK or UUID)
-	 * @param username 로그인 식별자(아이디/이메일 등)
-	 * @param passwordHash 저장된 해시
-	 * @param roles 권한 문자열 (authority 문자열). 호환을 위해 roles 용어를 유지합니다.
-	 */
 	public User(String userId, String username, String passwordHash, List<String> roles) {
 		this.userId = Strings.requireNonBlank(userId, "userId");
 		this.username = Strings.requireNonBlank(username, "username");
@@ -39,28 +35,17 @@ public final class User {
 	public String getPasswordHash() {
 		return passwordHash;
 	}
-	/** 권한(authority) 문자열 목록입니다. */
 	public List<String> getAuthorities() {
 		return authorities;
 	}
-
-	/**
-	 * @deprecated 권한은 roles가 아니라 authorities 용어로 취급합니다. {@link #getAuthorities()}를 사용하세요.
-	 */
 	@Deprecated
-	public List<String> getRoles() {
-		return getAuthorities();
-	}
-
+	public List<String> getRoles() {return getAuthorities();}
 	@Override
 	public boolean equals(Object o) {
 		if (!(o instanceof User)) return false;
 		User other = (User) o;
 		return Objects.equals(userId, other.userId);
 	}
-
 	@Override
-	public int hashCode() {
-		return Objects.hash(userId);
-	}
+	public int hashCode() {return Objects.hash(userId);}
 }
