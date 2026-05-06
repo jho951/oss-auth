@@ -32,23 +32,29 @@ import com.auth.common.utils.Strings;
  */
 public final class AuthService {
 
+	/** 사용자 정보를 조회하기 위한 인터페이스 (유저 정보) */
 	private final UserFinder userFinder;
+	/**  비밀번호 암호화 및 일치 여부 확인 인터페이스 */
 	private final PasswordVerifier passwordVerifier;
+	/** 토큰(JWT 등) 생성 및 검증 인터페이스 */
 	private final TokenService tokenService;
+	/** 리프레시 토큰의 영속성 관리를 위한 저장소 인터페이스 */
 	private final RefreshTokenStore refreshTokenStore;
+	/** 리프레시 토큰의 유효 기간 (null 또는 0 이하일 경우 기본값 14일) */
 	private final Duration refreshTtl;
+	/** 시간 계산을 위한 클럭 (테스트 시 모킹 가능) */
 	private final Clock clock;
 
-	/**
-	 * AuthService를 생성합니다.
-	 * @param userFinder 사용자 정보를 조회하기 위한 인터페이스
-	 * @param passwordVerifier 비밀번호 암호화 및 일치 여부 확인 인터페이스
-	 * @param tokenService 토큰(JWT 등) 생성 및 검증 인터페이스
-	 * @param refreshTokenStore 리프레시 토큰의 영속성 관리를 위한 저장소 인터페이스
-	 * @param refreshTtl 리프레시 토큰의 유효 기간 (null 또는 0 이하일 경우 기본값 14일)
-	 * @param clock 시간 계산을 위한 클럭 (테스트 시 모킹 가능)
-	 * @throws IllegalArgumentException 필수 인자가 null일 경우 발생
-	 */
+	public AuthService(
+		UserFinder userFinder,
+		PasswordVerifier passwordVerifier,
+		TokenService tokenService,
+		RefreshTokenStore refreshTokenStore,
+		Duration refreshTtl
+	) {
+		this(userFinder, passwordVerifier, tokenService, refreshTokenStore, refreshTtl, Clock.systemUTC());
+	}
+
 	public AuthService(
 		UserFinder userFinder,
 		PasswordVerifier passwordVerifier,
@@ -65,16 +71,7 @@ public final class AuthService {
 		this.clock = MoreObjects.defaultIfNull(clock, Clock.systemUTC());
 	}
 
-	/** 시스템 기본 시계(UTC)를 사용하여 서비스를 생성합니다 */
-	public AuthService(
-		UserFinder userFinder,
-		PasswordVerifier passwordVerifier,
-		TokenService tokenService,
-		RefreshTokenStore refreshTokenStore,
-		Duration refreshTtl
-	) {
-		this(userFinder, passwordVerifier, tokenService, refreshTokenStore, refreshTtl, Clock.systemUTC());
-	}
+
 
 	/**
 	 * 사용자의 자격 증명을 확인하고 새로운 토큰 세트를 발급합니다.
@@ -115,9 +112,7 @@ public final class AuthService {
 		String refresh = tokenService.issueRefreshToken(authenticatedPrincipal);
 
 		Instant expiresAt = Instant.now(clock).plus(refreshTtl);
-
 		refreshTokenStore.save(authenticatedPrincipal.getUserId(), refresh, expiresAt);
-
 		return new Tokens(access, refresh);
 	}
 

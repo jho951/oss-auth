@@ -2,7 +2,7 @@ package com.auth.spi.token;
 
 import java.time.Instant;
 
-/** Store for token revocation metadata such as jti or opaque token identifiers. */
+/** 특정 토큰을 강제로 무효화(블랙리스트 처리) */
 public interface TokenRevocationStore {
 
 	void revoke(String tokenId, Instant expiresAt);

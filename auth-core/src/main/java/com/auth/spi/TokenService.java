@@ -3,9 +3,7 @@ package com.auth.spi;
 
 import com.auth.api.model.Principal;
 
-/**
- * access token과 refresh token의 발급 및 검증을 담당하는 포트입니다.
- */
+/** access token과 refresh token의 발급 및 검증을 담당하는 포트입니다. */
 public interface TokenService {
 
 	/** Access Token 발급 */

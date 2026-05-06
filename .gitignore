@@ -1,47 +1,68 @@
-# System
-.DS_Store
-Thumbs.db
-ehthumbs.db
-*.swp
-
-# Java
+### [Standard Java / Gradle] ###
 *.class
 *.log
+*.ctxt
+.mtj.tmp/
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
 
-# Gradle
+# Gradle specific
 .gradle/
-.gradle-local/
 build/
-**/build/
-*.kotlin_module
-*.lck
+/out/
+!**/src/main/resources/gradle/wrapper/gradle-wrapper.jar
 
-# Secrets
-.env*
-.envrc
-docker/.generated
-*.key
-*.pem
-*.p12
-
-# IntelliJ
+### [IntelliJ IDEA] ###
 .idea/
 *.iws
 *.iml
 *.ipr
-out/
+/out/
+!**/src/main/resources/idea/
 
-# Eclipse / editor leftovers
-*.tmp
-*.orig
+### [Eclipse] ###
+.metadata
+.recommenders
 .project
+.classpath
 .settings/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.loadpath
+.factorypath
 
-# Data
+### [Sensitive Information / Security] ###
+.env*
+.envrc
+*.key
+*.pem
+*.p12
+*.jks
+docker/.generated
+
+### [Operating System Specific] ###
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+### [Data / Logs / Runtime] ###
 data/
-
-# Logs / runtime
 *.pid
 *.seed
 *.out
 *.err
+/logs/
+temp/
