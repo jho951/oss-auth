@@ -3,7 +3,7 @@ package com.auth.support.jwt.spi;
 import java.security.Key;
 import java.util.Objects;
 
-/** Single-key signing provider for deployments that do not rotate signing keys. */
+/** 서명 키를 회전하지 않는 배포를 위한 단일 키 signing provider입니다. */
 public final class StaticJwtSigningKeyProvider implements JwtSigningKeyProvider {
 
 	private final Key key;

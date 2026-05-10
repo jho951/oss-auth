@@ -1,11 +1,11 @@
 package com.auth.serviceaccount;
 
-import com.auth.api.authentication.AuthenticationProvider;
-import com.auth.api.model.Principal;
+import com.auth.core.api.authentication.AuthenticationProvider;
+import com.auth.core.api.model.Principal;
 import java.util.Objects;
 import java.util.Optional;
 
-/** Generic service account authentication provider. */
+/** 범용 서비스 계정 인증 provider입니다. */
 public final class ServiceAccountAuthenticationProvider implements AuthenticationProvider<ServiceAccountCredential> {
 
 	private final ServiceAccountVerifier verifier;

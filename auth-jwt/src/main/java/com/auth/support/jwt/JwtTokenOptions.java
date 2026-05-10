@@ -4,7 +4,7 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import java.time.Duration;
 import java.util.Objects;
 
-/** Immutable options for JWT issuance and verification. */
+/** JWT 발급과 검증에 사용하는 불변 옵션입니다. */
 public final class JwtTokenOptions {
 
 	private final Duration accessTtl;

@@ -8,6 +8,8 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.*;
 
+import com.auth.core.api.model.Principal;
+
 class PrincipalTest {
 
 	@Test
@@ -54,12 +56,11 @@ class PrincipalTest {
 	}
 
 	@Test
-	void createPrincipal_WithRolesContainsRole() {
+	void createPrincipal_WithAuthoritiesContainsAuthority() {
 		Principal principal = new Principal("user-42", List.of("USER", "ADMIN"));
 
 		assertThat(principal.getAuthorities()).containsExactly("USER", "ADMIN");
 		assertThat(principal.getAuthorities()).contains("ADMIN");
 		assertThat(principal.getAuthorities()).doesNotContain("GUEST");
-		assertThat(principal.getRoles()).containsExactly("USER", "ADMIN");
 	}
 }

@@ -9,6 +9,8 @@ import java.util.Map;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import com.auth.core.api.model.OAuth2UserIdentity;
+
 class OAuth2UserIdentityTest {
 
 	@Test

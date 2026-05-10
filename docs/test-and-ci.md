@@ -2,7 +2,7 @@
 
 ## 로컬 테스트 실행
 
-### 전체 빌드:
+### 전체 빌드
 
 ```bash
 ./gradlew clean build
@@ -11,18 +11,26 @@
 ### 모듈 단위 테스트:
 
 ```bash
+./gradlew :auth-bom:generatePomFileForMavenBomPublication
 ./gradlew :auth-core:test
 ./gradlew :auth-jwt:test
 ./gradlew :auth-session:test
-./gradlew :auth-hybrid:test
 ./gradlew :auth-apikey:test
 ./gradlew :auth-hmac:test
+./gradlew :auth-dpop:test
+./gradlew :auth-mfa:test
+./gradlew :auth-mtls:test
 ./gradlew :auth-oidc:test
+./gradlew :auth-otp:test
+./gradlew :auth-saml:test
 ./gradlew :auth-service-account:test
+./gradlew :auth-webauthn:test
 ```
 
 ## 현재 테스트 범위
 
+- `auth-bom`
+  - BOM POM 생성 검증
 - `auth-core`
   - `AuthExceptionTest`
   - `OAuth2UserIdentityTest`
@@ -36,16 +44,33 @@
 - `auth-session`
   - `DefaultSessionAuthenticationProviderTest`
   - `SessionServiceTest`
-- `auth-hybrid`
-  - `DefaultHybridAuthenticationProviderTest`
 - `auth-apikey`
   - `ApiKeyAuthenticationProviderTest`
 - `auth-hmac`
   - 현재 provider/SPI compile 검증
+- `auth-dpop`
+  - `DpopProofVerifierTest`
+- `auth-mfa`
+  - `ActionOrRiskBasedMfaPolicyTest`
+  - `MfaServiceTest`
+  - `TotpMfaVerifierTest`
+  - `RecoveryCodeMfaVerifierTest`
+- `auth-mtls`
+  - `MtlsAuthenticationProviderTest`
 - `auth-oidc`
   - 현재 provider/SPI compile 검증
+- `auth-otp`
+  - `HotpVerifierTest`
+  - `TotpVerifierTest`
+  - `Sha256RecoveryCodeVerifierTest`
+- `auth-saml`
+  - `DefaultSamlAssertionValidatorTest`
+  - `SamlAuthenticationProviderTest`
 - `auth-service-account`
-  - 현재 provider/SPI compile 검증
+  - `X509ServiceAccountAuthenticationProviderTest`
+- `auth-webauthn`
+  - `PasskeyAuthenticationProviderTest`
+  - `PasskeyRegistrationServiceTest`
 
 ## GitHub Actions
 
@@ -56,16 +81,20 @@
 
 ### `build.yml`
 
-- 트리거: `main` 대상 PR, `main` push
-- 수행: `./gradlew clean test --no-daemon --stacktrace`
+- 트리거:
+  - `main` 대상 PR
+  - `main` push
+- 수행:
+  - `./gradlew clean test --no-daemon --stacktrace`
 
 ### `publish.yml`
 
-- 트리거: `v*` 태그 push
+- 트리거:
+  - `v*` 태그 push
 - 수행:
-  1. `./gradlew test --no-daemon --stacktrace`
-  2. `./gradlew -Prelease_version="$VERSION" publishAggregationToCentralPortal --no-daemon --stacktrace`
-  3. Central Portal에 배포
+  - `./gradlew test --no-daemon --stacktrace`
+  - `./gradlew -Prelease_version="$VERSION" publishAggregationToCentralPortal --no-daemon --stacktrace`
+  - Central Portal에 배포
 
 ## 참고
 

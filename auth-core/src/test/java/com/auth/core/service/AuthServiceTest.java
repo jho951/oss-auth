@@ -13,13 +13,16 @@ import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import com.auth.api.model.Principal;
-import com.auth.api.model.Tokens;
-import com.auth.api.model.User;
-import com.auth.spi.PasswordVerifier;
-import com.auth.spi.RefreshTokenStore;
-import com.auth.spi.TokenService;
-import com.auth.spi.UserFinder;
+import com.auth.core.api.exception.AuthException;
+import com.auth.core.api.exception.AuthFailureReason;
+import com.auth.core.api.model.Principal;
+import com.auth.core.api.model.Tokens;
+import com.auth.core.api.model.User;
+import com.auth.core.spi.PasswordVerifier;
+import com.auth.core.spi.RefreshTokenStore;
+import com.auth.core.spi.TokenService;
+import com.auth.core.spi.UserFinder;
+import com.auth.core.spi.UserStatusChecker;
 
 class AuthServiceTest {
 
@@ -67,6 +70,33 @@ class AuthServiceTest {
 		assertThat(tokens.getAccessToken()).isEqualTo("access-user-1");
 		assertThat(tokens.getRefreshToken()).isEqualTo("refresh-user-1");
 		assertThat(refreshTokenStore.savedUserId).isEqualTo("user-1");
+	}
+
+	@Test
+	@DisplayName("username/password 로그인에서 상태 검사기가 사용자를 거부하면 해당 사유로 예외가 발생한다.")
+	void loginWithCredentials_StatusCheckerRejectsUser() {
+		UserFinder userFinder = username -> Optional.of(new User("user-1", username, "hashed", List.of("ADMIN")));
+		boolean[] passwordVerifierCalled = {false};
+		PasswordVerifier passwordVerifier = (rawPassword, storedHash) -> {
+			passwordVerifierCalled[0] = true;
+			return true;
+		};
+		UserStatusChecker userStatusChecker = user -> Optional.of(AuthFailureReason.USER_DISABLED);
+		AuthService authService = new AuthService(
+			userFinder,
+			passwordVerifier,
+			userStatusChecker,
+			new FakeTokenService(),
+			new FakeRefreshTokenStore(),
+			Duration.ofDays(14),
+			Clock.systemUTC()
+		);
+
+		assertThatThrownBy(() -> authService.login("admin", "plain-password"))
+			.isInstanceOf(AuthException.class)
+			.extracting(error -> ((AuthException) error).getReason())
+			.isEqualTo(AuthFailureReason.USER_DISABLED);
+		assertThat(passwordVerifierCalled[0]).isFalse();
 	}
 
 	@Test

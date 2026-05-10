@@ -1,7 +1,7 @@
 package com.auth.hmac;
 
-import com.auth.api.authentication.AuthenticationProvider;
-import com.auth.api.model.Principal;
+import com.auth.core.api.authentication.AuthenticationProvider;
+import com.auth.core.api.model.Principal;
 import java.util.Objects;
 import java.util.Optional;
 

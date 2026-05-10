@@ -1,6 +1,8 @@
 package com.auth.session;
 
-import com.auth.api.model.Principal;
+import com.auth.core.api.model.Principal;
+import com.auth.session.id.SessionIdGenerator;
+import com.auth.session.store.SessionStore;
 import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
@@ -18,7 +20,6 @@ public final class SessionService {
         this.sessionTtl = sessionTtl != null ? sessionTtl : Duration.ofHours(1);
     }
 
-    /** Issue a new session backed by the provided principal. */
     public String create(Principal principal) {
         Objects.requireNonNull(principal, "principal");
         String sessionId = idGenerator.generate();

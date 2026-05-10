@@ -1,6 +1,6 @@
 package com.auth.session.strategy;
 
-import com.auth.session.SessionRecord;
+import com.auth.session.store.SessionRecord;
 import java.time.Instant;
 
 /** Generic expiration strategy for session engines. */

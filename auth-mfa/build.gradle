@@ -1,0 +1,4 @@
+dependencies {
+    api project(':auth-core')
+    api project(':auth-otp')
+}

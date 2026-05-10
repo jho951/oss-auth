@@ -4,27 +4,40 @@
 
 특정 URL, framework filter, 조직 header, gateway/internal boundary, 도메인 role 정책은 이 문서의 확장 대상이 아닙니다.
 
-| 바꾸고 싶은 것 | 구현/교체할 계약 | 계층 경계 |
-| --- | --- | --- |
-| username으로 사용자 조회 | `UserFinder` | 사용자 저장소 연결까지만 담당 |
-| password hash 검증 | `PasswordVerifier` | hash 알고리즘 검증까지만 담당 |
-| access/refresh token 발급과 검증 | `TokenService` | 토큰 형식과 검증 기술까지만 담당 |
-| JWT signing key 선택 | `JwtSigningKeyProvider`, `JwtKeyResolver` | `kid`, rotation, 외부 signer 연결까지만 담당 |
-| JWT claim schema 변환 | `JwtClaimsMapper` | claim과 `Principal` 변환까지만 담당 |
-| refresh token 저장 | `RefreshTokenStore` | 저장/조회/폐기까지만 담당 |
-| refresh token rotation | `RefreshTokenRotationStrategy` | 이전 토큰 폐기와 다음 토큰 발급 흐름까지만 담당 |
-| token revocation 상태 | `TokenRevocationStore` | `jti` 또는 opaque token 폐기 상태까지만 담당 |
-| session 저장소 | `SessionStore`, `SessionRecordStore` | 저장소 구현과 session metadata까지만 담당 |
-| session principal 변환 | `SessionPrincipalMapper` | 저장된 session 값을 `Principal`로 바꾸는 일까지만 담당 |
-| session 만료 전략 | `SessionExpirationPolicy` | fixed/sliding expiration 계산까지만 담당 |
-| 동시 session 처리 | `ConcurrentSessionPolicy` | 폐기할 session 선택까지만 담당 |
-| JWT/session 조합 순서 | `HybridResolutionStrategy` | source priority 메커니즘까지만 담당 |
-| JWT/session 충돌 처리 | `HybridConflictResolver` | 둘 다 성공했을 때 결과 선택/거부까지만 담당 |
-| 새 인증 수단 provider | `AuthenticationProvider<C>` | credential을 검증해 `Principal`을 반환하는 일까지만 담당 |
-| API key 인증 | `ApiKeyPrincipalResolver` | API key와 principal 매핑까지만 담당 |
-| HMAC 인증 | `HmacSecretResolver`, `HmacSignatureVerifier` | secret 조회와 signature 검증까지만 담당 |
-| OIDC 인증 | `OidcTokenVerifier`, `OidcPrincipalMapper` | ID token 검증과 principal 변환까지만 담당 |
-| service account 인증 | `ServiceAccountVerifier` | service credential 검증까지만 담당 |
+| 바꾸고 싶은 것                    | 구현/교체할 계약                                     | 계층 경계                                     |
+|-----------------------------|-----------------------------------------------|-------------------------------------------|
+| username으로 사용자 조회           | `UserFinder`                                  | 사용자 저장소 연결까지만 담당                          |
+| password hash 검증            | `PasswordVerifier`                            | hash 알고리즘 검증까지만 담당                        |
+| 사용자 인증 가능 상태 판정         | `UserStatusChecker`                           | 비활성/잠김/만료 같은 인증 상태 판정만 담당               |
+| access/refresh token 발급과 검증 | `TokenService`                                | 토큰 형식과 검증 기술까지만 담당                        |
+| JWT signing key 선택          | `JwtSigningKeyProvider`, `JwtKeyResolver`     | `kid`, rotation, 외부 signer 연결까지만 담당       |
+| JWT claim schema 변환         | `JwtClaimsMapper`                             | claim과 `Principal` 변환까지만 담당               |
+| refresh token 저장            | `RefreshTokenStore`                           | 저장/조회/폐기까지만 담당                            |
+| refresh token rotation      | `RefreshTokenRotationStrategy`                | 이전 토큰 폐기와 다음 토큰 발급 흐름까지만 담당               |
+| token revocation 상태         | `TokenRevocationStore`                        | `jti` 또는 opaque token 폐기 상태까지만 담당         |
+| session 저장소                 | `SessionStore`, `SessionRecordStore`          | 저장소 구현과 session metadata까지만 담당            |
+| session principal 변환        | `SessionPrincipalMapper`                      | 저장된 session 값을 `Principal`로 바꾸는 일까지만 담당   |
+| session 만료 전략               | `SessionExpirationPolicy`                     | fixed/sliding expiration 계산까지만 담당         |
+| 동시 session 처리               | `ConcurrentSessionPolicy`                     | 폐기할 session 선택까지만 담당                      |
+| MFA factor enrollment 조회     | `MfaEnrollmentResolver`                       | 사용자별 활성 factor 조회까지만 담당                 |
+| MFA step-up 필요 여부 판단      | `MfaPolicy`                                   | action/risk 기반 추가 인증 요구 판정까지만 담당      |
+| MFA factor 검증                | `MfaVerifier`                                 | TOTP/passkey/recovery code 검증까지만 담당         |
+| MFA 성공 후 principal 승격     | `MfaPrincipalMapper`                          | MFA 결과를 `Principal` attribute에 반영까지만 담당 |
+| WebAuthn assertion 검증        | `WebAuthnAssertionVerifier`                   | passkey assertion 검증까지만 담당                  |
+| WebAuthn attestation 검증      | `WebAuthnAttestationVerifier`                 | registration attestation 검증까지만 담당          |
+| WebAuthn principal mapping     | `PasskeyPrincipalMapper`                      | verified passkey를 `Principal`로 바꾸는 일까지만 담당 |
+| HOTP/TOTP 검증                | `HotpVerifier`, `TotpVerifier`               | shared secret 기반 코드 검증까지만 담당            |
+| recovery code 검증             | `Sha256RecoveryCodeVerifier`                  | recovery code hash 비교까지만 담당                |
+| SAML response 검증             | `SamlResponseVerifier`, `SamlAssertionValidator` | XML/signature/conditions 검증까지만 담당      |
+| SAML principal mapping         | `SamlPrincipalMapper`                         | assertion을 `Principal`로 바꾸는 일까지만 담당      |
+| DPoP proof 검증               | `DpopProofVerifier`, `DpopReplayValidator`    | proof JWT와 replay 제어까지만 담당               |
+| mTLS principal mapping         | `MtlsCertificateVerifier`, `MtlsPrincipalResolver` | client cert 검증과 principal 변환까지만 담당 |
+| X.509 workload identity        | `X509ServiceCertificateVerifier`, `X509ServicePrincipalResolver` | machine cert를 principal로 바꾸는 일까지만 담당 |
+| 새 인증 수단 provider            | `AuthenticationProvider<C>`                   | credential을 검증해 `Principal`을 반환하는 일까지만 담당 |
+| API key 인증                  | `ApiKeyPrincipalResolver`                     | API key와 principal 매핑까지만 담당               |
+| HMAC 인증                     | `HmacSecretResolver`, `HmacSignatureVerifier` | secret 조회와 signature 검증까지만 담당             |
+| OIDC 인증                     | `OidcTokenVerifier`, `OidcPrincipalMapper`    | ID token 검증과 principal 변환까지만 담당           |
+| service account 인증          | `ServiceAccountVerifier`                      | service credential 검증까지만 담당               |
 
 ## 보안 주의점
 
@@ -33,8 +46,15 @@
 - `RefreshTokenStore` 구현은 여러 인스턴스 환경에서 안전하게 동작해야 합니다.
 - `SessionStore` 구현은 세션 탈취를 막기 위해 저장소와 만료 정책을 일관되게 가져가야 합니다.
 - `SessionPrincipalMapper` 구현은 세션 식별자와 사용자 주체를 섞지 않도록 책임을 분리해야 합니다.
+- `MfaVerifier` 구현은 TOTP 검증, passkey assertion 확인, recovery code 소모 같은 factor 검증만 담당해야 합니다.
+- `MfaPolicy` 구현은 risk 계산 자체가 아니라 상위 계층이 넘긴 action/risk 입력을 기준으로 step-up 필요 여부만 판단해야 합니다.
+- `WebAuthnAssertionVerifier`와 `WebAuthnAttestationVerifier` 구현은 browser challenge 발급이 아니라 cryptographic verification과 result normalization까지만 담당해야 합니다.
+- `SamlResponseVerifier` 구현은 metadata endpoint나 HTTP binding 처리까지 맡으면 안 됩니다.
+- `DpopProofVerifier` 상위 사용부는 proof nonce 정책과 access token issuance 정책을 별도로 가져가야 합니다.
 - `OAuth2PrincipalResolver` 구현은 외부 provider 식별자를 내부 `Principal`로 바꾸는 경계만 담당해야 합니다.
 - API key, HMAC, OIDC, service account provider는 인증 수단 자체만 검증해야 하며 URL, 헤더, gateway 정책을 알면 안 됩니다.
+- 복수 인증원의 조합 순서, fallback, boundary별 허용 정책은 상위 계층에서 결정해야 합니다.
+- 모듈 간에 공통으로 쓰는 attribute key와 저장 포맷은 [소비 규약](./consumption-conventions.md)을 기준으로 맞춥니다.
 
 ## 필수 구현
 
@@ -85,7 +105,27 @@ public class AdminUserFinder implements UserFinder {
 - Argon2 등 다른 알고리즘을 쓸 때
 - 레거시 해시 포맷과 호환해야 할 때
 
-### 3) `TokenService`
+### 3) `UserStatusChecker`
+
+역할:
+
+- 사용자가 인증 가능한 상태인지 판정
+
+예시:
+
+```java
+public class DefaultUserStatusChecker implements UserStatusChecker {
+    @Override
+    public Optional<AuthFailureReason> check(User user) {
+        if (user.getAuthorities().isEmpty()) {
+            return Optional.of(AuthFailureReason.USER_DISABLED);
+        }
+        return Optional.empty();
+    }
+}
+```
+
+### 4) `TokenService`
 
 기본값:
 
@@ -105,7 +145,7 @@ public class AdminUserFinder implements UserFinder {
 - `TokenRevocationStore`: `jti` 또는 opaque token 폐기 상태 저장
 - `RefreshTokenRotationStrategy`: refresh token rotation 전략
 
-### 4) `RefreshTokenStore`
+### 5) `RefreshTokenStore`
 
 제공 형태:
 
@@ -117,7 +157,7 @@ public class AdminUserFinder implements UserFinder {
 - Redis 기반 구현
 - RDB 기반 구현
 
-### 5) `OAuth2PrincipalResolver`
+### 6) `OAuth2PrincipalResolver`
 
 역할:
 
@@ -130,7 +170,7 @@ public class DefaultOAuth2PrincipalResolver implements OAuth2PrincipalResolver {
     @Override
     public Principal resolve(OAuth2UserIdentity identity) {
         User user = findOrCreateUser(identity);
-        return new Principal(user.getUserId(), user.getRoles());
+        return new Principal(user.getUserId(), user.getAuthorities());
     }
 }
 ```
@@ -139,8 +179,8 @@ public class DefaultOAuth2PrincipalResolver implements OAuth2PrincipalResolver {
 
 기본값:
 
-- `SessionStore` - `SimpleSessionStore`
-- `SessionRecordStore` - `SimpleSessionStore`
+- `SessionStore` - 애플리케이션 또는 2계층 구현
+- `SessionRecordStore` - 애플리케이션 또는 2계층 구현
 - `SessionPrincipalMapper` - `IdentitySessionPrincipalMapper`
 - `SessionAuthenticationProvider` - `DefaultSessionAuthenticationProvider`
 - `SessionExpirationPolicy` - fixed/sliding expiration 전략
@@ -157,40 +197,30 @@ public class DefaultOAuth2PrincipalResolver implements OAuth2PrincipalResolver {
 - 저장소 외부 노출이 가능한 값과 내부 주체 값을 분리합니다.
 - 여러 인스턴스에서 일관된 만료 정책을 유지합니다.
 
-### 7) Hybrid 관련 확장 포인트
-
-기본값:
-
-- `HybridAuthenticationProvider` - `DefaultHybridAuthenticationProvider`
-- `HybridResolutionStrategy` - `SourceFirstHybridResolutionStrategy`
-- `HybridConflictResolver` - `PreferFirstConflictResolver`
-
-언제 교체하나:
-
-- JWT와 session을 함께 시도하는 순서를 바꾸고 싶을 때
-- source conflict 처리 방식을 바꾸고 싶을 때
-
-보안 관점:
-
-- JWT 우선, session 우선, 동일 principal만 허용 같은 조합 메커니즘은 1계층에 둘 수 있습니다.
-- 브라우저, 외부 API, internal boundary별 적용 정책은 상위 계층에 둡니다.
-
-### 8) 새 인증 capability
+### 7) 새 인증 capability
 
 추가된 capability 모듈:
 
 - `auth-apikey`: `ApiKeyAuthenticationProvider`, `ApiKeyPrincipalResolver`
 - `auth-hmac`: `HmacAuthenticationProvider`, `HmacSecretResolver`, `HmacSignatureVerifier`
+- `auth-dpop`: `DpopProofVerifier`, `DpopReplayValidator`
+- `auth-mfa`: `MfaService`, `MfaEnrollmentResolver`, `MfaPolicy`, `MfaVerifier`, `MfaPrincipalMapper`
+- `auth-mtls`: `MtlsAuthenticationProvider`, `MtlsCertificateVerifier`, `MtlsPrincipalResolver`
 - `auth-oidc`: `OidcAuthenticationProvider`, `OidcTokenVerifier`, `OidcPrincipalMapper`
+- `auth-otp`: `HotpVerifier`, `TotpVerifier`, `Sha256RecoveryCodeVerifier`
+- `auth-saml`: `SamlAuthenticationProvider`, `SamlResponseVerifier`, `SamlAssertionValidator`, `SamlPrincipalMapper`
 - `auth-service-account`: `ServiceAccountAuthenticationProvider`, `ServiceAccountVerifier`
+- `auth-webauthn`: `PasskeyAuthenticationProvider`, `PasskeyRegistrationService`, `WebAuthnAssertionVerifier`, `WebAuthnAttestationVerifier`
 
 구현 기준:
 
 - provider는 credential 검증과 `Principal` 반환까지만 담당합니다.
+- MFA step-up은 이미 인증된 `Principal`에 대해 requirement 평가와 factor 검증 조립까지만 담당합니다.
+- 기본 구현으로 `TotpMfaVerifier`, `RecoveryCodeMfaVerifier`를 제공하지만, secret 저장과 recovery code 소모 처리는 상위 계층 책임입니다.
 - 어떤 요청에 provider를 적용할지는 이 저장소 밖에서 결정합니다.
 - 특정 URL, 특정 header name, 특정 issuer/audience 기본값, 조직 role mapping은 넣지 않습니다.
 
 ## 권장 책임 분리
 
-- Provider 설정, 회원 가입/계정 연결 정책, 리소스 permission policy, framework adapter는 애플리케이션이나 상위 계층이 소유합니다.
+- Provider 설정, 복수 인증원의 조합 정책, 회원 가입/계정 연결 정책, 리소스 permission policy, framework adapter는 애플리케이션이나 상위 계층이 소유합니다.
 - `auth` 저장소는 principal 생성, 토큰 발급/검증, refresh rotation, 세션 처리, 인증 capability SPI에 집중합니다.

@@ -2,7 +2,7 @@ package com.auth.apikey;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.auth.api.model.Principal;
+import com.auth.core.api.model.Principal;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 

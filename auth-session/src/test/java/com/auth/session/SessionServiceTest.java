@@ -2,16 +2,17 @@ package com.auth.session;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.auth.core.api.model.Principal;
+import com.auth.session.id.SessionIdGenerator;
+import com.auth.session.store.SessionStore;
+import com.auth.session.store.TestSessionStore;
 import java.time.Duration;
-
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import com.auth.api.model.Principal;
-
 class SessionServiceTest {
 
-	private final SessionStore store = new SimpleSessionStore();
+	private final SessionStore store = new TestSessionStore();
 	private final SessionIdGenerator generator = () -> "session-42";
 	private final SessionService service = new SessionService(store, generator, Duration.ofMinutes(30));
 

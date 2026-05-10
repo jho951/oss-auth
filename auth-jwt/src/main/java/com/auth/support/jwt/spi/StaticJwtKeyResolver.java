@@ -5,10 +5,12 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-/** Verification resolver backed by an immutable in-memory key map. */
+/** 사용할 검증 키를 메모리에 고정해 두는 resolver입니다. */
 public final class StaticJwtKeyResolver implements JwtKeyResolver {
 
+	/** 기본 검증 키입니다. */
 	private final Key defaultKey;
+	/** `kid`별로 보관하는 검증 키입니다. */
 	private final Map<String, Key> keysById;
 
 	public StaticJwtKeyResolver(Key defaultKey) {
@@ -22,7 +24,8 @@ public final class StaticJwtKeyResolver implements JwtKeyResolver {
 
 	@Override
 	public Optional<Key> resolve(String keyId) {
-		if (keyId == null || keyId.isBlank()) return Optional.of(defaultKey);
+		if (keyId == null) return Optional.of(defaultKey);
+		if (keyId.isBlank()) return Optional.of(defaultKey);
 		return Optional.ofNullable(keysById.get(keyId));
 	}
 }

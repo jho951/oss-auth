@@ -1,0 +1,165 @@
+import org.gradle.api.GradleException
+import org.gradle.api.publish.PublishingExtension
+import org.gradle.api.publish.maven.MavenPublication
+import org.gradle.api.publish.maven.tasks.PublishToMavenRepository
+import org.gradle.plugins.signing.SigningExtension
+
+apply plugin: "maven-publish"
+apply plugin: "signing"
+
+def optionalRootProp = { List<String> keys, String defaultValue = "" ->
+    keys.collect { key ->
+        rootProject.findProperty(key)?.toString()?.trim()
+    }.find { it } ?: defaultValue
+}
+
+def envOrRootProp = { String envName, List<String> propKeys = [], String defaultValue = "" ->
+    System.getenv(envName)?.trim() ?: optionalRootProp(propKeys, defaultValue)
+}
+
+def normalizeSigningKey = { Object raw, String charset = "UTF-8" ->
+    String text = raw?.toString()?.trim()
+    if (!text) {
+        return ""
+    }
+
+    String normalized = text
+        .replace("\\r\\n", "\n")
+        .replace("\\n", "\n")
+
+    if (normalized.startsWith("-----BEGIN PGP PRIVATE KEY BLOCK-----")) {
+        return normalized
+    }
+
+    try {
+        return new String(normalized.decodeBase64(), charset).trim()
+    } catch (Exception ignored) {
+        return normalized
+    }
+}
+
+def isExternalPublishTaskRequested = {
+    gradle.startParameter.taskNames.any { taskName ->
+        String normalized = taskName.toLowerCase()
+        normalized.contains("publish") && !normalized.contains("mavenlocal")
+    }
+}
+
+def githubBaseUrl = "https://github.com/${rootProject.config.githubOrg}/${rootProject.config.githubRepo}"
+def encoding = optionalRootProp(["encoding", "encoding_method"], "UTF-8")
+def signingKey = normalizeSigningKey(
+    envOrRootProp("MAVEN_CENTRAL_GPG_PRIVATE_KEY", ["mavenCentralSigningKey", "signingKey"]),
+    encoding
+)
+def signingPassword = envOrRootProp(
+    "MAVEN_CENTRAL_GPG_PASSPHRASE",
+    ["mavenCentralSigningPassword", "signingPassword"]
+)
+
+dependencies {
+    constraints {
+        api "${rootProject.group}:auth-core:${rootProject.version}"
+        api "${rootProject.group}:auth-jwt:${rootProject.version}"
+        api "${rootProject.group}:auth-session:${rootProject.version}"
+        api "${rootProject.group}:auth-apikey:${rootProject.version}"
+        api "${rootProject.group}:auth-hmac:${rootProject.version}"
+        api "${rootProject.group}:auth-dpop:${rootProject.version}"
+        api "${rootProject.group}:auth-mfa:${rootProject.version}"
+        api "${rootProject.group}:auth-mtls:${rootProject.version}"
+        api "${rootProject.group}:auth-oidc:${rootProject.version}"
+        api "${rootProject.group}:auth-otp:${rootProject.version}"
+        api "${rootProject.group}:auth-saml:${rootProject.version}"
+        api "${rootProject.group}:auth-service-account:${rootProject.version}"
+        api "${rootProject.group}:auth-webauthn:${rootProject.version}"
+    }
+}
+
+extensions.configure(PublishingExtension) { publishing ->
+    publishing.publications.register("mavenBom", MavenPublication) { publication ->
+        publication.from(components.javaPlatform)
+        publication.groupId = project.group.toString()
+        publication.artifactId = "auth-bom"
+        publication.version = project.version.toString()
+
+        publication.pom { pom ->
+            pom.name.set("Auth Bom")
+            pom.description.set("Published BOM that pins the officially supported auth module set.")
+            pom.url.set(githubBaseUrl)
+
+            pom.licenses { licenses ->
+                licenses.license { license ->
+                    license.name.set(optionalRootProp(["pom_license_name"], "The Apache License, Version 2.0"))
+                    license.url.set(optionalRootProp(["pom_license_url"], "https://www.apache.org/licenses/LICENSE-2.0.txt"))
+                }
+            }
+
+            pom.developers { developers ->
+                developers.developer { developer ->
+                    developer.id.set(optionalRootProp(["pom_developer_id"], "jho951"))
+                    developer.name.set(optionalRootProp(["pom_developer_name"], "YJH (jho951)"))
+
+                    String developerEmail = optionalRootProp(["pom_developer_email"], "jho951@naver.com")
+                    if (developerEmail) {
+                        developer.email.set(developerEmail)
+                    }
+
+                    developer.url.set(
+                        optionalRootProp(
+                            ["pom_developer_url"],
+                            "https://github.com/${rootProject.config.githubOrg}"
+                        )
+                    )
+                }
+            }
+
+            pom.scm { scm ->
+                scm.connection.set("scm:git:${githubBaseUrl}.git")
+                scm.developerConnection.set(
+                    "scm:git:ssh://git@github.com/${rootProject.config.githubOrg}/${rootProject.config.githubRepo}.git"
+                )
+                scm.url.set(githubBaseUrl)
+            }
+        }
+    }
+}
+
+extensions.configure(SigningExtension) { signing ->
+    signing.required {
+        isExternalPublishTaskRequested()
+    }
+
+    if (signingKey) {
+        signing.useInMemoryPgpKeys(signingKey, signingPassword)
+    }
+
+    signing.sign(extensions.getByType(PublishingExtension).publications)
+}
+
+tasks.withType(PublishToMavenRepository).configureEach { publishTask ->
+    publishTask.doFirst {
+        String username = envOrRootProp(
+            "MAVEN_CENTRAL_USERNAME",
+            ["mavenCentralUsername", "ossrhUsername"]
+        )
+        String password = envOrRootProp(
+            "MAVEN_CENTRAL_PASSWORD",
+            ["mavenCentralPassword", "ossrhPassword"]
+        )
+
+        if (!username || !password) {
+            throw new GradleException(
+                "Missing Maven Central credentials. " +
+                "Set MAVEN_CENTRAL_USERNAME/MAVEN_CENTRAL_PASSWORD " +
+                "(or mavenCentralUsername/mavenCentralPassword)."
+            )
+        }
+
+        if (!signingKey) {
+            throw new GradleException(
+                "Missing signing key. " +
+                "Set MAVEN_CENTRAL_GPG_PRIVATE_KEY " +
+                "(or mavenCentralSigningKey/signingKey)."
+            )
+        }
+    }
+}

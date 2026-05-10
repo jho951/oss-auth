@@ -1,7 +1,9 @@
 package com.auth.api.model;
 
-import com.auth.api.exception.AuthException;
-import com.auth.api.exception.AuthFailureReason;
+import com.auth.core.api.exception.AuthException;
+import com.auth.core.api.exception.AuthFailureReason;
+import com.auth.core.api.model.Tokens;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;

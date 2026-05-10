@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.auth.core.api.exception.AuthException;
+import com.auth.core.api.exception.AuthFailureReason;
+
 class AuthExceptionTest {
 
 	@Test

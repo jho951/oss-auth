@@ -1,6 +1,6 @@
 package com.auth.session.strategy;
 
-import com.auth.session.SessionRecord;
+import com.auth.session.store.SessionRecord;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;

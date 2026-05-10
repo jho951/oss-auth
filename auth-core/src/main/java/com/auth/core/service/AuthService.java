@@ -4,38 +4,29 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 
-import com.auth.api.exception.AuthException;
-import com.auth.api.exception.AuthFailureReason;
-import com.auth.api.model.Principal;
-import com.auth.api.model.Tokens;
-import com.auth.api.model.User;
+import com.auth.core.api.exception.AuthException;
+import com.auth.core.api.exception.AuthFailureReason;
+import com.auth.core.api.model.Principal;
+import com.auth.core.api.model.Tokens;
+import com.auth.core.api.model.User;
 
-import com.auth.spi.PasswordVerifier;
-import com.auth.spi.RefreshTokenStore;
-import com.auth.spi.TokenService;
-import com.auth.spi.UserFinder;
-import com.auth.common.utils.MoreObjects;
-import com.auth.common.utils.Strings;
+import com.auth.core.spi.PasswordVerifier;
+import com.auth.core.spi.RefreshTokenStore;
+import com.auth.core.spi.TokenService;
+import com.auth.core.spi.UserFinder;
+import com.auth.core.spi.UserStatusChecker;
+import com.auth.core.utils.MoreObjects;
+import com.auth.core.utils.Strings;
 
-/**
- * <h2>AuthService</h2>
- * <p>OSS auth의 순수 인증 유즈케이스입니다.</p>
- * <p><b>순수 Java 로직</b>으로 작성해 특정 프레임워크나 HTTP 프로토콜, 특정 데이터베이스 기술에 종속되지 않습니다.</p>
- * <p>의존성 역전 원칙(DIP)에 따라 인터페이스(SPI)에 의존하며, 실제 구현체는 실행 시점에 주입받아 동작합니다.</p>
- * <p><b>주요 역할:</b></p>
- * <ul>
- * <li>사용자 자격 증명(Username/Password) 확인</li>
- * <li>액세스 및 리프레시 토큰 통합 발급 (Login)</li>
- * <li>리프레시 토큰 회전 정책을 통한 토큰 재발급 (Refresh)</li>
- * <li>서버 측 세션 무효화 (Logout)</li>
- * </ul>
- */
+/** OSS auth의 순수 인증 유즈케이스입니다. */
 public final class AuthService {
 
 	/** 사용자 정보를 조회하기 위한 인터페이스 (유저 정보) */
 	private final UserFinder userFinder;
-	/**  비밀번호 암호화 및 일치 여부 확인 인터페이스 */
+	/** 비밀번호 암호화 및 일치 여부 확인 인터페이스 */
 	private final PasswordVerifier passwordVerifier;
+	/** 사용자의 인증 가능 상태를 판정하는 인터페이스 */
+	private final UserStatusChecker userStatusChecker;
 	/** 토큰(JWT 등) 생성 및 검증 인터페이스 */
 	private final TokenService tokenService;
 	/** 리프레시 토큰의 영속성 관리를 위한 저장소 인터페이스 */
@@ -52,7 +43,7 @@ public final class AuthService {
 		RefreshTokenStore refreshTokenStore,
 		Duration refreshTtl
 	) {
-		this(userFinder, passwordVerifier, tokenService, refreshTokenStore, refreshTtl, Clock.systemUTC());
+		this(userFinder, passwordVerifier, UserStatusChecker.allowAll(), tokenService, refreshTokenStore, refreshTtl, Clock.systemUTC());
 	}
 
 	public AuthService(
@@ -63,25 +54,42 @@ public final class AuthService {
 		Duration refreshTtl,
 		Clock clock
 	) {
-		this.userFinder = Strings.requireNonNull(userFinder, "userFinder");
-		this.passwordVerifier = Strings.requireNonNull(passwordVerifier, "passwordVerifier");
-		this.tokenService = Strings.requireNonNull(tokenService, "tokenService");
-		this.refreshTokenStore = Strings.requireNonNull(refreshTokenStore, "refreshTokenStore");
-		this.refreshTtl = (refreshTtl == null || refreshTtl.isNegative() || refreshTtl.isZero()) ? Duration.ofDays(14) : refreshTtl;
-		this.clock = MoreObjects.defaultIfNull(clock, Clock.systemUTC());
+		this(userFinder, passwordVerifier, UserStatusChecker.allowAll(), tokenService, refreshTokenStore, refreshTtl, clock);
 	}
 
+	public AuthService(
+		UserFinder userFinder,
+		PasswordVerifier passwordVerifier,
+		UserStatusChecker userStatusChecker,
+		TokenService tokenService,
+		RefreshTokenStore refreshTokenStore,
+		Duration refreshTtl
+	) {
+		this(userFinder, passwordVerifier, userStatusChecker, tokenService, refreshTokenStore, refreshTtl, Clock.systemUTC());
+	}
 
+	public AuthService(
+		UserFinder userFinder,
+		PasswordVerifier passwordVerifier,
+		UserStatusChecker userStatusChecker,
+		TokenService tokenService,
+		RefreshTokenStore refreshTokenStore,
+		Duration refreshTtl,
+		Clock clock
+	) {
+        this.userFinder = Strings.requireNonNull(userFinder, "userFinder");
+        this.passwordVerifier = Strings.requireNonNull(passwordVerifier, "passwordVerifier");
+        this.userStatusChecker = Strings.requireNonNull(userStatusChecker, "userStatusChecker");
+        this.tokenService = Strings.requireNonNull(tokenService, "tokenService");
+        this.refreshTokenStore = Strings.requireNonNull(refreshTokenStore, "refreshTokenStore");
+        this.refreshTtl =
+            (refreshTtl == null || refreshTtl.isNegative() || refreshTtl.isZero()) ? Duration.ofDays(14) : refreshTtl;
+        this.clock = MoreObjects.defaultIfNull(clock, Clock.systemUTC());
+    }
 
 	/**
 	 * 사용자의 자격 증명을 확인하고 새로운 토큰 세트를 발급합니다.
-	 * <ol>
-	 * <li>사용자 존재 여부 및 비밀번호 일치 여부 확인</li>
-	 * <li>Principal 객체 생성 (UserId, Authorities 포함)</li>
-	 * <li>Access/Refresh 토큰 쌍 생성</li>
-	 * <li>추후 검증을 위해 Refresh 토큰을 저장소에 기록</li>
-	 * </ol>
-	 * * @param username 사용자 계정명
+	 * @param username 사용자 계정명
 	 * @param password 평문 비밀번호
 	 * @return 발급된 Access Token과 Refresh Token 쌍
 	 * @throws AuthException 유저를 찾을 수 없거나 비밀번호가 틀린 경우 (USER_NOT_FOUND, INVALID_CREDENTIALS)
@@ -92,16 +100,30 @@ public final class AuthService {
 
 		User user = userFinder.findByUsername(username).orElseThrow(() -> new AuthException(AuthFailureReason.USER_NOT_FOUND, "user not found"));
 
+		AuthFailureReason statusFailureReason = userStatusChecker.check(user).orElse(null);
+		if (statusFailureReason != null) {
+			throw new AuthException(statusFailureReason, userStatusMessage(statusFailureReason));
+		}
+
 		boolean ok = passwordVerifier.matches(password, user.getPasswordHash());
 
-		if (!ok) {throw new AuthException(AuthFailureReason.INVALID_CREDENTIALS, "invalid credentials");}
+		if (!ok) throw new AuthException(AuthFailureReason.INVALID_CREDENTIALS, "invalid credentials");
 
 		return login(new Principal(user.getUserId(), user.getAuthorities()));
 	}
 
+	private static String userStatusMessage(AuthFailureReason reason) {
+		return switch (reason) {
+			case USER_DISABLED -> "user disabled";
+			case USER_LOCKED -> "user locked";
+			case USER_EXPIRED -> "user expired";
+			case CREDENTIALS_EXPIRED -> "credentials expired";
+			default -> reason.name().toLowerCase();
+		};
+	}
+
 	/**
 	 * 이미 외부에서 인증이 끝난 사용자를 기준으로 새로운 토큰 세트를 발급합니다.
-	 * <p>OAuth2/OIDC 로그인처럼 비밀번호 검증을 이 모듈 밖에서 수행한 경우에 사용합니다.</p>
 	 * @param principal 내부 사용자 식별자와 권한을 담은 Principal
 	 * @return 발급된 Access Token과 Refresh Token 쌍
 	 */
@@ -117,9 +139,7 @@ public final class AuthService {
 	}
 
 	/**
-	 * 리프레시 토큰을 사용하여 새로운 토큰 쌍을 재발급합니다. (Token Rotation)
-	 * <p>보안 강화를 위해 <b>Refresh Token Rotation</b> 정책을 사용합니다.
-	 * 새로운 토큰이 발급되면 기존의 리프레시 토큰은 즉시 폐기됩니다.</p>
+	 * 리프레시 토큰을 사용하여 새로운 토큰 쌍을 재발급합니다.
 	 * @param refreshToken 유효한 리프레시 토큰
 	 * @return 새로 발급된 Access Token과 Refresh Token 쌍
 	 * @throws AuthException 토큰이 변조되었거나, 만료되었거나, 서버 저장소에 존재하지 않는 경우 (INVALID_TOKEN, REVOKED_TOKEN)
@@ -150,8 +170,6 @@ public final class AuthService {
 
 	/**
 	 * 사용자를 로그아웃 처리하고 리프레시 토큰을 무효화합니다.
-	 * <p>이 메서드는 서버에 저장된 Refresh 토큰을 삭제하여 더 이상 토큰 갱신이 불가능하게 만듭니다.
-	 * 이미 발급된 Access 토큰은 만료 전까지 유효할 수 있습니다.</p>
 	 * @param refreshToken 무효화할 리프레시 토큰
 	 * @throws AuthException 토큰 형식이 잘못되었을 경우
 	 */

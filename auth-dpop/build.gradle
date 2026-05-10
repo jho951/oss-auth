@@ -1,0 +1,6 @@
+dependencies {
+    api project(':auth-core')
+    api "io.jsonwebtoken:jjwt-api:${rootProject.config.jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-impl:${rootProject.config.jjwtVersion}"
+    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${rootProject.config.jjwtVersion}"
+}

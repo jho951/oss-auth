@@ -1,209 +1,101 @@
-def requiredRootProp = { List<String> keys ->
-    def value = keys.collect { key ->
-        rootProject.findProperty(key)?.toString()?.trim()
-    }.find { it }
-    if (!value) {
-        throw new GradleException("Missing required property. Expected one of: ${keys.join(', ')}")
-    }
-    value
+plugins {
+    id "io.github.jho951.oss-publishing" apply false
 }
 
-def optionalRootProp = { List<String> keys, String defaultValue = "" ->
-    keys.collect { key ->
-        rootProject.findProperty(key)?.toString()?.trim()
-    }.find { it } ?: defaultValue
+// -----------------------------------------------------------------------------
+// 1. Property Management
+// -----------------------------------------------------------------------------
+def getProp(String key) {
+    if (!key) throw new GradleException("Missing required property: ${key}")
+    return rootProject.findProperty(key)?.toString()?.trim()
 }
 
-def envOrRootProp = { String envName, List<String> propKeys = [], String defaultValue = "" ->
-    def envValue = System.getenv(envName)?.trim()
-    envValue ?: optionalRootProp(propKeys, defaultValue)
-}
-
-def normalizeSigningKey = { Object raw, String charset = "UTF-8" ->
-    def text = raw?.toString()?.trim()
-    if (!text) return ""
-
-    text = text.replace("\\r\\n", "\n").replace("\\n", "\n")
-    if (text.startsWith("-----BEGIN PGP PRIVATE KEY BLOCK-----")) {
-        return text
-    }
-
-    try {
-        return new String(text.decodeBase64(), charset).trim()
-    } catch (Exception ignored) {
-        return text
-    }
-}
-
-def modules = [
-        "auth-core": [
-                artifactId : "auth-core",
-                pomName    : "Auth Core",
-                description: "Core authentication primitives, identity models, and SPI contracts."
-        ],
-        "auth-jwt": [
-                artifactId : "auth-jwt",
-                pomName    : "Auth JWT",
-                description: "JWT token issuance and verification implementation for the auth stack."
-        ],
-        "auth-session": [
-                artifactId : "auth-session",
-                pomName    : "Auth Session",
-                description: "Session identifiers, stores, and principal mapping implementation."
-        ],
-        "auth-hybrid": [
-                artifactId : "auth-hybrid",
-                pomName    : "Hybrid Auth Core",
-                description: "Hybrid authentication strategies that compose JWT and session verification."
-        ],
-        "auth-apikey": [
-                artifactId : "auth-apikey",
-                pomName    : "Auth API Key",
-                description: "API key authentication contracts and provider implementations."
-        ],
-        "auth-hmac": [
-                artifactId : "auth-hmac",
-                pomName    : "Auth HMAC",
-                description: "HMAC request signature verification contracts and provider implementations."
-        ],
-        "auth-oidc": [
-                artifactId : "auth-oidc",
-                pomName    : "Auth OIDC",
-                description: "OIDC identity token verification and principal mapping contracts."
-        ],
-        "auth-service-account": [
-                artifactId : "auth-service-account",
-                pomName    : "Auth Service Account",
-                description: "Service account credential verification contracts and provider implementations."
-        ],
+ext.config = [
+    group        : getProp("release_group"),
+    version      : getProp("release_version"),
+    javaVersion  : getProp("java_version").toInteger(),
+    encoding     : getProp("encoding"),
+    jjwtVersion  : getProp("jjwt_version"),
+    junitVersion : getProp("junit_version"),
+    githubOrg    : getProp("github_org"),
+    githubRepo   : getProp("github_repo")
 ]
 
-group = requiredRootProp(['release_group'])
-version = requiredRootProp(['release_version'])
+group = config.group
+version = config.version
 
-ext {
-    buildConfig = [
-            javaVersion      : requiredRootProp(['java_version']).toInteger(),
-            jjwtVersion      : optionalRootProp(['jjwt_version']),
-            junitVersion     : optionalRootProp(['junit_version'], '5.10.0'),
-            encoding         : optionalRootProp(['encoding'], 'UTF-8'),
-            githubOrg        : requiredRootProp(['github_org']),
-            githubRepo       : requiredRootProp(['github_repo']),
-    ]
-    githubBaseUrl = "https://github.com/${buildConfig.githubOrg}/${buildConfig.githubRepo}"
-}
+// -----------------------------------------------------------------------------
+// 2. Publishable Modules Metadata
+// -----------------------------------------------------------------------------
+def moduleMetadata = [
+    "auth-bom"            : "Published BOM that pins the officially supported auth module set.",
+    "auth-core"           : "Core authentication primitives, identity models, and SPI contracts.",
+    "auth-jwt"            : "JWT token issuance and verification implementation.",
+    "auth-session"        : "Session identifiers, stores, and principal mapping.",
+    "auth-apikey"         : "API key authentication contracts and provider implementations.",
+    "auth-hmac"           : "HMAC request signature verification implementations.",
+    "auth-dpop"           : "DPoP proof verification and sender-constrained token helpers.",
+    "auth-mfa"            : "MFA step-up policies, factor verification contracts, and principal upgrade helpers.",
+    "auth-mtls"           : "mTLS client certificate authentication and certificate-bound token helpers.",
+    "auth-oidc"           : "OIDC identity token verification and principal mapping.",
+    "auth-otp"            : "HOTP, TOTP, and recovery code verification helpers.",
+    "auth-saml"           : "SAML assertion validation and principal mapping capability.",
+    "auth-service-account": "Service account credential verification implementations.",
+    "auth-webauthn"       : "WebAuthn assertion, attestation contracts, and passkey principal mapping."
+]
 
-allprojects {
-    group = rootProject.group
-    version = rootProject.version
+def platformModules = ["auth-bom"] as Set
+
+// -----------------------------------------------------------------------------
+// 3. Subprojects Configuration
+// -----------------------------------------------------------------------------
+subprojects {
+    group = rootProject.config.group
+    version = rootProject.config.version
 
     repositories {
         mavenCentral()
     }
-}
 
-subprojects {
-    apply plugin: 'java-library'
+    if (platformModules.contains(project.name)) {
+        apply plugin: "java-platform"
+    } else {
+        apply plugin: "java-library"
 
-    ext {
-        jjwtVersion = rootProject.ext.buildConfig.jjwtVersion
-    }
+        java {
+            toolchain { languageVersion = JavaLanguageVersion.of(rootProject.config.javaVersion) }
+        }
 
-    java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(rootProject.ext.buildConfig.javaVersion)
+        tasks.withType(JavaCompile).configureEach {
+            options.release = rootProject.config.javaVersion
+            options.encoding = rootProject.config.encoding
+        }
+
+        dependencies {
+            testImplementation platform("org.junit:junit-bom:${rootProject.config.junitVersion}")
+            testImplementation "org.junit.jupiter:junit-jupiter"
+            testImplementation "org.assertj:assertj-core:3.24.2"
+            testRuntimeOnly "org.junit.platform:junit-platform-launcher"
+        }
+
+        test { useJUnitPlatform() }
+
+        tasks.withType(Javadoc).configureEach {
+            options.addStringOption("Xdoclint:none", "-quiet")
+            options.encoding = rootProject.config.encoding
         }
     }
 
-    tasks.withType(JavaCompile).configureEach {
-        options.release.set(rootProject.ext.buildConfig.javaVersion)
-        options.encoding = rootProject.ext.buildConfig.encoding
+    // -------------------------------------------------------------------------
+    // 4. Maven Publishing
+    // -------------------------------------------------------------------------
+    def description = moduleMetadata[project.name]
+    if (description && !platformModules.contains(project.name)) {
+        ext.ossPublishedModule = [
+            artifactId : project.name,
+            pomName    : project.name.split('-').collect { it.capitalize() }.join(' '),
+            description: description
+        ]
+        apply plugin: "io.github.jho951.oss-publishing"
     }
-
-    tasks.withType(Javadoc).configureEach {
-        options.addStringOption("Xdoclint:none", "-quiet")
-    }
-
-    dependencies {
-        testImplementation platform("org.junit:junit-bom:${rootProject.ext.buildConfig.junitVersion}")
-        testImplementation 'org.junit.jupiter:junit-jupiter'
-        testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-        testImplementation 'org.assertj:assertj-core:3.24.2'
-    }
-
-    tasks.withType(Test).configureEach {
-        useJUnitPlatform()
-    }
-}
-
-configure(subprojects.findAll { modules.containsKey(it.name) }) {
-    apply plugin: 'maven-publish'
-    apply plugin: 'signing'
-
-    def moduleMeta = modules[project.name]
-    def signingKey = normalizeSigningKey(
-            envOrRootProp(
-                    "MAVEN_CENTRAL_GPG_PRIVATE_KEY",
-                    ["mavenCentralSigningKey"]
-            ),
-            rootProject.ext.buildConfig.encoding
-    )
-
-    def signingPassword = envOrRootProp(
-            "MAVEN_CENTRAL_GPG_PASSPHRASE",
-            ["mavenCentralSigningPassword"]
-    )
-
-    java {
-        withSourcesJar()
-        withJavadocJar()
-    }
-
-    publishing {
-        publications {
-            create("mavenJava", MavenPublication) {
-                from components.java
-
-                groupId = project.group.toString()
-                artifactId = moduleMeta.artifactId
-                version = project.version.toString()
-
-                pom {
-                    name = moduleMeta.pomName
-                    description = moduleMeta.description
-                    url = rootProject.ext.githubBaseUrl
-
-                    licenses {
-                        license {
-                            name = "The Apache License, Version 2.0"
-                            url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
-                        }
-                    }
-
-                    developers {
-                        developer {
-                            id = "jho951"
-                            name = "YJH (jho951)"
-                            email = "jho951@naver.com"
-                            url = "https://github.com/${rootProject.ext.buildConfig.githubOrg}"
-                        }
-                    }
-
-                    scm {
-                        connection = "scm:git:${rootProject.ext.githubBaseUrl}.git"
-                        developerConnection = "scm:git:ssh://git@github.com/${rootProject.ext.buildConfig.githubOrg}/${rootProject.ext.buildConfig.githubRepo}.git"
-                        url = rootProject.ext.githubBaseUrl
-                    }
-                }
-            }
-        }
-    }
-
-    signing {
-        if (signingKey) {
-            useInMemoryPgpKeys(signingKey, signingPassword)
-        }
-        sign publishing.publications
-    }
-
 }

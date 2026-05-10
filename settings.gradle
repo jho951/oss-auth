@@ -1,3 +1,12 @@
+pluginManagement {
+    includeBuild("../../contract/oss-contract/build-logic")
+
+    repositories {
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
 plugins {
     id 'com.gradleup.nmcp.settings' version '1.4.4'
 }
@@ -12,11 +21,17 @@ nmcpSettings {
 
 rootProject.name = "auth"
 
+include 'auth-bom'
 include 'auth-core'
 include 'auth-jwt'
 include 'auth-session'
-include 'auth-hybrid'
 include 'auth-apikey'
 include 'auth-hmac'
+include 'auth-dpop'
+include 'auth-mfa'
+include 'auth-mtls'
 include 'auth-oidc'
+include 'auth-otp'
+include 'auth-saml'
 include 'auth-service-account'
+include 'auth-webauthn'

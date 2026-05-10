@@ -2,9 +2,11 @@ package com.auth.api.model.subject;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.auth.api.model.AuthoritySet;
-import com.auth.api.model.Principal;
-import com.auth.api.model.PrincipalType;
+import com.auth.core.api.model.AuthoritySet;
+import com.auth.core.api.model.Principal;
+import com.auth.core.api.model.PrincipalType;
+import com.auth.core.api.model.subject.AuthenticatedSubject;
+
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;

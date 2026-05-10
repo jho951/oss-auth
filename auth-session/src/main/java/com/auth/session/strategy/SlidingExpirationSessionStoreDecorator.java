@@ -1,8 +1,8 @@
 package com.auth.session.strategy;
 
-import com.auth.api.model.Principal;
-import com.auth.session.SessionRecord;
-import com.auth.session.SessionRecordStore;
+import com.auth.core.api.model.Principal;
+import com.auth.session.store.SessionRecord;
+import com.auth.session.store.SessionRecordStore;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Objects;

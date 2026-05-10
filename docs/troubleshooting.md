@@ -121,17 +121,16 @@
 ### 조치
 - 사용자 최소 모델에 필요한 값을 모두 넣습니다.
 
-## 14. `getRoles()`가 아직 남아 있다
+## 14. 권한 필드 이름이 헷갈린다
 
 ### 원인
-- `Principal.getRoles()`와 `User.getRoles()`는 하위 호환성을 위해 `@Deprecated` 상태로 유지됩니다.
-- 내부 용어는 `roles`에서 `authorities`로 정리되었지만, 기존 호출 코드와 직렬화/매핑 코드가 바로 깨지지 않도록 브리지 메서드를 남겨둔 상태입니다.
-- 현재 구현에서 `getRoles()`는 별도 데이터를 가지지 않고 `getAuthorities()`와 같은 리스트를 그대로 반환합니다.
+- auth 모듈의 권한 표준 이름은 `authorities` 입니다.
+- `Principal`과 `User`는 `getAuthorities()`만 제공합니다.
+- JWT 권한 claim도 `authorities`만 사용합니다.
 
 ### 조치
-- 신규 코드는 `getAuthorities()`를 사용합니다.
-- 기존 통합 코드에서 `getRoles()`를 사용 중이라면 점진적으로 `getAuthorities()`로 마이그레이션합니다.
-- 브레이킹 체인지가 허용되는 시점에만 `getRoles()` 제거를 검토합니다.
+- 통합 코드에서 `roles` 또는 `getRoles()`를 사용 중이면 `authorities` / `getAuthorities()`로 변경합니다.
+- 기존 JWT producer/consumer도 `roles` claim 대신 `authorities` claim으로 맞춥니다.
 
 ## 15. `Tokens` 생성이 실패한다
 
@@ -158,12 +157,20 @@
 ### 조치
 - `SessionStore`, `SessionIdGenerator`, `Principal`을 모두 준비합니다.
 
+### 참고: 왜 세션 ID를 24바이트로 생성하나
+- 기본 구현인 `SecureRandomSessionIdGenerator()`는 `SecureRandom`으로 24바이트 난수를 만든 뒤 `Base64.getUrlEncoder().withoutPadding()`으로 인코딩합니다.
+- 이 방식은 결과에 `+`, `/`, `=` 같은 문자가 나오지 않아 URL, 쿠키, 헤더 값으로 안전하게 전달하기 쉽습니다.
+- 24바이트 입력은 인코딩 결과가 항상 32글자로 고정되므로 DB 컬럼을 `VARCHAR(32)`처럼 단순하게 설계하기 좋습니다.
+- 16바이트(128비트)도 일반적으로 충분히 안전한 최소 기준으로 많이 쓰이지만, 24바이트는 그보다 더 큰 엔트로피를 제공합니다.
+- 즉, 24바이트 선택은 URL-safe 문자열, 고정 32글자 길이, 128비트 기준보다 여유 있는 보안을 함께 얻기 위한 기본 선택입니다.
+- 프로젝트 제약으로 길이를 바꿔야 하면 `SecureRandomSessionIdGenerator(int byteLength)`로 상위 계층에서 조정할 수 있습니다.
+
 ## 18. 세션이 조회되지 않는다
 
 ### 원인
 - session id가 blank 이거나 잘못됐습니다.
 - `SessionStore`에 저장되지 않았습니다.
-- 여러 인스턴스 환경에서 메모리 저장소를 쓰고 있습니다.
+- 여러 인스턴스 환경에서 프로세스 로컬 저장소를 쓰고 있습니다.
 
 ### 조치
 - session id를 확인합니다.
@@ -178,17 +185,7 @@
 ### 조치
 - 매핑 규칙을 확인하고 필요하면 구현을 교체합니다.
 
-## 20. `HybridAuthenticationProvider`가 JWT 대신 세션을 사용한다
-
-### 원인
-- access token이 없거나 검증에 실패했습니다.
-- 세션 식별자만 전달되어 세션 경로로 폴백했습니다.
-
-### 조치
-- JWT와 session 중 어떤 경로를 우선할지 확인합니다.
-- 조합 순서를 바꾸려면 `HybridAuthenticationProvider` 구현을 교체합니다.
-
-## 21. Gradle property가 안 읽힌다
+## 20. Gradle property가 안 읽힌다
 
 원인:
 
@@ -199,7 +196,7 @@
 
 - 파일명을 확인하고 필요하면 `gradle.properties`로 정리
 
-## 22. artifact 이름이 문서와 다르다
+## 21. artifact 이름이 문서와 다르다
 
 원인:
 

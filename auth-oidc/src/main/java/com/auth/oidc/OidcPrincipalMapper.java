@@ -1,6 +1,6 @@
 package com.auth.oidc;
 
-import com.auth.api.model.Principal;
+import com.auth.core.api.model.Principal;
 
 /** Maps verified OIDC identity to the auth principal model. */
 public interface OidcPrincipalMapper {

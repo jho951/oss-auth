@@ -6,6 +6,8 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
+import com.auth.core.api.model.User;
+
 class UserTest {
 
 	@Test
@@ -16,7 +18,7 @@ class UserTest {
 		assertThat(user.getUserId()).isEqualTo("uuid-1");
 		assertThat(user.getUsername()).isEqualTo("tester");
 		assertThat(user.getPasswordHash()).isEqualTo("hashed-pw");
-		assertThat(user.getRoles()).containsExactly("USER");
+		assertThat(user.getAuthorities()).containsExactly("USER");
 	}
 
 	@Test

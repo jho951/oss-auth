@@ -1,6 +1,6 @@
 package com.auth.apikey;
 
-import com.auth.api.model.Principal;
+import com.auth.core.api.model.Principal;
 import java.util.Optional;
 
 /** Resolves valid API keys to principals. */
