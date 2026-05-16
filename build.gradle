@@ -1,28 +1,221 @@
-plugins {
-    id "io.github.jho951.oss-publishing" apply false
-}
-
 // -----------------------------------------------------------------------------
 // 1. Property Management
 // -----------------------------------------------------------------------------
-def getProp(String key) {
-    if (!key) throw new GradleException("Missing required property: ${key}")
-    return rootProject.findProperty(key)?.toString()?.trim()
+def getRequiredProp(String key) {
+    if (!key?.trim()) {
+        throw new GradleException("Property key must not be blank.")
+    }
+
+    String value = rootProject.findProperty(key)?.toString()?.trim()
+    if (!value) {
+        throw new GradleException("Missing required property: ${key}")
+    }
+
+    return value
+}
+
+def getRequiredIntProp(String key) {
+    String value = getRequiredProp(key)
+
+    try {
+        return value.toInteger()
+    } catch (NumberFormatException ex) {
+        throw new GradleException("Property '${key}' must be an integer, but was '${value}'.", ex)
+    }
+}
+
+def optionalProp(String key, String defaultValue = "") {
+    if (!key?.trim()) {
+        return defaultValue
+    }
+
+    rootProject.findProperty(key)?.toString()?.trim() ?: defaultValue
+}
+
+def envOrRootProp(String envName, List<String> propKeys = [], String defaultValue = "") {
+    String envValue = System.getenv(envName)?.trim()
+    if (envValue) {
+        return envValue
+    }
+
+    propKeys.collect { key ->
+        rootProject.findProperty(key)?.toString()?.trim()
+    }.find { it } ?: defaultValue
+}
+
+def normalizeSigningKey(Object raw, String charset = "UTF-8") {
+    String text = raw?.toString()?.trim()
+    if (!text) {
+        return ""
+    }
+
+    String normalized = text
+        .replace("\\r\\n", "\n")
+        .replace("\\n", "\n")
+
+    if (normalized.startsWith("-----BEGIN PGP PRIVATE KEY BLOCK-----")) {
+        return normalized
+    }
+
+    try {
+        return new String(normalized.decodeBase64(), charset).trim()
+    } catch (Exception ignored) {
+        return normalized
+    }
+}
+
+def isExternalPublishTaskRequested(Project target) {
+    target.gradle.startParameter.taskNames.any { taskName ->
+        String normalized = taskName.toLowerCase()
+        normalized.contains("publish") && !normalized.contains("mavenlocal")
+    }
 }
 
 ext.config = [
-    group        : getProp("release_group"),
-    version      : getProp("release_version"),
-    javaVersion  : getProp("java_version").toInteger(),
-    encoding     : getProp("encoding"),
-    jjwtVersion  : getProp("jjwt_version"),
-    junitVersion : getProp("junit_version"),
-    githubOrg    : getProp("github_org"),
-    githubRepo   : getProp("github_repo")
+    group         : getRequiredProp("release_group"),
+    version       : getRequiredProp("release_version"),
+    javaVersion   : getRequiredIntProp("java_version"),
+    encoding      : getRequiredProp("encoding"),
+    jjwtVersion   : getRequiredProp("jjwt_version"),
+    junitVersion  : getRequiredProp("junit_version"),
+    assertjVersion: getRequiredProp("assertj_version"),
+    jacksonVersion: getRequiredProp("jackson_version"),
+    githubOrg     : getRequiredProp("github_org"),
+    githubRepo    : getRequiredProp("github_repo")
 ]
 
 group = config.group
 version = config.version
+
+def githubBaseUrl = "https://github.com/${config.githubOrg}/${config.githubRepo}"
+
+def pomDisplayName(String moduleName) {
+    moduleName.split('-').collect { segment ->
+        switch (segment) {
+            case "apikey":
+                return "API Key"
+            case "bom":
+                return "BOM"
+            case "dpop":
+                return "DPoP"
+            case "hmac":
+                return "HMAC"
+            case "jwt":
+                return "JWT"
+            case "mfa":
+                return "MFA"
+            case "mtls":
+                return "mTLS"
+            case "oidc":
+                return "OIDC"
+            case "otp":
+                return "OTP"
+            case "saml":
+                return "SAML"
+            case "webauthn":
+                return "WebAuthn"
+            default:
+                return segment.capitalize()
+        }
+    }.join(' ')
+}
+
+def configurePomMetadata = { pom, Map moduleMeta ->
+    pom.name.set(moduleMeta.pomName)
+    pom.description.set(moduleMeta.description)
+    pom.url.set(githubBaseUrl)
+
+    pom.licenses {
+        license {
+            name.set(optionalProp("pom_license_name", "The Apache License, Version 2.0"))
+            url.set(optionalProp("pom_license_url", "https://www.apache.org/licenses/LICENSE-2.0.txt"))
+        }
+    }
+
+    pom.developers {
+        developer {
+            id.set(optionalProp("pom_developer_id", "jho951"))
+            name.set(optionalProp("pom_developer_name", "YJH (jho951)"))
+
+            String developerEmail = optionalProp("pom_developer_email", "jho951@naver.com")
+            if (developerEmail) {
+                email.set(developerEmail)
+            }
+
+            url.set(optionalProp("pom_developer_url", "https://github.com/${rootProject.config.githubOrg}"))
+        }
+    }
+
+    pom.scm {
+        connection.set("scm:git:${githubBaseUrl}.git")
+        developerConnection.set("scm:git:ssh://git@github.com/${rootProject.config.githubOrg}/${rootProject.config.githubRepo}.git")
+        url.set(githubBaseUrl)
+    }
+}
+
+def configurePublishValidation = { Project target, String signingKey ->
+    target.tasks.withType(PublishToMavenRepository).configureEach { publishTask ->
+        publishTask.doFirst {
+            String username = envOrRootProp("MAVEN_CENTRAL_USERNAME", ["mavenCentralUsername", "ossrhUsername"])
+            String password = envOrRootProp("MAVEN_CENTRAL_PASSWORD", ["mavenCentralPassword", "ossrhPassword"])
+
+            if (!username || !password) {
+                throw new GradleException(
+                    "Missing Maven Central credentials. " +
+                    "Set MAVEN_CENTRAL_USERNAME/MAVEN_CENTRAL_PASSWORD " +
+                    "(or mavenCentralUsername/mavenCentralPassword)."
+                )
+            }
+
+            if (!signingKey) {
+                throw new GradleException(
+                    "Missing signing key. " +
+                    "Set MAVEN_CENTRAL_GPG_PRIVATE_KEY " +
+                    "(or mavenCentralSigningKey/signingKey)."
+                )
+            }
+        }
+    }
+}
+
+def configurePublishedModule = { Project target, Map moduleMeta, String componentName, String publicationName ->
+    String signingKey = normalizeSigningKey(
+        envOrRootProp("MAVEN_CENTRAL_GPG_PRIVATE_KEY", ["mavenCentralSigningKey", "signingKey"]),
+        rootProject.config.encoding
+    )
+    String signingPassword = envOrRootProp(
+        "MAVEN_CENTRAL_GPG_PASSPHRASE",
+        ["mavenCentralSigningPassword", "signingPassword"]
+    )
+
+    target.pluginManager.apply("maven-publish")
+    target.pluginManager.apply("signing")
+
+    target.extensions.configure(PublishingExtension) { publishing ->
+        publishing.publications.register(publicationName, MavenPublication) { publication ->
+            publication.from(target.components.getByName(componentName))
+            publication.groupId = target.group.toString()
+            publication.artifactId = moduleMeta.artifactId
+            publication.version = target.version.toString()
+
+            configurePomMetadata(publication.pom, moduleMeta)
+        }
+    }
+
+    target.extensions.configure(SigningExtension) { signing ->
+        signing.required = {
+            isExternalPublishTaskRequested(target)
+        }
+
+        if (signingKey) {
+            signing.useInMemoryPgpKeys(signingKey, signingPassword)
+        }
+
+        signing.sign(target.extensions.getByType(PublishingExtension).publications)
+    }
+
+    configurePublishValidation(target, signingKey)
+}
 
 // -----------------------------------------------------------------------------
 // 2. Publishable Modules Metadata
@@ -45,6 +238,9 @@ def moduleMetadata = [
 ]
 
 def platformModules = ["auth-bom"] as Set
+ext.publishedLibraryModules = moduleMetadata.keySet().findAll { moduleName ->
+    !platformModules.contains(moduleName)
+}
 
 // -----------------------------------------------------------------------------
 // 3. Subprojects Configuration
@@ -62,8 +258,10 @@ subprojects {
     } else {
         apply plugin: "java-library"
 
-        java {
-            toolchain { languageVersion = JavaLanguageVersion.of(rootProject.config.javaVersion) }
+        extensions.configure(JavaPluginExtension) { javaExtension ->
+            javaExtension.toolchain.languageVersion = JavaLanguageVersion.of(rootProject.config.javaVersion)
+            javaExtension.withSourcesJar()
+            javaExtension.withJavadocJar()
         }
 
         tasks.withType(JavaCompile).configureEach {
@@ -74,7 +272,7 @@ subprojects {
         dependencies {
             testImplementation platform("org.junit:junit-bom:${rootProject.config.junitVersion}")
             testImplementation "org.junit.jupiter:junit-jupiter"
-            testImplementation "org.assertj:assertj-core:3.24.2"
+            testImplementation "org.assertj:assertj-core:${rootProject.config.assertjVersion}"
             testRuntimeOnly "org.junit.platform:junit-platform-launcher"
         }
 
@@ -90,12 +288,17 @@ subprojects {
     // 4. Maven Publishing
     // -------------------------------------------------------------------------
     def description = moduleMetadata[project.name]
-    if (description && !platformModules.contains(project.name)) {
-        ext.ossPublishedModule = [
+    if (description) {
+        Map moduleMeta = [
             artifactId : project.name,
-            pomName    : project.name.split('-').collect { it.capitalize() }.join(' '),
+            pomName    : pomDisplayName(project.name),
             description: description
         ]
-        apply plugin: "io.github.jho951.oss-publishing"
+
+        if (platformModules.contains(project.name)) {
+            configurePublishedModule(project, moduleMeta, "javaPlatform", "mavenBom")
+        } else {
+            configurePublishedModule(project, moduleMeta, "java", "mavenJava")
+        }
     }
 }

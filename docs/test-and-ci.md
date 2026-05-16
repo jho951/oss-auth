@@ -79,6 +79,16 @@
 - `.github/workflows/build.yml`
 - `.github/workflows/publish.yml`
 
+### `_gradle.yml`
+
+- 재사용 워크플로우입니다.
+- 공통 수행:
+  1. `actions/checkout`
+  2. `actions/setup-java`
+  3. `gradle/actions/setup-gradle`
+  4. `./gradlew <task> --no-daemon --stacktrace`
+- 필요 시 `release_version`을 Gradle project property로 주입합니다.
+
 ### `build.yml`
 
 - 트리거:
@@ -89,12 +99,12 @@
 
 ### `publish.yml`
 
-- 트리거:
-  - `v*` 태그 push
+- 트리거: `v*` 태그 push
 - 수행:
-  - `./gradlew test --no-daemon --stacktrace`
-  - `./gradlew -Prelease_version="$VERSION" publishAggregationToCentralPortal --no-daemon --stacktrace`
-  - Central Portal에 배포
+  1. 태그에서 `release_version` 계산
+  2. `_gradle.yml`을 호출해 `test` 실행
+  3. `_gradle.yml`을 호출해 `publishAggregationToCentralPortal` 실행
+  4. Central Portal에 배포
 
 ## 참고
 

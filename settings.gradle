@@ -1,6 +1,4 @@
 pluginManagement {
-    includeBuild("../../contract/oss-contract/build-logic")
-
     repositories {
         gradlePluginPortal()
         mavenCentral()

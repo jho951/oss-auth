@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 기여 가이드
+    url: https://github.com/jho951/rate-limiter/blob/main/CONTRIBUTING.md
+    about: 저장소 범위, 호환성 기준, 로컬 검증 방법을 먼저 확인합니다.
+  - name: 프로젝트 지원 안내
+    url: https://github.com/jho951/rate-limiter/blob/main/SUPPORT.md
+    about: 질문, 버그 제보, 보안 신고에 맞는 경로를 먼저 확인합니다.
+  - name: 보안 신고
+    url: mailto:jho951@naver.com
+    about: 공개 이슈 대신 비공개로 취약점을 신고합니다.

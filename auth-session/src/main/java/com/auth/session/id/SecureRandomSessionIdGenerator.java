@@ -20,9 +20,7 @@ public final class SecureRandomSessionIdGenerator implements SessionIdGenerator 
     }
 
     SecureRandomSessionIdGenerator(int byteLength, SecureRandom random) {
-        if (byteLength <= 0) {
-            throw new IllegalArgumentException("byteLength must be positive");
-        }
+        if (byteLength <= 0) throw new IllegalArgumentException("byteLength must be positive");
         this.byteLength = byteLength;
         this.random = Objects.requireNonNull(random, "random");
     }

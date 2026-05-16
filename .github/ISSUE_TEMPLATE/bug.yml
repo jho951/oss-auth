@@ -1,105 +1,105 @@
-name: Bug
-description: 버그 제보 (재현 절차 + 기대/실제 + 환경)
-title: "[BUG] "
+name: 버그 제보
+description: 공개 API, 예시, 문서, 빌드에서 재현 가능한 문제를 제보합니다
+title: "[버그] "
 labels: ["BUG"]
-assignees:
-  - jho951
 
 body:
   - type: markdown
     attributes:
       value: |
-        ✅ 작성 팁
-        - **재현 방법** + **기대 동작 vs 실제 동작**이 필수입니다.
-        - 가능하면 스크린샷/로그를 첨부해주세요.
+        버그 제보 전에 아래를 확인해주세요.
+        - 기존 이슈와 닫힌 이슈를 먼저 검색합니다.
+        - README, examples, docs를 먼저 확인합니다.
+        - 보안 취약점은 공개 이슈 대신 `SECURITY.md` 절차로 신고합니다.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 사전 확인
+      options:
+        - label: 기존 이슈, 문서, 예시를 먼저 확인했습니다.
+          required: true
+        - label: 보안 취약점이 아니며 공개 이슈로 올려도 되는 문제입니다.
+          required: true
 
   - type: textarea
     id: summary
     attributes:
-      label: "🐛 버그 요약"
-      description: "버그를 한 문장으로 설명해주세요."
+      label: 요약
+      description: 무엇이 잘못 동작하나요?
       placeholder: |
-        예) 비활성화된 사용자가 여전히 로그인할 수 있습니다.
+        예: `RateLimitPolicy`가 `permits` 0 값을 잘못 정규화합니다.
     validations:
       required: true
 
   - type: textarea
-    id: steps
+    id: reproduction
     attributes:
-      label: "🔁 재현 절차 (Steps to Reproduce)"
-      description: "버그를 재현하는 단계(순서대로)를 적어주세요."
+      label: 최소 재현 예제 또는 재현 절차
+      description: 가능한 한 작게 줄인 코드, 명령, 저장소 링크, 또는 재현 단계를 적어주세요.
       placeholder: |
-        1. /admin/login 페이지 접속
-        2. 비활성화된 사용자 계정으로 로그인 시도
-        3. 로그인 성공 후 대시보드로 이동
+        예:
+        1. `RateLimitPolicy.of(...)`로 정책을 생성합니다.
+        2. `permits`를 0으로 넣습니다.
+        3. 기대와 다른 결과를 확인합니다.
     validations:
       required: true
 
   - type: textarea
     id: expected
     attributes:
-      label: "✅ 기대 동작 (Expected Behavior)"
+      label: 기대 동작
       placeholder: |
-        예) 비활성화된 사용자는 로그인에 실패해야 한다. (HTTP 403)
+        예: 요청이 거부되고 `retryAfterMillis > 0` 이어야 합니다.
     validations:
       required: true
 
   - type: textarea
     id: actual
     attributes:
-      label: "🚨 실제 동작 (Actual Behavior)"
+      label: 실제 동작
       placeholder: |
-        예) 로그인에 성공하고, 대시보드 화면이 정상 표시됨
+        예: 요청이 허용되고 남은 토큰 수가 음수로 계산됩니다.
+    validations:
+      required: true
+
+  - type: textarea
+    id: version
+    attributes:
+      label: 버전 또는 커밋
+      description: 영향받는 라이브러리 버전이나 재현한 커밋을 적어주세요.
+      placeholder: |
+        예:
+        - rate-limiter: 2.0.0
+        - commit: abc1234
     validations:
       required: true
 
   - type: textarea
     id: env
     attributes:
-      label: "💻 환경 정보"
-      description: "재현/분석에 필요한 환경 정보를 적어주세요."
+      label: 환경 정보
+      description: 재현에 필요한 Java 버전, OS, 실행 환경, 관련 설정을 적어주세요.
       placeholder: |
-        - 브랜치/커밋:
-        - OS / Browser:
-        - 로컬 / Dev / Stage / Prod:
-        - 버전(서버/클라이언트/DB 등):
-    validations:
-      required: false
-
-  - type: dropdown
-    id: severity
-    attributes:
-      label: "📛 심각도 (Severity)"
-      options:
-        - "S1 - Blocker (서비스 사용 불가)"
-        - "S2 - Critical (핵심 기능 장애/데이터 손상 위험)"
-        - "S3 - Major (우회 가능하지만 기능 품질 저하)"
-        - "S4 - Minor (경미/UX 수준)"
+        - Java 버전:
+        - OS:
+        - Local / CI:
+        - 관련 설정:
     validations:
       required: false
 
   - type: textarea
-    id: logs
+    id: extra
     attributes:
-      label: "📎 로그 / 스크린샷"
-      description: "관련 로그, 에러 메시지, 스크린샷 등을 첨부해주세요."
-      render: shell
-    validations:
-      required: false
-
-  - type: textarea
-    id: workaround
-    attributes:
-      label: "🩹 임시 우회 방법 (있다면)"
-      placeholder: |
-        예) 특정 설정을 끄면 재현되지 않음 / 브라우저를 바꾸면 정상
+      label: 추가 자료
+      description: 로그, 스택 트레이스, 스크린샷, 참고 링크가 있으면 적어주세요.
     validations:
       required: false
 
   - type: input
     id: related
     attributes:
-      label: "🔗 관련 이슈 / PR"
-      placeholder: "예: #123, #456"
+      label: 관련 이슈 또는 PR
+      placeholder: "#123"
     validations:
       required: false

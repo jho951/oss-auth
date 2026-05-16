@@ -5,28 +5,6 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue)](./LICENSE)
 [![Tag](https://img.shields.io/github/v/tag/jho951/auth)](https://github.com/jho951/auth/tags)
 
-## 설정
-
-이 프로젝트의 공개 설정 및 정책 관련 계약은 [oss-contract](https://github.com/jho951/oss-contract)에서 관리됩니다.
-설정 변경이 필요하거나 상세 스펙을 확인하려면 해당 저장소를 참고하세요.
-
-## 공개 좌표
-
-- `io.github.jho951:auth-bom`
-- `io.github.jho951:auth-core`
-- `io.github.jho951:auth-jwt`
-- `io.github.jho951:auth-session`
-- `io.github.jho951:auth-apikey`
-- `io.github.jho951:auth-hmac`
-- `io.github.jho951:auth-dpop`
-- `io.github.jho951:auth-mfa`
-- `io.github.jho951:auth-mtls`
-- `io.github.jho951:auth-oidc`
-- `io.github.jho951:auth-otp`
-- `io.github.jho951:auth-saml`
-- `io.github.jho951:auth-service-account`
-- `io.github.jho951:auth-webauthn`
-
 ## 제공 모듈
 
 - `auth-bom`: 공식 지원 모듈 버전을 묶는 BOM
@@ -73,7 +51,3 @@ dependencies {
 ## 문서
 
 - [docs/README.md](docs/README.md)
-- [구현 가이드](docs/implementation-guide.md)
-- [소비 규약](docs/consumption-conventions.md)
-- [모듈 lifecycle](docs/module-lifecycle.md)
-- [기여 가이드](CONTRIBUTING.md)

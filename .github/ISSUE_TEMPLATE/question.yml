@@ -1,0 +1,85 @@
+name: 질문
+description: 사용법, 설계 의도, 저장소 범위에 대한 질문을 남깁니다
+title: "[질문] "
+labels: ["QUESTION"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        질문을 올리기 전에 README, examples, docs, SUPPORT.md를 먼저 확인해주세요.
+        재현 가능한 결함이면 `버그 제보`, 새 제안이면 `기능 제안`이 더 적합할 수 있습니다.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: 사전 확인
+      options:
+        - label: README, examples, docs, SUPPORT.md를 먼저 확인했습니다.
+          required: true
+        - label: 이 이슈는 버그 제보나 기능 제안보다 질문 템플릿이 더 적합합니다.
+          required: true
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: 목표
+      description: 무엇을 하려고 하나요?
+      placeholder: |
+        예: 이 저장소에 프레임워크 코드를 추가하지 않고 `RateLimiter`를 서블릿 필터에 연결하고 싶습니다.
+    validations:
+      required: true
+
+  - type: textarea
+    id: current_approach
+    attributes:
+      label: 현재 시도한 방식
+      description: 지금까지 어떤 시도를 했나요?
+      placeholder: |
+        예:
+        - `RateLimitPolicyResolver` 구현
+        - 커스텀 key extractor 작성
+        - 여러 plan을 어떻게 모델링할지 확신이 없음
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: 질문 내용
+      description: 무엇이 불명확하거나 막혀 있나요?
+      placeholder: |
+        예: 여러 제한은 각각 별도의 `RateLimitPolicy`로 표현하는 게 맞나요?
+    validations:
+      required: true
+
+  - type: textarea
+    id: code
+    attributes:
+      label: 관련 코드 또는 사용 예시
+      description: 질문 이해에 도움이 되는 코드, 설정, 호출 예시가 있으면 적어주세요.
+      placeholder: |
+        예:
+        - `RateLimitPolicyResolver` 구현 일부
+        - 현재 사용 중인 `RateLimiter` 연결 코드
+    validations:
+      required: false
+
+  - type: input
+    id: version
+    attributes:
+      label: 버전 또는 커밋
+      placeholder: "예: rate-limiter 2.0.0 또는 abc1234"
+    validations:
+      required: false
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: 환경 정보
+      description: 라이브러리 버전, Java 버전, 관련 실행 환경을 적어주세요.
+      placeholder: |
+        - Java 버전:
+        - 실행 환경:
+    validations:
+      required: false

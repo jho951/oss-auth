@@ -1,21 +1,25 @@
 # 모듈 가이드
 
-## 종류
+이 문서는 현재 저장소 기준으로 공식 지원 모듈, 제거된 모듈, 모듈별 책임 경계를 함께 설명합니다.
 
-- `auth-bom`: 공식 지원 모듈 버전을 한 번에 가져오는 BOM
-- `auth-core`: 공통 모델과 인증 연동 포인트
-- `auth-jwt`: JWT를 만들고 검증하는 구현
-- `auth-session`: 세션 저장소와 세션 인증 로직을 다루는 구현
-- `auth-apikey`: API key 인증 capability
-- `auth-hmac`: HMAC 서명 인증 capability
-- `auth-dpop`: DPoP proof 검증 capability
-- `auth-mfa`: MFA step-up 정책과 factor 검증 capability
-- `auth-mtls`: mTLS client certificate와 certificate-bound token capability
-- `auth-oidc`: OIDC ID token 검증과 principal mapping capability
-- `auth-otp`: HOTP, TOTP, recovery code verification capability
-- `auth-saml`: SAML assertion 검증과 principal mapping capability
-- `auth-service-account`: service account 인증 capability
-- `auth-webauthn`: WebAuthn assertion/attestation과 passkey principal mapping capability
+## 공식 지원 모듈
+
+| 모듈 | 상태 | 역할 |
+|------|------|------|
+| `auth-bom` | active | 공식 지원 모듈 버전을 한 번에 가져오는 BOM |
+| `auth-core` | active | 공통 모델과 인증 연동 포인트 |
+| `auth-jwt` | active | JWT를 만들고 검증하는 구현 |
+| `auth-session` | active | 세션 저장소와 세션 인증 로직을 다루는 구현 |
+| `auth-apikey` | active | API key 인증 capability |
+| `auth-hmac` | active | HMAC 서명 인증 capability |
+| `auth-dpop` | active | DPoP proof 검증 capability |
+| `auth-mfa` | active | MFA step-up 정책과 factor 검증 capability |
+| `auth-mtls` | active | mTLS client certificate와 certificate-bound token capability |
+| `auth-oidc` | active | OIDC ID token 검증과 principal mapping capability |
+| `auth-otp` | active | HOTP, TOTP, recovery code verification capability |
+| `auth-saml` | active | SAML assertion 검증과 principal mapping capability |
+| `auth-service-account` | active | service account 인증 capability |
+| `auth-webauthn` | active | WebAuthn assertion/attestation과 passkey principal mapping capability |
 
 ## 읽는 법
 
@@ -86,3 +90,16 @@
 - `auth-saml`
 - `auth-service-account`
 - `auth-webauthn`
+
+## 제거된 모듈
+
+| 모듈 | 상태 | 대체 경로 | 비고 |
+|------|------|-----------|------|
+| `auth-hybrid` | removed | 상위 계층에서 `auth-jwt`, `auth-session` 등 필요한 인증원을 직접 조합 | 현재 소스 트리와 `auth-bom`에서 제외됩니다. |
+
+## 운영 기준
+
+- 새 모듈이 공식 지원 대상이면 `auth-bom`에 추가합니다.
+- 더 이상 유지하지 않는 모듈은 `auth-bom`에서 제외하고 이 문서에 기록합니다.
+- 단순 rename인 경우에는 Maven Central에서 relocation POM을 별도로 발행합니다.
+- 하나의 모듈이 여러 모듈로 분리된 경우에는 relocation 대신 migration 문서와 replacement 안내를 사용합니다.
