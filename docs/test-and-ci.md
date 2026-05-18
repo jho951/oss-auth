@@ -1,4 +1,4 @@
-# 테스트/CI 가이드
+# 테스트/CI/배포 가이드
 
 ## 로컬 테스트 실행
 
@@ -26,6 +26,23 @@
 ./gradlew :auth-service-account:test
 ./gradlew :auth-webauthn:test
 ```
+
+## 로컬 배포 검증
+
+### Maven Local publish
+
+```bash
+./gradlew publishToMavenLocal
+```
+
+### Central Portal publish
+
+```bash
+./gradlew publishAggregationToCentralPortal --no-daemon --stacktrace --no-configuration-cache
+```
+
+- 실제 배포에는 `MAVEN_CENTRAL_USERNAME`, `MAVEN_CENTRAL_PASSWORD`, `MAVEN_CENTRAL_GPG_PRIVATE_KEY`, `MAVEN_CENTRAL_GPG_PASSPHRASE`가 필요합니다.
+- `publishAggregationToCentralPortal`는 현재 NMCP aggregation 태스크 특성상 configuration cache 없이 실행합니다.
 
 ## 현재 테스트 범위
 
@@ -86,8 +103,9 @@
   1. `actions/checkout`
   2. `actions/setup-java`
   3. `gradle/actions/setup-gradle`
-  4. `./gradlew <task> --no-daemon --stacktrace`
-- 필요 시 `release_version`을 Gradle project property로 주입합니다.
+  4. `release_version`이 있으면 `ORG_GRADLE_PROJECT_release_version`으로 주입
+  5. `./gradlew <task> --no-daemon --stacktrace` 실행
+- `publishAggregationToCentralPortal`를 실행할 때만 `--no-configuration-cache`를 추가합니다.
 
 ### `build.yml`
 
@@ -105,6 +123,13 @@
   2. `_gradle.yml`을 호출해 `test` 실행
   3. `_gradle.yml`을 호출해 `publishAggregationToCentralPortal` 실행
   4. Central Portal에 배포
+- 태그 `v4.0.0`은 workflow 안에서 `release_version=4.0.0`으로 변환됩니다.
+- 이 값은 workflow 실행 중 `gradle.properties`의 `release_version`보다 우선합니다.
+- 필요한 GitHub Actions secret:
+  - `MAVEN_CENTRAL_USERNAME`
+  - `MAVEN_CENTRAL_PASSWORD`
+  - `MAVEN_CENTRAL_GPG_PRIVATE_KEY`
+  - `MAVEN_CENTRAL_GPG_PASSPHRASE`
 
 ## 참고
 
