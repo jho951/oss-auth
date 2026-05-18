@@ -87,6 +87,11 @@ ext.config = [
 group = config.group
 version = config.version
 
+repositories {
+    mavenCentral()
+    gradlePluginPortal()
+}
+
 def githubBaseUrl = "https://github.com/${config.githubOrg}/${config.githubRepo}"
 
 def pomDisplayName(String moduleName) {

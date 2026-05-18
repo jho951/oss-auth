@@ -63,4 +63,11 @@ jobs:
             export ORG_GRADLE_PROJECT_release_version="$RELEASE_VERSION"
           fi
 
-          ./gradlew ${{ inputs.gradle-task }} --no-daemon --stacktrace
+          gradle_task='${{ inputs.gradle-task }}'
+          gradle_args=(--no-daemon --stacktrace)
+
+          if [[ "$gradle_task" == *publishAggregationToCentralPortal* ]]; then
+            gradle_args+=(--no-configuration-cache)
+          fi
+
+          ./gradlew $gradle_task "${gradle_args[@]}"
