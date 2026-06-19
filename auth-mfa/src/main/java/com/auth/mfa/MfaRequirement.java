@@ -8,7 +8,7 @@ import java.util.Optional;
 /** step-up 시도 전에 MFA 정책이 반환하는 판단 결과입니다. */
 public final class MfaRequirement {
 
-	private static final MfaRequirement NOT_REQUIRED = new MfaRequirement(false, List.of(), null, Map.of());
+	private static final MfaRequirement NOT_REQUIRED = new MfaRequirement(false, com.auth.core.utils.CollectionUtils.listOf(), null, com.auth.core.utils.CollectionUtils.mapOf());
 
 	private final boolean required;
 	private final List<MfaFactorType> acceptableFactors;
@@ -22,9 +22,9 @@ public final class MfaRequirement {
 		Map<String, Object> attributes
 	) {
 		this.required = required;
-		this.acceptableFactors = acceptableFactors == null ? List.of() : List.copyOf(acceptableFactors);
+		this.acceptableFactors = acceptableFactors == null ? com.auth.core.utils.CollectionUtils.listOf() : com.auth.core.utils.CollectionUtils.copyList(acceptableFactors);
 		this.reason = reason;
-		this.attributes = attributes == null ? Map.of() : Map.copyOf(attributes);
+		this.attributes = attributes == null ? com.auth.core.utils.CollectionUtils.mapOf() : com.auth.core.utils.CollectionUtils.copyMap(attributes);
 	}
 
 	public static MfaRequirement notRequired() {
@@ -32,7 +32,7 @@ public final class MfaRequirement {
 	}
 
 	public static MfaRequirement required(List<MfaFactorType> acceptableFactors, String reason) {
-		return new MfaRequirement(true, acceptableFactors, reason, Map.of());
+		return new MfaRequirement(true, acceptableFactors, reason, com.auth.core.utils.CollectionUtils.mapOf());
 	}
 
 	public static MfaRequirement required(List<MfaFactorType> acceptableFactors, String reason, Map<String, Object> attributes) {

@@ -1,6 +1,7 @@
 package com.auth.session.auth;
 
 import com.auth.core.api.model.Principal;
+import com.auth.core.utils.Strings;
 import com.auth.session.store.SessionStore;
 import java.util.Optional;
 import java.util.Collections;
@@ -19,8 +20,7 @@ public final class DefaultSessionAuthenticationProvider implements SessionAuthen
 
     @Override
     public Optional<Principal> authenticate(String sessionId) {
-        if (sessionId == null ) return Optional.empty();
-		if (sessionId.isBlank()) return Optional.empty();
+		if (Strings.isBlank(sessionId)) return Optional.empty();
         return sessionStore.find(sessionId).map(existing -> principalMapper.map(sessionId, existing, Collections.emptyMap()));
     }
 }

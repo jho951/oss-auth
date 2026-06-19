@@ -1,5 +1,6 @@
 package com.auth.otp;
 
+import com.auth.core.utils.Strings;
 import java.io.ByteArrayOutputStream;
 
 /** OTP 공유 비밀값을 복호화하기 위한 최소한의 RFC 4648 Base32 디코더입니다. */
@@ -11,7 +12,7 @@ public final class Base32SecretCodec {
 	}
 
 	public static byte[] decode(String value) {
-		if (value == null || value.isBlank()) throw new IllegalArgumentException("value must not be blank");
+		if (Strings.isBlank(value)) throw new IllegalArgumentException("value must not be blank");
 		String normalized = value.replace("=", "").replace(" ", "").toUpperCase();
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		int buffer = 0;

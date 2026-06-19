@@ -24,6 +24,7 @@ import com.auth.support.jwt.spi.StaticJwtSigningKeyProvider;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwsHeader;
+import io.jsonwebtoken.JwtBuilder;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -43,7 +44,7 @@ public class JwtTokenService implements TokenService {
 		Date now = new Date();
 		Date exp = new Date(now.getTime() + (ttlSeconds * 1000L));
 
-		var builder = Jwts.builder()
+		JwtBuilder builder = Jwts.builder()
 			.setSubject(principal.getUserId())
 			.addClaims(claimsMapper.toClaims(principal))
 			.claim(DefaultJwtClaimsMapper.KEY_TOKEN_TYPE, type)
@@ -144,12 +145,12 @@ public class JwtTokenService implements TokenService {
 
 	@Override
 	public String issueAccessToken(Principal principal) {
-		return buildToken(principal, options.getAccessTtl().toSeconds(), "access");
+		return buildToken(principal, options.getAccessTtl().getSeconds(), "access");
 	}
 
 	@Override
 	public String issueRefreshToken(Principal principal) {
-		return buildToken(principal, options.getRefreshTtl().toSeconds(), "refresh");
+		return buildToken(principal, options.getRefreshTtl().getSeconds(), "refresh");
 	}
 
 	@Override

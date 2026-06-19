@@ -42,7 +42,7 @@ public final class TotpMfaVerifier implements MfaVerifier {
 		if (Strings.isBlank(secret) || Strings.isBlank(code)) return Optional.empty();
 		if (!totpVerifier.verify(secret, code)) return Optional.empty();
 
-		return Optional.of(Map.of(
+		return Optional.of(com.auth.core.utils.CollectionUtils.mapOf(
 			"verified_by", "totp",
 			"totp_secret_attribute", secretAttributeKey
 		));

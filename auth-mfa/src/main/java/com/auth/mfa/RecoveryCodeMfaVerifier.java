@@ -53,35 +53,37 @@ public final class RecoveryCodeMfaVerifier implements MfaVerifier {
 		if (Strings.isBlank(code) || hashes.isEmpty()) return Optional.empty();
 		if (!recoveryCodeVerifier.verify(code, hashes)) return Optional.empty();
 
-		return Optional.of(Map.of(
+		return Optional.of(com.auth.core.utils.CollectionUtils.mapOf(
 			"verified_by", "recovery_code",
 			"matched_recovery_code_hash", recoveryCodeVerifier.hash(code)
 		));
 	}
 
 	private static List<String> hashes(Object rawValue) {
-		if (rawValue == null) return List.of();
-		if (rawValue instanceof Iterable<?> iterable) {
+		if (rawValue == null) return com.auth.core.utils.CollectionUtils.listOf();
+		if (rawValue instanceof Iterable<?>) {
+			Iterable<?> iterable = (Iterable<?>) rawValue;
 			ArrayList<String> values = new ArrayList<>();
 			for (Object item : iterable) {
 				if (item != null) {
 					String value = String.valueOf(item);
-					if (!value.isBlank()) values.add(value);
+					if (!Strings.isBlank(value)) values.add(value);
 				}
 			}
-			return List.copyOf(values);
+			return com.auth.core.utils.CollectionUtils.copyList(values);
 		}
-		if (rawValue.getClass().isArray() && rawValue instanceof Object[] array) {
+		if (rawValue.getClass().isArray() && rawValue instanceof Object[]) {
+			Object[] array = (Object[]) rawValue;
 			ArrayList<String> values = new ArrayList<>();
 			for (Object item : array) {
 				if (item != null) {
 					String value = String.valueOf(item);
-					if (!value.isBlank()) values.add(value);
+					if (!Strings.isBlank(value)) values.add(value);
 				}
 			}
-			return List.copyOf(values);
+			return com.auth.core.utils.CollectionUtils.copyList(values);
 		}
 		String singleValue = String.valueOf(rawValue);
-		return singleValue.isBlank() ? List.of() : List.of(singleValue);
+		return Strings.isBlank(singleValue) ? com.auth.core.utils.CollectionUtils.listOf() : com.auth.core.utils.CollectionUtils.listOf(singleValue);
 	}
 }

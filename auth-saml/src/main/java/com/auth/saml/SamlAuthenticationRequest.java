@@ -22,7 +22,7 @@ public final class SamlAuthenticationRequest {
 		this.expectedAudience = expectedAudience == null ? "" : expectedAudience.trim();
 		this.expectedRecipient = expectedRecipient == null ? "" : expectedRecipient.trim();
 		this.requestId = requestId == null ? "" : requestId.trim();
-		this.attributes = attributes == null ? Map.of() : Map.copyOf(attributes);
+		this.attributes = attributes == null ? com.auth.core.utils.CollectionUtils.mapOf() : com.auth.core.utils.CollectionUtils.copyMap(attributes);
 	}
 
 	public String getResponseXml() {

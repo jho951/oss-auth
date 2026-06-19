@@ -12,7 +12,7 @@ class Sha256RecoveryCodeVerifierTest {
 		Sha256RecoveryCodeVerifier verifier = new Sha256RecoveryCodeVerifier();
 		String stored = verifier.hash("ABCD-EFGH");
 
-		assertThat(verifier.verify("abcd efgh", List.of(stored))).isTrue();
-		assertThat(verifier.verify("wrong-code", List.of(stored))).isFalse();
+		assertThat(verifier.verify("abcd efgh", com.auth.core.utils.CollectionUtils.listOf(stored))).isTrue();
+		assertThat(verifier.verify("wrong-code", com.auth.core.utils.CollectionUtils.listOf(stored))).isFalse();
 	}
 }

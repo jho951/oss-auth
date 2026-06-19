@@ -17,25 +17,23 @@ class DefaultWebAuthnAttestationVerifierTest {
 				"user-1",
 				"public-key",
 				0,
-				List.of("hybrid"),
-				Map.of("origin", clientData.origin())
+				com.auth.core.utils.CollectionUtils.listOf("hybrid"),
+				com.auth.core.utils.CollectionUtils.mapOf("origin", clientData.origin())
 			))
 		);
 
 		Optional<WebAuthnAttestationResult> result = verifier.verify(new WebAuthnRegistrationRequest(
 			"cred-1",
-			"""
-				{"type":"webauthn.create","challenge":"challenge-1","origin":"https://example.com"}
-				""",
+			"{\"type\":\"webauthn.create\",\"challenge\":\"challenge-1\",\"origin\":\"https://example.com\"}",
 			"attestation-object",
 			"challenge-1",
 			"https://example.com",
 			"example.com",
-			Map.of()
+			com.auth.core.utils.CollectionUtils.mapOf()
 		));
 
 		assertThat(result).isPresent();
-		assertThat(result.orElseThrow().getAttributes().get("origin")).isEqualTo("https://example.com");
+		assertThat(result.get().getAttributes().get("origin")).isEqualTo("https://example.com");
 	}
 
 	@Test
@@ -46,21 +44,19 @@ class DefaultWebAuthnAttestationVerifierTest {
 				"user-1",
 				"public-key",
 				0,
-				List.of(),
-				Map.of()
+				com.auth.core.utils.CollectionUtils.listOf(),
+				com.auth.core.utils.CollectionUtils.mapOf()
 			))
 		);
 
 		Optional<WebAuthnAttestationResult> result = verifier.verify(new WebAuthnRegistrationRequest(
 			"cred-1",
-			"""
-				{"type":"webauthn.get","challenge":"challenge-1","origin":"https://example.com"}
-				""",
+			"{\"type\":\"webauthn.get\",\"challenge\":\"challenge-1\",\"origin\":\"https://example.com\"}",
 			"attestation-object",
 			"challenge-1",
 			"https://example.com",
 			"example.com",
-			Map.of()
+			com.auth.core.utils.CollectionUtils.mapOf()
 		));
 
 		assertThat(result).isEmpty();

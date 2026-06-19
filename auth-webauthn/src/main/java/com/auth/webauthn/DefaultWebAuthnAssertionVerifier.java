@@ -58,7 +58,7 @@ public final class DefaultWebAuthnAssertionVerifier implements WebAuthnAssertion
 				credentialRecord.getCredentialId(),
 				credentialRecord.getUserId(),
 				authenticatorData.getSignCount(),
-				Map.of(
+				com.auth.core.utils.CollectionUtils.mapOf(
 					"user_present", authenticatorData.isUserPresent(),
 					"user_verified", authenticatorData.isUserVerified(),
 					"origin", clientData.origin(),

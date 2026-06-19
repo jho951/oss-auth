@@ -2,6 +2,7 @@ package com.auth.dpop;
 
 import com.auth.core.utils.Strings;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwsHeader;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SigningKeyResolverAdapter;
@@ -45,7 +46,7 @@ public final class DpopProofVerifier {
 
 		try {
 			Map<String, Object>[] jwkHolder = new Map[1];
-			var jws = Jwts.parserBuilder()
+			Jws<Claims> jws = Jwts.parserBuilder()
 				.setSigningKeyResolver(new SigningKeyResolverAdapter() {
 					@Override
 					public Key resolveSigningKey(JwsHeader header, Claims claims) {
@@ -89,7 +90,7 @@ public final class DpopProofVerifier {
 			if (!replayValidator.markIfNew(tokenId, proofIssuedAt.plus(maxProofAge))) return Optional.empty();
 
 			Map<String, Object> attributes = new HashMap<>(claims);
-			attributes.put("jwk", Map.copyOf(jwkHolder[0]));
+			attributes.put("jwk", com.auth.core.utils.CollectionUtils.copyMap(jwkHolder[0]));
 			return Optional.of(new DpopProof(
 				tokenId,
 				method.toUpperCase(),

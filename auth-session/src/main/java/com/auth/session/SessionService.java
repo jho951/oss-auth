@@ -1,6 +1,7 @@
 package com.auth.session;
 
 import com.auth.core.api.model.Principal;
+import com.auth.core.utils.Strings;
 import com.auth.session.id.SessionIdGenerator;
 import com.auth.session.store.SessionStore;
 import java.time.Duration;
@@ -29,15 +30,13 @@ public final class SessionService {
 
     /** Resolve the principal associated with the session. */
     public Optional<Principal> resolve(String sessionId) {
-        if (sessionId == null ) return Optional.empty();
-		if (sessionId.isBlank()) return Optional.empty();
+		if (Strings.isBlank(sessionId)) return Optional.empty();
         return sessionStore.find(sessionId);
     }
 
     /** Revoke the session identifier. */
     public void revoke(String sessionId) {
-        if (sessionId == null ) return;
-		if (sessionId.isBlank()) return;
+		if (Strings.isBlank(sessionId)) return;
         sessionStore.revoke(sessionId);
     }
 

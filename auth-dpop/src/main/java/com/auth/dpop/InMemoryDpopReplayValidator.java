@@ -1,5 +1,6 @@
 package com.auth.dpop;
 
+import com.auth.core.utils.Strings;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.Map;
@@ -22,7 +23,7 @@ public final class InMemoryDpopReplayValidator implements DpopReplayValidator {
 
 	@Override
 	public boolean markIfNew(String tokenId, Instant expiresAt) {
-		if (tokenId == null || tokenId.isBlank()) return false;
+		if (Strings.isBlank(tokenId)) return false;
 		Instant now = Instant.now(clock);
 		seenProofs.entrySet().removeIf(entry -> !entry.getValue().isAfter(now));
 		Instant existing = seenProofs.putIfAbsent(tokenId, expiresAt == null ? now : expiresAt);

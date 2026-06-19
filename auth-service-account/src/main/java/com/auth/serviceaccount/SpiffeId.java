@@ -1,5 +1,7 @@
 package com.auth.serviceaccount;
 
+import com.auth.core.utils.Strings;
+import java.util.ArrayList;
 import java.net.URI;
 import java.util.List;
 
@@ -10,16 +12,16 @@ public final class SpiffeId {
 	private final String workloadPath;
 
 	private SpiffeId(String trustDomain, String workloadPath) {
-		if (trustDomain == null || trustDomain.isBlank()) throw new IllegalArgumentException("trustDomain must not be blank");
+		if (Strings.isBlank(trustDomain)) throw new IllegalArgumentException("trustDomain must not be blank");
 		this.trustDomain = trustDomain;
 		this.workloadPath = workloadPath == null ? "/" : workloadPath;
 	}
 
 	public static SpiffeId parse(String value) {
-		if (value == null || value.isBlank()) throw new IllegalArgumentException("SPIFFE ID must not be blank");
+		if (Strings.isBlank(value)) throw new IllegalArgumentException("SPIFFE ID must not be blank");
 		URI uri = URI.create(value);
 		if (!"spiffe".equalsIgnoreCase(uri.getScheme())) throw new IllegalArgumentException("SPIFFE ID must use spiffe scheme");
-		if (uri.getHost() == null || uri.getHost().isBlank()) throw new IllegalArgumentException("SPIFFE trust domain must not be blank");
+		if (Strings.isBlank(uri.getHost())) throw new IllegalArgumentException("SPIFFE trust domain must not be blank");
 		return new SpiffeId(uri.getHost(), normalizePath(uri.getPath()));
 	}
 
@@ -32,7 +34,13 @@ public final class SpiffeId {
 	}
 
 	public List<String> getPathSegments() {
-		return List.of(workloadPath.split("/")).stream().filter(segment -> !segment.isBlank()).toList();
+		ArrayList<String> segments = new ArrayList<>();
+		for (String segment : workloadPath.split("/")) {
+			if (!Strings.isBlank(segment)) {
+				segments.add(segment);
+			}
+		}
+		return com.auth.core.utils.CollectionUtils.copyList(segments);
 	}
 
 	@Override
@@ -41,7 +49,7 @@ public final class SpiffeId {
 	}
 
 	private static String normalizePath(String path) {
-		if (path == null || path.isBlank()) return "/";
+		if (Strings.isBlank(path)) return "/";
 		return path.startsWith("/") ? path : "/" + path;
 	}
 }

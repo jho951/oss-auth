@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /** 사용자가 가진 권한 (보안을 위해 Immutable) */
 public final class AuthoritySet implements Serializable {
@@ -18,16 +19,16 @@ public final class AuthoritySet implements Serializable {
 	 */
 	private AuthoritySet(Collection<String> authorities) {
 		this.authorities = authorities == null
-			? List.of()
-			: authorities.stream()
+			? com.auth.core.utils.CollectionUtils.listOf()
+			: com.auth.core.utils.CollectionUtils.copyList(authorities.stream()
 				.filter(Objects::nonNull)
 				.map(String::trim)
 				.filter(value -> !value.isEmpty())
 				.distinct()
-				.toList();
+				.collect(Collectors.toList()));
 	}
 
-	public static AuthoritySet empty() {return new AuthoritySet(List.of());}
+	public static AuthoritySet empty() {return new AuthoritySet(com.auth.core.utils.CollectionUtils.listOf());}
 	public static AuthoritySet of(Collection<String> authorities) {return new AuthoritySet(authorities);}
 	public List<String> asList() {return authorities;}
 	public boolean contains(String authority) {return authorities.contains(authority);}

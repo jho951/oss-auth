@@ -1,6 +1,7 @@
 package com.auth.mfa;
 
 import com.auth.core.api.model.Principal;
+import com.auth.core.utils.Strings;
 import java.time.Clock;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -51,13 +52,15 @@ public final class DefaultMfaPrincipalMapper implements MfaPrincipalMapper {
 
 	private static List<String> appendAmr(Object existing, String factorValue) {
 		ArrayList<String> values = new ArrayList<>();
-		if (existing instanceof String stringValue && !stringValue.isBlank()) {
+		if (existing instanceof String && !Strings.isBlank((String) existing)) {
+			String stringValue = (String) existing;
 			values.add(stringValue);
-		} else if (existing instanceof Iterable<?> iterable) {
+		} else if (existing instanceof Iterable<?>) {
+			Iterable<?> iterable = (Iterable<?>) existing;
 			for (Object item : iterable) {
 				if (item != null) {
 					String value = item.toString();
-					if (!value.isBlank() && !values.contains(value)) {
+					if (!Strings.isBlank(value) && !values.contains(value)) {
 						values.add(value);
 					}
 				}
@@ -66,6 +69,6 @@ public final class DefaultMfaPrincipalMapper implements MfaPrincipalMapper {
 		if (!values.contains(factorValue)) {
 			values.add(factorValue);
 		}
-		return List.copyOf(values);
+		return com.auth.core.utils.CollectionUtils.copyList(values);
 	}
 }

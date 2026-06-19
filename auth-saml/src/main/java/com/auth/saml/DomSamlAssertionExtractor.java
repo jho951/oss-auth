@@ -2,6 +2,7 @@ package com.auth.saml;
 
 import com.auth.core.api.exception.AuthException;
 import com.auth.core.api.exception.AuthFailureReason;
+import com.auth.core.utils.Strings;
 import java.io.StringReader;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -76,16 +77,16 @@ public final class DomSamlAssertionExtractor implements SamlAssertionExtractor {
 	}
 
 	private static List<String> texts(Element root, String localName) {
-		if (root == null) return List.of();
+		if (root == null) return com.auth.core.utils.CollectionUtils.listOf();
 		NodeList nodes = root.getElementsByTagNameNS("*", localName);
 		ArrayList<String> values = new ArrayList<>();
 		for (int i = 0; i < nodes.getLength(); i++) {
 			String value = text((Element) nodes.item(i));
-			if (!value.isBlank()) {
+			if (!Strings.isBlank(value)) {
 				values.add(value);
 			}
 		}
-		return List.copyOf(values);
+		return com.auth.core.utils.CollectionUtils.copyList(values);
 	}
 
 	private static Map<String, Object> attributes(Element assertion) {
@@ -94,12 +95,12 @@ public final class DomSamlAssertionExtractor implements SamlAssertionExtractor {
 		for (int i = 0; i < nodes.getLength(); i++) {
 			Element attribute = (Element) nodes.item(i);
 			String name = attribute(attribute, "Name");
-			if (name.isBlank()) continue;
+			if (Strings.isBlank(name)) continue;
 			List<String> entries = texts(attribute, "AttributeValue");
 			if (entries.isEmpty()) continue;
 			values.put(name, entries.size() == 1 ? entries.get(0) : entries);
 		}
-		return Map.copyOf(values);
+		return com.auth.core.utils.CollectionUtils.copyMap(values);
 	}
 
 	private static String text(Element element) {
@@ -113,6 +114,6 @@ public final class DomSamlAssertionExtractor implements SamlAssertionExtractor {
 	}
 
 	private static Instant instant(String value) {
-		return value == null || value.isBlank() ? null : Instant.parse(value);
+		return Strings.isBlank(value) ? null : Instant.parse(value);
 	}
 }

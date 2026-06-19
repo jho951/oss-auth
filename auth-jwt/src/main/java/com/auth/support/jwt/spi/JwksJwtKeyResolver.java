@@ -1,5 +1,6 @@
 package com.auth.support.jwt.spi;
 
+import com.auth.core.utils.Strings;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.io.Decoders;
@@ -43,7 +44,7 @@ public final class JwksJwtKeyResolver implements JwtKeyResolver {
 				parsed.put(keyId, key);
 				index++;
 			}
-			this.keysById = Map.copyOf(parsed);
+			this.keysById = com.auth.core.utils.CollectionUtils.copyMap(parsed);
 			this.singleKey = parsed.size() == 1 ? parsed.values().iterator().next() : null;
 		} catch (Exception e) {
 			throw new IllegalArgumentException("invalid JWKS document", e);
@@ -52,7 +53,7 @@ public final class JwksJwtKeyResolver implements JwtKeyResolver {
 
 	@Override
 	public Optional<Key> resolve(String keyId) {
-		if (keyId == null || keyId.isBlank()) {
+		if (Strings.isBlank(keyId)) {
 			return Optional.ofNullable(singleKey);
 		}
 		return Optional.ofNullable(keysById.get(keyId));
@@ -60,12 +61,16 @@ public final class JwksJwtKeyResolver implements JwtKeyResolver {
 
 	private static Key toKey(JsonNode keyNode) throws Exception {
 		String kty = text(keyNode, "kty");
-		return switch (kty) {
-			case "RSA" -> rsaKey(keyNode);
-			case "EC" -> ecKey(keyNode);
-			case "oct" -> octKey(keyNode);
-			default -> throw new IllegalArgumentException("unsupported jwk kty: " + kty);
-		};
+		if ("RSA".equals(kty)) {
+			return rsaKey(keyNode);
+		}
+		if ("EC".equals(kty)) {
+			return ecKey(keyNode);
+		}
+		if ("oct".equals(kty)) {
+			return octKey(keyNode);
+		}
+		throw new IllegalArgumentException("unsupported jwk kty: " + kty);
 	}
 
 	private static Key rsaKey(JsonNode keyNode) throws Exception {
@@ -90,7 +95,7 @@ public final class JwksJwtKeyResolver implements JwtKeyResolver {
 
 	private static String text(JsonNode node, String fieldName) {
 		JsonNode field = node.get(fieldName);
-		if (field == null || field.isNull() || field.asText().isBlank()) {
+		if (field == null || field.isNull() || Strings.isBlank(field.asText())) {
 			throw new IllegalArgumentException("missing jwk field: " + fieldName);
 		}
 		return field.asText();

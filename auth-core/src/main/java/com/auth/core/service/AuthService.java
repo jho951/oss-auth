@@ -113,13 +113,18 @@ public final class AuthService {
 	}
 
 	private static String userStatusMessage(AuthFailureReason reason) {
-		return switch (reason) {
-			case USER_DISABLED -> "user disabled";
-			case USER_LOCKED -> "user locked";
-			case USER_EXPIRED -> "user expired";
-			case CREDENTIALS_EXPIRED -> "credentials expired";
-			default -> reason.name().toLowerCase();
-		};
+		switch (reason) {
+			case USER_DISABLED:
+				return "user disabled";
+			case USER_LOCKED:
+				return "user locked";
+			case USER_EXPIRED:
+				return "user expired";
+			case CREDENTIALS_EXPIRED:
+				return "credentials expired";
+			default:
+				return reason.name().toLowerCase();
+		}
 	}
 
 	/**

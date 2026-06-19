@@ -19,27 +19,27 @@ class SamlAuthenticationProviderTest {
 			request -> new SamlAssertion(
 				"user-1",
 				"https://idp.example.com",
-				List.of("urn:test:sp"),
+				com.auth.core.utils.CollectionUtils.listOf("urn:test:sp"),
 				"https://sp.example.com/acs",
 				"req-1",
 				"session-1",
 				Instant.parse("2026-01-01T00:00:00Z"),
 				Instant.parse("2025-12-31T23:59:00Z"),
 				Instant.parse("2026-01-01T01:00:00Z"),
-				Map.of("email", "user@example.com")
+				com.auth.core.utils.CollectionUtils.mapOf("email", "user@example.com")
 			),
 			new DefaultSamlAssertionValidator(
 				Clock.fixed(Instant.parse("2026-01-01T00:10:00Z"), ZoneOffset.UTC),
 				java.time.Duration.ofMinutes(2)
 			),
-			assertion -> new Principal(assertion.getSubject(), List.of("USER"), assertion.getAttributes())
+			assertion -> new Principal(assertion.getSubject(), com.auth.core.utils.CollectionUtils.listOf("USER"), assertion.getAttributes())
 		);
 
 		Optional<Principal> result = provider.authenticate(
-			new SamlAuthenticationRequest("<xml/>", "urn:test:sp", "https://sp.example.com/acs", "req-1", Map.of())
+			new SamlAuthenticationRequest("<xml/>", "urn:test:sp", "https://sp.example.com/acs", "req-1", com.auth.core.utils.CollectionUtils.mapOf())
 		);
 
 		assertThat(result).isPresent();
-		assertThat(result.orElseThrow().getUserId()).isEqualTo("user-1");
+		assertThat(result.get().getUserId()).isEqualTo("user-1");
 	}
 }

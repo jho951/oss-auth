@@ -11,7 +11,7 @@ public final class DelegatedPrincipal {
 	private DelegatedPrincipal() {}
 
 	public static AuthenticatedSubject of(String subjectId, String actorId, AuthoritySet authorities, Map<String, Object> attributes) {
-		Map<String, Object> values = new HashMap<>(attributes == null ? Map.of() : attributes);
+		Map<String, Object> values = new HashMap<>(attributes == null ? com.auth.core.utils.CollectionUtils.mapOf() : attributes);
 		values.put("actor_id", actorId);
 		return new AuthenticatedSubject(subjectId, PrincipalType.DELEGATED, authorities, values);
 	}

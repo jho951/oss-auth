@@ -3,9 +3,20 @@ package com.auth.apikey;
 import java.util.Objects;
 
 /** API key credential value with optional key identifier. */
-public record ApiKeyCredential(String keyId, String secret) {
+public final class ApiKeyCredential {
 
-	public ApiKeyCredential {
-		Objects.requireNonNull(secret, "secret");
+	private final String keyId;
+	private final String secret;
+
+	public ApiKeyCredential(String keyId, String secret) {
+		this.keyId = keyId;
+		this.secret = Objects.requireNonNull(secret, "secret");
+	}
+
+	public String keyId() {
+		return keyId;
+	}
+	public String secret() {
+		return secret;
 	}
 }

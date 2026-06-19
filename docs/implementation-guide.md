@@ -61,8 +61,8 @@ dependencies {
 ```java
 Principal principal = new Principal(
     "user-1",
-    List.of("USER"),
-    Map.of("tenant_id", "tenant-a")
+    Arrays.asList("USER"),
+    Collections.singletonMap("tenant_id", "tenant-a")
 );
 ```
 
@@ -78,8 +78,8 @@ Principal principal = new Principal(
 ```java
 AuthenticatedSubject service = ServicePrincipal.of(
     "billing-worker",
-    AuthoritySet.of(List.of("SERVICE")),
-    Map.of("credential_type", "service_account")
+    AuthoritySet.of(Arrays.asList("SERVICE")),
+    Collections.singletonMap("credential_type", "service_account")
 );
 
 Principal principal = service.toPrincipal();
@@ -175,7 +175,7 @@ JwtSigningKeyProvider signingKeyProvider =
     new StaticJwtSigningKeyProvider(newKey, "2026-04");
 
 JwtKeyResolver keyResolver =
-    new StaticJwtKeyResolver(oldKey, Map.of("2026-04", newKey));
+    new StaticJwtKeyResolver(oldKey, Collections.singletonMap("2026-04", newKey));
 
 JwtTokenService tokenService = new JwtTokenService(
     signingKeyProvider,
@@ -224,7 +224,8 @@ public final class TenantJwtClaimsMapper implements JwtClaimsMapper {
         }
 
         List<String> authorities = claims.get("authorities", List.class);
-        Map<String, Object> attributes = Map.of("tenant_id", claims.get("tenant_id"));
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("tenant_id", claims.get("tenant_id"));
         return new Principal(claims.getSubject(), authorities, attributes);
     }
 }
@@ -351,7 +352,7 @@ Optional<Principal> authenticateBrowserRequest(RequestLike request) {
 
 ```java
 Optional<Principal> authenticateExternalApi(RequestLike request) {
-    if (request.bearerToken().isEmpty()) {
+    if (!request.bearerToken().isPresent()) {
         return Optional.empty();
     }
 
@@ -375,7 +376,7 @@ ApiKeyPrincipalResolver resolver = credential -> apiKeyRepository
     .map(row -> new Principal(
         row.principalId(),
         row.authorities(),
-        Map.of("credential_type", "api_key")
+        Collections.singletonMap("credential_type", "api_key")
     ));
 
 ApiKeyAuthenticationProvider provider =
@@ -415,7 +416,7 @@ HmacAuthenticationRequest request = new HmacAuthenticationRequest(
     "POST",
     "/documents",
     bodyBytes,
-    Map.of("content-type", "application/json"),
+    Collections.singletonMap("content-type", "application/json"),
     signature,
     Instant.now()
 );
@@ -437,14 +438,12 @@ OidcTokenVerifier tokenVerifier = request ->
     oidcLibrary.verifyIdToken(request.idToken(), request.nonce());
 
 OidcPrincipalMapper principalMapper = identity ->
-    new Principal(
-        identity.subject(),
-        List.of("USER"),
-        Map.of(
-            "issuer", identity.issuer(),
-            "audience", identity.audience()
-        )
-    );
+    {
+        Map<String, Object> attributes = new HashMap<>();
+        attributes.put("issuer", identity.issuer());
+        attributes.put("audience", identity.audience());
+        return new Principal(identity.subject(), Arrays.asList("USER"), attributes);
+    };
 
 OidcAuthenticationProvider provider =
     new OidcAuthenticationProvider(tokenVerifier, principalMapper);
@@ -470,38 +469,38 @@ MfaEnrollmentResolver enrollmentResolver = principal -> mfaRepository
         row.factorId(),
         row.factorType(),
         row.enrolledAt(),
-        Map.of("label", row.label())
+        Collections.singletonMap("label", row.label())
     ))
-    .toList();
+    .collect(Collectors.toList());
 
 MfaPolicy mfaPolicy = new ActionOrRiskBasedMfaPolicy(
-    List.of("wire-transfer", "change-password"),
+    Arrays.asList("wire-transfer", "change-password"),
     MfaRiskLevel.HIGH,
-    List.of(MfaFactorType.PASSKEY, MfaFactorType.TOTP),
+    Arrays.asList(MfaFactorType.PASSKEY, MfaFactorType.TOTP),
     null
 );
 
 MfaVerifier totpVerifier = (request, enrollment) ->
     totpLibrary.verify(enrollment.getAttributes(), request.getProof("code").orElse(null))
-        ? Optional.of(Map.of("verified_by", "totp"))
+        ? Optional.of(Collections.singletonMap("verified_by", "totp"))
         : Optional.empty();
 
 MfaVerifier passkeyVerifier = (request, enrollment) ->
     passkeyLibrary.verify(request.getProof(), enrollment.getAttributes())
-        ? Optional.of(Map.of("verified_by", "passkey"))
+        ? Optional.of(Collections.singletonMap("verified_by", "passkey"))
         : Optional.empty();
 
 MfaService mfaService = new MfaService(
     enrollmentResolver,
     mfaPolicy,
-    List.of(totpVerifier, passkeyVerifier),
+    Arrays.asList(totpVerifier, passkeyVerifier),
     new DefaultMfaPrincipalMapper()
 );
 
 MfaChallengeContext context = new MfaChallengeContext(
     "wire-transfer",
     MfaRiskLevel.HIGH,
-    Map.of("ip", "203.0.113.10")
+    Collections.singletonMap("ip", "203.0.113.10")
 );
 
 MfaRequirement requirement = mfaService.evaluate(principal, context);
@@ -511,7 +510,7 @@ Optional<Principal> elevated = mfaService.stepUp(new MfaVerificationRequest(
     "totp-1",
     MfaFactorType.TOTP,
     context,
-    Map.of("code", "123456")
+    Collections.singletonMap("code", "123456")
 ));
 ```
 
@@ -532,7 +531,7 @@ MfaVerifier recoveryMfaVerifier = new RecoveryCodeMfaVerifier(recoveryCodeVerifi
 MfaService mfaService = new MfaService(
     enrollmentResolver,
     mfaPolicy,
-    List.of(totpMfaVerifier, recoveryMfaVerifier),
+    Arrays.asList(totpMfaVerifier, recoveryMfaVerifier),
     new DefaultMfaPrincipalMapper()
 );
 ```
@@ -555,7 +554,7 @@ ServiceAccountVerifier verifier = credential -> serviceAccountRepository
     .map(row -> ServicePrincipal.of(
         row.serviceId(),
         AuthoritySet.of(row.authorities()),
-        Map.of("credential_type", "service_account")
+        Collections.singletonMap("credential_type", "service_account")
     ).toPrincipal());
 
 ServiceAccountAuthenticationProvider provider =

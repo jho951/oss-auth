@@ -24,6 +24,8 @@
 
 ## 빠른 시작
 
+전자정부 표준프레임워크 프로젝트에서는 이 라이브러리를 Spring/Servlet adapter가 아닌 순수 Java 인증 라이브러리로 추가합니다. Java 8 bytecode로 배포하며, eGovFrame 4.x(Spring 5/javax)와 5.x(Spring 6/jakarta) 양쪽에서 소비할 수 있도록 Spring, Servlet, Jakarta, eGovFrame runtime 의존성을 본체에 직접 두지 않습니다.
+
 ```gradle
 repositories {
     mavenCentral()
@@ -47,6 +49,8 @@ dependencies {
     implementation("io.github.jho951:auth-webauthn")
 }
 ```
+
+Maven 기반 eGovFrame 프로젝트와 호환성 기준은 [전자정부 표준프레임워크 호환성](docs/egovframe-compatibility.md)을 참고하세요.
 
 ## 문서
 

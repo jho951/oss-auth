@@ -22,7 +22,7 @@ public final class SpiffePrincipalResolver implements X509ServicePrincipalResolv
 			.findFirst()
 			.map(spiffeId -> new Principal(
 				spiffeId.toString(),
-				Map.of(
+				com.auth.core.utils.CollectionUtils.mapOf(
 					"credential_type", "x509_service",
 					"trust_domain", spiffeId.getTrustDomain(),
 					"workload_path", spiffeId.getWorkloadPath()

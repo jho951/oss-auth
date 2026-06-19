@@ -15,7 +15,7 @@ class PrincipalTest {
 	@Test
 	@DisplayName("사용자 ID와 부가 속성 맵으로 Principal 객체를 생성한다.")
 	void createPrincipal_Success() {
-		Map<String, Object> attrs = Map.of("email", "user@example.com", "dept", "IT");
+		Map<String, Object> attrs = com.auth.core.utils.CollectionUtils.mapOf("email", "user@example.com", "dept", "IT");
 		Principal principal = new Principal("user-1", attrs);
 
 		assertThat(principal.getUserId()).isEqualTo("user-1");
@@ -35,7 +35,7 @@ class PrincipalTest {
 	@Test
 	@DisplayName("getAttribute는 특정 키에 해당하는 값을 정확히 반환한다.")
 	void getAttribute_Check() {
-		Principal principal = new Principal("user-1", Map.of("type", "INTERNAL"));
+		Principal principal = new Principal("user-1", com.auth.core.utils.CollectionUtils.mapOf("type", "INTERNAL"));
 
 		assertThat(principal.getAttribute("type")).isEqualTo("INTERNAL");
 		assertThat(principal.getAttribute("non-existent")).isNull();
@@ -57,7 +57,7 @@ class PrincipalTest {
 
 	@Test
 	void createPrincipal_WithAuthoritiesContainsAuthority() {
-		Principal principal = new Principal("user-42", List.of("USER", "ADMIN"));
+		Principal principal = new Principal("user-42", com.auth.core.utils.CollectionUtils.listOf("USER", "ADMIN"));
 
 		assertThat(principal.getAuthorities()).containsExactly("USER", "ADMIN");
 		assertThat(principal.getAuthorities()).contains("ADMIN");

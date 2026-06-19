@@ -10,6 +10,6 @@ public final class AnonymousPrincipal {
 	private AnonymousPrincipal() {}
 
 	public static AuthenticatedSubject create() {
-		return new AuthenticatedSubject("anonymous", PrincipalType.ANONYMOUS, AuthoritySet.empty(), Map.of());
+		return new AuthenticatedSubject("anonymous", PrincipalType.ANONYMOUS, AuthoritySet.empty(), com.auth.core.utils.CollectionUtils.mapOf());
 	}
 }

@@ -28,10 +28,10 @@ class MtlsAuthenticationProviderTest {
 			cert -> Optional.of(new com.auth.core.api.model.Principal(cert.getSubjectX500Principal().getName()))
 		);
 
-		var result = provider.authenticate(new MtlsClientCertificateCredential(certificate));
+		Optional<com.auth.core.api.model.Principal> result = provider.authenticate(new MtlsClientCertificateCredential(certificate));
 
 		assertThat(result).isPresent();
-		assertThat(result.orElseThrow().getUserId()).contains("CN=device-1");
+		assertThat(result.get().getUserId()).contains("CN=device-1");
 	}
 
 	@Test
@@ -40,7 +40,7 @@ class MtlsAuthenticationProviderTest {
 		String thumbprint = X509ThumbprintUtils.sha256Thumbprint(certificate);
 
 		assertThat(X509ThumbprintUtils.matchesConfirmation(
-			Map.of("cnf", Map.of("x5t#S256", thumbprint)),
+			com.auth.core.utils.CollectionUtils.mapOf("cnf", com.auth.core.utils.CollectionUtils.mapOf("x5t#S256", thumbprint)),
 			certificate
 		)).isTrue();
 	}
@@ -48,7 +48,7 @@ class MtlsAuthenticationProviderTest {
 	@Test
 	void verifiesTrustedLeafCertificateWithPkixVerifier() {
 		X509Certificate certificate = new StubCertificate("device-1", new byte[] {4, 5, 6});
-		DefaultPkixMtlsCertificateVerifier verifier = new DefaultPkixMtlsCertificateVerifier(Set.of(certificate));
+		DefaultPkixMtlsCertificateVerifier verifier = new DefaultPkixMtlsCertificateVerifier(com.auth.core.utils.CollectionUtils.setOf(certificate));
 
 		assertThat(verifier.verify(certificate)).isTrue();
 	}
@@ -57,8 +57,8 @@ class MtlsAuthenticationProviderTest {
 	void rejectsExpiredTrustedLeafCertificateWithPkixVerifier() {
 		X509Certificate certificate = new StubCertificate("device-1", new byte[] {7, 8, 9}, true);
 		DefaultPkixMtlsCertificateVerifier verifier = new DefaultPkixMtlsCertificateVerifier(
-			Set.of(certificate),
-			leaf -> List.of(),
+			com.auth.core.utils.CollectionUtils.setOf(certificate),
+			leaf -> com.auth.core.utils.CollectionUtils.listOf(),
 			Clock.fixed(Instant.parse("2026-01-01T00:00:00Z"), ZoneOffset.UTC)
 		);
 

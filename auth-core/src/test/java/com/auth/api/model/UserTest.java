@@ -13,7 +13,7 @@ class UserTest {
 	@Test
 	@DisplayName("User 객체 생성 시 필드 값이 올바르게 할당된다.")
 	void createUser_Success() {
-		User user = new User("uuid-1", "tester", "hashed-pw", List.of("USER"));
+		User user = new User("uuid-1", "tester", "hashed-pw", com.auth.core.utils.CollectionUtils.listOf("USER"));
 
 		assertThat(user.getUserId()).isEqualTo("uuid-1");
 		assertThat(user.getUsername()).isEqualTo("tester");

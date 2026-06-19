@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /** {@link JwtTokenService}가 사용하는 기본 claim 스키마 매퍼입니다. */
 public final class DefaultJwtClaimsMapper implements JwtClaimsMapper {
@@ -42,13 +43,16 @@ public final class DefaultJwtClaimsMapper implements JwtClaimsMapper {
 	}
 
 	private List<String> toAuthorities(Object rawAuthorityData) {
-		if (rawAuthorityData instanceof List<?> list) {
-			return list.stream()
+		if (rawAuthorityData instanceof List<?>) {
+			List<?> list = (List<?>) rawAuthorityData;
+			return com.auth.core.utils.CollectionUtils.copyList(list.stream()
 				.filter(Objects::nonNull)
 				.map(Object::toString)
-				.toList();
+				.collect(Collectors.toList()));
 		}
-		if (rawAuthorityData instanceof String value) return List.of(value);
-		return List.of();
+		if (rawAuthorityData instanceof String) {
+			return com.auth.core.utils.CollectionUtils.listOf((String) rawAuthorityData);
+		}
+		return com.auth.core.utils.CollectionUtils.listOf();
 	}
 }

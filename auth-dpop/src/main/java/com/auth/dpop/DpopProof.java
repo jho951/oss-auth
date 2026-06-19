@@ -19,7 +19,7 @@ public final class DpopProof {
 		this.uri = uri;
 		this.issuedAt = issuedAt;
 		this.jwkThumbprint = jwkThumbprint;
-		this.claims = claims == null ? Map.of() : Map.copyOf(claims);
+		this.claims = claims == null ? com.auth.core.utils.CollectionUtils.mapOf() : com.auth.core.utils.CollectionUtils.copyMap(claims);
 	}
 
 	public String getTokenId() {

@@ -1,8 +1,8 @@
 package com.auth.webauthn;
 
+import com.auth.core.utils.Strings;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 /** assertion 검증 시 사용하는 저장된 passkey credential 메타데이터입니다. */
 public final class WebAuthnCredentialRecord {
@@ -24,16 +24,16 @@ public final class WebAuthnCredentialRecord {
 		List<String> transports,
 		Map<String, Object> attributes
 	) {
-		if (credentialId == null || credentialId.isBlank()) throw new IllegalArgumentException("credentialId must not be blank");
-		if (userId == null || userId.isBlank()) throw new IllegalArgumentException("userId must not be blank");
-		if (publicKeyCose == null || publicKeyCose.isBlank()) throw new IllegalArgumentException("publicKeyCose must not be blank");
+		if (Strings.isBlank(credentialId)) throw new IllegalArgumentException("credentialId must not be blank");
+		if (Strings.isBlank(userId)) throw new IllegalArgumentException("userId must not be blank");
+		if (Strings.isBlank(publicKeyCose)) throw new IllegalArgumentException("publicKeyCose must not be blank");
 		this.credentialId = credentialId;
 		this.userId = userId;
 		this.publicKeyCose = publicKeyCose;
 		this.signCount = signCount;
 		this.userHandle = userHandle == null ? "" : userHandle;
-		this.transports = transports == null ? List.of() : List.copyOf(transports);
-		this.attributes = attributes == null ? Map.of() : Map.copyOf(attributes);
+		this.transports = transports == null ? com.auth.core.utils.CollectionUtils.listOf() : com.auth.core.utils.CollectionUtils.copyList(transports);
+		this.attributes = attributes == null ? com.auth.core.utils.CollectionUtils.mapOf() : com.auth.core.utils.CollectionUtils.copyMap(attributes);
 	}
 
 	public String getCredentialId() {

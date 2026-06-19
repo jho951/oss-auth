@@ -21,7 +21,7 @@ public final class MfaService {
 	) {
 		this.enrollmentResolver = Objects.requireNonNull(enrollmentResolver, "enrollmentResolver");
 		this.policy = Objects.requireNonNull(policy, "policy");
-		this.verifiers = verifiers == null ? List.of() : List.copyOf(verifiers);
+		this.verifiers = verifiers == null ? com.auth.core.utils.CollectionUtils.listOf() : com.auth.core.utils.CollectionUtils.copyList(verifiers);
 		this.principalMapper = principalMapper == null ? new DefaultMfaPrincipalMapper() : principalMapper;
 	}
 
@@ -39,10 +39,10 @@ public final class MfaService {
 		}
 
 		Optional<MfaEnrollment> enrollment = findEnrollment(enrollments, request);
-		if (enrollment.isEmpty()) return Optional.empty();
+		if (!enrollment.isPresent()) return Optional.empty();
 
 		Optional<MfaVerifier> verifier = findVerifier(request.getFactorType());
-		if (verifier.isEmpty()) return Optional.empty();
+		if (!verifier.isPresent()) return Optional.empty();
 
 		return verifier.get()
 			.verify(request, enrollment.get())
@@ -51,7 +51,7 @@ public final class MfaService {
 
 	private List<MfaEnrollment> resolveEnrollments(Principal principal) {
 		List<MfaEnrollment> enrollments = enrollmentResolver.resolve(principal);
-		return enrollments == null ? List.of() : List.copyOf(enrollments);
+		return enrollments == null ? com.auth.core.utils.CollectionUtils.listOf() : com.auth.core.utils.CollectionUtils.copyList(enrollments);
 	}
 
 	private Optional<MfaEnrollment> findEnrollment(List<MfaEnrollment> enrollments, MfaVerificationRequest request) {

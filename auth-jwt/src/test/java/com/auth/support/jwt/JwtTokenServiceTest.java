@@ -39,7 +39,7 @@ class JwtTokenServiceTest {
 
 	@Test
 	void issueAccessToken_RoundsTripRolesAndAttributes() {
-		Principal principal = new Principal("user-1", List.of("ADMIN"), Map.of("dept", "IT"));
+		Principal principal = new Principal("user-1", com.auth.core.utils.CollectionUtils.listOf("ADMIN"), com.auth.core.utils.CollectionUtils.mapOf("dept", "IT"));
 		String token = tokenService.issueAccessToken(principal);
 
 		Principal verified = tokenService.verifyAccessToken(token);
@@ -59,11 +59,11 @@ class JwtTokenServiceTest {
 
 	@Test
 	void issueAccessToken_WritesAuthoritiesClaimAndJti() {
-		Principal principal = new Principal("user-1", List.of("ADMIN"), Map.of());
+		Principal principal = new Principal("user-1", com.auth.core.utils.CollectionUtils.listOf("ADMIN"), com.auth.core.utils.CollectionUtils.mapOf());
 		String token = tokenService.issueAccessToken(principal);
 
 		Claims claims = parseClaims(token);
-		assertThat(claims.get("authorities")).isEqualTo(List.of("ADMIN"));
+		assertThat(claims.get("authorities")).isEqualTo(com.auth.core.utils.CollectionUtils.listOf("ADMIN"));
 		assertThat(claims.getId()).isNotBlank();
 	}
 
@@ -73,7 +73,7 @@ class JwtTokenServiceTest {
 		Key newKey = Keys.hmacShaKeyFor("new-012345678901234567890123456789".getBytes(StandardCharsets.UTF_8));
 		JwtTokenService rotatingService = new JwtTokenService(
 			new StaticJwtSigningKeyProvider(newKey, "new"),
-			new StaticJwtKeyResolver(oldKey, Map.of("new", newKey)),
+			new StaticJwtKeyResolver(oldKey, com.auth.core.utils.CollectionUtils.mapOf("new", newKey)),
 			new DefaultJwtClaimsMapper(),
 			new JwtTokenOptions(Duration.ofMinutes(1), Duration.ofMinutes(2), SignatureAlgorithm.HS256, null)
 		);

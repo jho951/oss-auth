@@ -48,7 +48,8 @@ public final class WebAuthnAuthenticatorData {
 	@Override
 	public boolean equals(Object o) {
 		if (this == o) return true;
-		if (!(o instanceof WebAuthnAuthenticatorData that)) return false;
+		if (!(o instanceof WebAuthnAuthenticatorData)) return false;
+		WebAuthnAuthenticatorData that = (WebAuthnAuthenticatorData) o;
 		return userPresent == that.userPresent
 			&& userVerified == that.userVerified
 			&& signCount == that.signCount

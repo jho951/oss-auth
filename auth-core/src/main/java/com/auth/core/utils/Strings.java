@@ -4,7 +4,7 @@ public final class Strings {
 	private Strings() {}
 
 	public static boolean isBlank(String s) {
-		return s == null || s.isBlank();
+		return s == null || s.trim().isEmpty();
 	}
 
 	public static String requireNonBlank(String value, String name) {

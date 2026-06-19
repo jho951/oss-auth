@@ -2,6 +2,7 @@ package com.auth.apikey;
 
 import com.auth.core.api.authentication.AuthenticationProvider;
 import com.auth.core.api.model.Principal;
+import com.auth.core.utils.Strings;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -17,8 +18,7 @@ public final class ApiKeyAuthenticationProvider implements AuthenticationProvide
 	@Override
 	public Optional<Principal> authenticate(ApiKeyCredential credential) {
 		if (credential == null) return Optional.empty();
-        if (credential.secret().isBlank()) return Optional.empty();
+        if (Strings.isBlank(credential.secret())) return Optional.empty();
 		return resolver.resolve(credential);
 	}
 }
-

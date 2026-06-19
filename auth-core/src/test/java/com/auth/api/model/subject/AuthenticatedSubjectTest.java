@@ -15,7 +15,7 @@ class AuthenticatedSubjectTest {
 
 	@Test
 	void preservesPrincipalDataWithoutServicePolicy() {
-		Principal principal = new Principal("user-1", List.of("READ"), Map.of("tenant", "t1"));
+		Principal principal = new Principal("user-1", com.auth.core.utils.CollectionUtils.listOf("READ"), com.auth.core.utils.CollectionUtils.mapOf("tenant", "t1"));
 
 		AuthenticatedSubject subject = AuthenticatedSubject.fromPrincipal(principal, PrincipalType.USER);
 
@@ -27,7 +27,7 @@ class AuthenticatedSubjectTest {
 
 	@Test
 	void authoritySetRemovesBlankAndDuplicateValues() {
-		AuthoritySet authorities = AuthoritySet.of(List.of("READ", " ", "READ", "WRITE"));
+		AuthoritySet authorities = AuthoritySet.of(com.auth.core.utils.CollectionUtils.listOf("READ", " ", "READ", "WRITE"));
 
 		assertThat(authorities.asList()).containsExactly("READ", "WRITE");
 	}

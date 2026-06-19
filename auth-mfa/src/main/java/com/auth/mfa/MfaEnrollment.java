@@ -1,5 +1,6 @@
 package com.auth.mfa;
 
+import com.auth.core.utils.Strings;
 import java.time.Instant;
 import java.util.Map;
 import java.util.Objects;
@@ -13,11 +14,11 @@ public final class MfaEnrollment {
 	private final Map<String, Object> attributes;
 
 	public MfaEnrollment(String factorId, MfaFactorType factorType, Instant enrolledAt, Map<String, Object> attributes) {
-		if (factorId == null || factorId.isBlank()) throw new IllegalArgumentException("factorId must not be blank");
+		if (Strings.isBlank(factorId)) throw new IllegalArgumentException("factorId must not be blank");
 		this.factorId = factorId;
 		this.factorType = Objects.requireNonNull(factorType, "factorType");
 		this.enrolledAt = enrolledAt == null ? Instant.now() : enrolledAt;
-		this.attributes = attributes == null ? Map.of() : Map.copyOf(attributes);
+		this.attributes = attributes == null ? com.auth.core.utils.CollectionUtils.mapOf() : com.auth.core.utils.CollectionUtils.copyMap(attributes);
 	}
 
 	public String getFactorId() {

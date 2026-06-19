@@ -21,7 +21,7 @@ class OAuth2UserIdentityTest {
 			"provider-user-1",
 			"user@example.com",
 			"Tester",
-			Map.of("email_verified", true)
+			com.auth.core.utils.CollectionUtils.mapOf("email_verified", true)
 		);
 
 		assertThat(identity.getProvider()).isEqualTo("google");

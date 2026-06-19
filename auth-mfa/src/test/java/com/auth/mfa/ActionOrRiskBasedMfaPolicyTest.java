@@ -13,18 +13,18 @@ class ActionOrRiskBasedMfaPolicyTest {
 	@Test
 	void requiresMfaForProtectedAction() {
 		ActionOrRiskBasedMfaPolicy policy = new ActionOrRiskBasedMfaPolicy(
-			List.of("wire-transfer"),
+			com.auth.core.utils.CollectionUtils.listOf("wire-transfer"),
 			null,
-			List.of(MfaFactorType.PASSKEY, MfaFactorType.TOTP),
+			com.auth.core.utils.CollectionUtils.listOf(MfaFactorType.PASSKEY, MfaFactorType.TOTP),
 			null
 		);
 
 		MfaRequirement requirement = policy.evaluate(
 			new Principal("user-1"),
-			new MfaChallengeContext("wire-transfer", MfaRiskLevel.LOW, Map.of()),
-			List.of(
-				new MfaEnrollment("passkey-1", MfaFactorType.PASSKEY, Instant.parse("2026-01-01T00:00:00Z"), Map.of()),
-				new MfaEnrollment("totp-1", MfaFactorType.TOTP, Instant.parse("2026-01-01T00:00:00Z"), Map.of())
+			new MfaChallengeContext("wire-transfer", MfaRiskLevel.LOW, com.auth.core.utils.CollectionUtils.mapOf()),
+			com.auth.core.utils.CollectionUtils.listOf(
+				new MfaEnrollment("passkey-1", MfaFactorType.PASSKEY, Instant.parse("2026-01-01T00:00:00Z"), com.auth.core.utils.CollectionUtils.mapOf()),
+				new MfaEnrollment("totp-1", MfaFactorType.TOTP, Instant.parse("2026-01-01T00:00:00Z"), com.auth.core.utils.CollectionUtils.mapOf())
 			)
 		);
 
@@ -36,16 +36,16 @@ class ActionOrRiskBasedMfaPolicyTest {
 	@Test
 	void requiresMfaForElevatedRiskEvenWithoutProtectedAction() {
 		ActionOrRiskBasedMfaPolicy policy = new ActionOrRiskBasedMfaPolicy(
-			List.of(),
+			com.auth.core.utils.CollectionUtils.listOf(),
 			MfaRiskLevel.HIGH,
-			List.of(),
+			com.auth.core.utils.CollectionUtils.listOf(),
 			null
 		);
 
 		MfaRequirement requirement = policy.evaluate(
 			new Principal("user-1"),
-			new MfaChallengeContext("view-profile", MfaRiskLevel.CRITICAL, Map.of()),
-			List.of(new MfaEnrollment("otp-1", MfaFactorType.OTP, Instant.parse("2026-01-01T00:00:00Z"), Map.of()))
+			new MfaChallengeContext("view-profile", MfaRiskLevel.CRITICAL, com.auth.core.utils.CollectionUtils.mapOf()),
+			com.auth.core.utils.CollectionUtils.listOf(new MfaEnrollment("otp-1", MfaFactorType.OTP, Instant.parse("2026-01-01T00:00:00Z"), com.auth.core.utils.CollectionUtils.mapOf()))
 		);
 
 		assertThat(requirement.isRequired()).isTrue();
@@ -56,16 +56,16 @@ class ActionOrRiskBasedMfaPolicyTest {
 	@Test
 	void skipsMfaWhenActionAndRiskDoNotMatch() {
 		ActionOrRiskBasedMfaPolicy policy = new ActionOrRiskBasedMfaPolicy(
-			List.of("wire-transfer"),
+			com.auth.core.utils.CollectionUtils.listOf("wire-transfer"),
 			MfaRiskLevel.HIGH,
-			List.of(MfaFactorType.TOTP),
+			com.auth.core.utils.CollectionUtils.listOf(MfaFactorType.TOTP),
 			null
 		);
 
 		MfaRequirement requirement = policy.evaluate(
 			new Principal("user-1"),
-			new MfaChallengeContext("view-profile", MfaRiskLevel.LOW, Map.of()),
-			List.of(new MfaEnrollment("totp-1", MfaFactorType.TOTP, Instant.parse("2026-01-01T00:00:00Z"), Map.of()))
+			new MfaChallengeContext("view-profile", MfaRiskLevel.LOW, com.auth.core.utils.CollectionUtils.mapOf()),
+			com.auth.core.utils.CollectionUtils.listOf(new MfaEnrollment("totp-1", MfaFactorType.TOTP, Instant.parse("2026-01-01T00:00:00Z"), com.auth.core.utils.CollectionUtils.mapOf()))
 		);
 
 		assertThat(requirement.isRequired()).isFalse();

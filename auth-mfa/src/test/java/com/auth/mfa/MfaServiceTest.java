@@ -18,12 +18,12 @@ class MfaServiceTest {
 
 	@Test
 	void stepUpAddsMfaAttributesWhenVerificationSucceeds() {
-		Principal principal = new Principal("user-1", List.of("USER"), Map.of("tenant_id", "tenant-a"));
-		MfaEnrollment enrollment = new MfaEnrollment("totp-1", MfaFactorType.TOTP, Instant.parse("2026-01-01T00:00:00Z"), Map.of());
+		Principal principal = new Principal("user-1", com.auth.core.utils.CollectionUtils.listOf("USER"), com.auth.core.utils.CollectionUtils.mapOf("tenant_id", "tenant-a"));
+		MfaEnrollment enrollment = new MfaEnrollment("totp-1", MfaFactorType.TOTP, Instant.parse("2026-01-01T00:00:00Z"), com.auth.core.utils.CollectionUtils.mapOf());
 		MfaService service = new MfaService(
-			ignored -> List.of(enrollment),
+			ignored -> com.auth.core.utils.CollectionUtils.listOf(enrollment),
 			new NeverRequireMfaPolicy(),
-			List.of(new TestTotpVerifier()),
+			com.auth.core.utils.CollectionUtils.listOf(new TestTotpVerifier()),
 			new DefaultMfaPrincipalMapper(Clock.fixed(Instant.parse("2026-03-01T10:15:30Z"), ZoneOffset.UTC))
 		);
 
@@ -31,29 +31,29 @@ class MfaServiceTest {
 			principal,
 			"totp-1",
 			MfaFactorType.TOTP,
-			new MfaChallengeContext("wire-transfer", MfaRiskLevel.HIGH, Map.of()),
-			Map.of("code", "123456")
+			new MfaChallengeContext("wire-transfer", MfaRiskLevel.HIGH, com.auth.core.utils.CollectionUtils.mapOf()),
+			com.auth.core.utils.CollectionUtils.mapOf("code", "123456")
 		));
 
 		assertThat(result).isPresent();
-		assertThat(result.orElseThrow().getAttribute("mfa_authenticated")).isEqualTo(true);
-		assertThat(result.orElseThrow().getAttribute("mfa_factor_type")).isEqualTo("totp");
-		assertThat(result.orElseThrow().getAttribute("mfa_action")).isEqualTo("wire-transfer");
-		assertThat(result.orElseThrow().getAttribute("mfa_authenticated_at"))
+		assertThat(result.get().getAttribute("mfa_authenticated")).isEqualTo(true);
+		assertThat(result.get().getAttribute("mfa_factor_type")).isEqualTo("totp");
+		assertThat(result.get().getAttribute("mfa_action")).isEqualTo("wire-transfer");
+		assertThat(result.get().getAttribute("mfa_authenticated_at"))
 			.isEqualTo(Instant.parse("2026-03-01T10:15:30Z"));
-		assertThat(result.orElseThrow().getAttribute("verified_by")).isEqualTo("test-totp");
+		assertThat(result.get().getAttribute("verified_by")).isEqualTo("test-totp");
 	}
 
 	@Test
 	void stepUpReturnsEmptyWhenEnrollmentIsAmbiguous() {
 		Principal principal = new Principal("user-1");
 		MfaService service = new MfaService(
-			ignored -> List.of(
-				new MfaEnrollment("totp-1", MfaFactorType.TOTP, Instant.parse("2026-01-01T00:00:00Z"), Map.of()),
-				new MfaEnrollment("totp-2", MfaFactorType.TOTP, Instant.parse("2026-01-01T00:00:00Z"), Map.of())
+			ignored -> com.auth.core.utils.CollectionUtils.listOf(
+				new MfaEnrollment("totp-1", MfaFactorType.TOTP, Instant.parse("2026-01-01T00:00:00Z"), com.auth.core.utils.CollectionUtils.mapOf()),
+				new MfaEnrollment("totp-2", MfaFactorType.TOTP, Instant.parse("2026-01-01T00:00:00Z"), com.auth.core.utils.CollectionUtils.mapOf())
 			),
 			new NeverRequireMfaPolicy(),
-			List.of(new TestTotpVerifier()),
+			com.auth.core.utils.CollectionUtils.listOf(new TestTotpVerifier()),
 			new DefaultMfaPrincipalMapper()
 		);
 
@@ -62,7 +62,7 @@ class MfaServiceTest {
 			null,
 			MfaFactorType.TOTP,
 			MfaChallengeContext.empty(),
-			Map.of("code", "123456")
+			com.auth.core.utils.CollectionUtils.mapOf("code", "123456")
 		));
 
 		assertThat(result).isEmpty();
@@ -72,15 +72,15 @@ class MfaServiceTest {
 	void evaluateDelegatesToPolicyWithResolvedEnrollments() {
 		Principal principal = new Principal("user-1");
 		MfaService service = new MfaService(
-			ignored -> List.of(new MfaEnrollment("passkey-1", MfaFactorType.PASSKEY, Instant.parse("2026-01-01T00:00:00Z"), Map.of())),
-			new ActionOrRiskBasedMfaPolicy(List.of("delete-tenant"), null, List.of(MfaFactorType.PASSKEY), null),
-			List.of(),
+			ignored -> com.auth.core.utils.CollectionUtils.listOf(new MfaEnrollment("passkey-1", MfaFactorType.PASSKEY, Instant.parse("2026-01-01T00:00:00Z"), com.auth.core.utils.CollectionUtils.mapOf())),
+			new ActionOrRiskBasedMfaPolicy(com.auth.core.utils.CollectionUtils.listOf("delete-tenant"), null, com.auth.core.utils.CollectionUtils.listOf(MfaFactorType.PASSKEY), null),
+			com.auth.core.utils.CollectionUtils.listOf(),
 			new DefaultMfaPrincipalMapper()
 		);
 
 		MfaRequirement result = service.evaluate(
 			principal,
-			new MfaChallengeContext("delete-tenant", MfaRiskLevel.LOW, Map.of())
+			new MfaChallengeContext("delete-tenant", MfaRiskLevel.LOW, com.auth.core.utils.CollectionUtils.mapOf())
 		);
 
 		assertThat(result.isRequired()).isTrue();
@@ -91,9 +91,9 @@ class MfaServiceTest {
 	void stepUpRejectsFactorOutsidePolicy() {
 		Principal principal = new Principal("user-1");
 		MfaService service = new MfaService(
-			ignored -> List.of(new MfaEnrollment("otp-1", MfaFactorType.OTP, Instant.parse("2026-01-01T00:00:00Z"), Map.of())),
-			new ActionOrRiskBasedMfaPolicy(List.of("wire-transfer"), null, List.of(MfaFactorType.PASSKEY), null),
-			List.of(new OtpVerifier()),
+			ignored -> com.auth.core.utils.CollectionUtils.listOf(new MfaEnrollment("otp-1", MfaFactorType.OTP, Instant.parse("2026-01-01T00:00:00Z"), com.auth.core.utils.CollectionUtils.mapOf())),
+			new ActionOrRiskBasedMfaPolicy(com.auth.core.utils.CollectionUtils.listOf("wire-transfer"), null, com.auth.core.utils.CollectionUtils.listOf(MfaFactorType.PASSKEY), null),
+			com.auth.core.utils.CollectionUtils.listOf(new OtpVerifier()),
 			new DefaultMfaPrincipalMapper()
 		);
 
@@ -101,8 +101,8 @@ class MfaServiceTest {
 			principal,
 			"otp-1",
 			MfaFactorType.OTP,
-			new MfaChallengeContext("wire-transfer", MfaRiskLevel.LOW, Map.of()),
-			Map.of("code", "654321")
+			new MfaChallengeContext("wire-transfer", MfaRiskLevel.LOW, com.auth.core.utils.CollectionUtils.mapOf()),
+			com.auth.core.utils.CollectionUtils.mapOf("code", "654321")
 		));
 
 		assertThat(result).isEmpty();
@@ -110,12 +110,12 @@ class MfaServiceTest {
 
 	@Test
 	void stepUpWorksWithRealTotpVerifierIntegration() {
-		Principal principal = new Principal("user-1", List.of("USER"), Map.of());
+		Principal principal = new Principal("user-1", com.auth.core.utils.CollectionUtils.listOf("USER"), com.auth.core.utils.CollectionUtils.mapOf());
 		MfaEnrollment enrollment = new MfaEnrollment(
 			"totp-1",
 			MfaFactorType.TOTP,
 			Instant.parse("2026-01-01T00:00:00Z"),
-			Map.of("otp_secret", "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ")
+			com.auth.core.utils.CollectionUtils.mapOf("otp_secret", "GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ")
 		);
 		TotpVerifier totpVerifier = new TotpVerifier(
 			Duration.ofSeconds(30),
@@ -125,9 +125,9 @@ class MfaServiceTest {
 			Clock.fixed(Instant.ofEpochSecond(59), ZoneOffset.UTC)
 		);
 		MfaService service = new MfaService(
-			ignored -> List.of(enrollment),
+			ignored -> com.auth.core.utils.CollectionUtils.listOf(enrollment),
 			new NeverRequireMfaPolicy(),
-			List.of(new TotpMfaVerifier(totpVerifier)),
+			com.auth.core.utils.CollectionUtils.listOf(new TotpMfaVerifier(totpVerifier)),
 			new DefaultMfaPrincipalMapper(Clock.fixed(Instant.parse("2026-03-01T10:15:30Z"), ZoneOffset.UTC))
 		);
 
@@ -136,12 +136,12 @@ class MfaServiceTest {
 			"totp-1",
 			MfaFactorType.TOTP,
 			MfaChallengeContext.empty(),
-			Map.of("code", "94287082")
+			com.auth.core.utils.CollectionUtils.mapOf("code", "94287082")
 		));
 
 		assertThat(result).isPresent();
-		assertThat(result.orElseThrow().getAttribute("verified_by")).isEqualTo("totp");
-		assertThat(result.orElseThrow().getAttribute("mfa_factor_type")).isEqualTo("totp");
+		assertThat(result.get().getAttribute("verified_by")).isEqualTo("totp");
+		assertThat(result.get().getAttribute("mfa_factor_type")).isEqualTo("totp");
 	}
 
 	private static final class TestTotpVerifier implements MfaVerifier {
@@ -154,7 +154,7 @@ class MfaServiceTest {
 		public Optional<Map<String, Object>> verify(MfaVerificationRequest request, MfaEnrollment enrollment) {
 			return request.getProof("code")
 				.filter("123456"::equals)
-				.map(ignored -> Map.<String, Object>of("verified_by", "test-totp"));
+				.map(ignored -> com.auth.core.utils.CollectionUtils.<String, Object>mapOf("verified_by", "test-totp"));
 		}
 	}
 
@@ -168,7 +168,7 @@ class MfaServiceTest {
 		public Optional<Map<String, Object>> verify(MfaVerificationRequest request, MfaEnrollment enrollment) {
 			return request.getProof("code")
 				.filter("654321"::equals)
-				.map(ignored -> Map.<String, Object>of());
+				.map(ignored -> com.auth.core.utils.CollectionUtils.<String, Object>mapOf());
 		}
 	}
 }

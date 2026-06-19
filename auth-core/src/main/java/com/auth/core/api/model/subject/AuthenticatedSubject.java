@@ -25,7 +25,7 @@ public final class AuthenticatedSubject implements Serializable {
 		this.id = Objects.requireNonNull(id, "id");
 		this.type = type == null ? PrincipalType.UNKNOWN : type;
 		this.authorities = authorities == null ? AuthoritySet.empty() : authorities;
-		this.attributes = attributes == null ? Map.of() : Map.copyOf(attributes);
+		this.attributes = attributes == null ? com.auth.core.utils.CollectionUtils.mapOf() : com.auth.core.utils.CollectionUtils.copyMap(attributes);
 	}
 
 	public static AuthenticatedSubject fromPrincipal(Principal principal, PrincipalType type) {

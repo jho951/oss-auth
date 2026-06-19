@@ -18,17 +18,17 @@ class X509ServiceAccountAuthenticationProviderTest {
 
 	@Test
 	void authenticatesSpiffeWorkloadCertificate() {
-		X509Certificate certificate = new StubCertificate("workload", List.of(List.of(6, "spiffe://example.org/ns/payments/sa/billing")));
+		X509Certificate certificate = new StubCertificate("workload", com.auth.core.utils.CollectionUtils.listOf(com.auth.core.utils.CollectionUtils.listOf(6, "spiffe://example.org/ns/payments/sa/billing")));
 		X509ServiceAccountAuthenticationProvider provider = new X509ServiceAccountAuthenticationProvider(
-			new SpiffeTrustDomainCertificateVerifier(Set.of("example.org"), "/ns/payments"),
+			new SpiffeTrustDomainCertificateVerifier(com.auth.core.utils.CollectionUtils.setOf("example.org"), "/ns/payments"),
 			new SpiffePrincipalResolver()
 		);
 
 		Optional<com.auth.core.api.model.Principal> result = provider.authenticate(new X509ServiceCredential(certificate));
 
 		assertThat(result).isPresent();
-		assertThat(result.orElseThrow().getUserId()).isEqualTo("spiffe://example.org/ns/payments/sa/billing");
-		assertThat(result.orElseThrow().getAttribute("trust_domain")).isEqualTo("example.org");
+		assertThat(result.get().getUserId()).isEqualTo("spiffe://example.org/ns/payments/sa/billing");
+		assertThat(result.get().getAttribute("trust_domain")).isEqualTo("example.org");
 	}
 
 	@Test

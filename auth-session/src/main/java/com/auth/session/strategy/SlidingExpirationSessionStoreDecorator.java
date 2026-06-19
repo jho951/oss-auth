@@ -45,7 +45,7 @@ public final class SlidingExpirationSessionStoreDecorator implements SessionReco
 	public Optional<SessionRecord> findRecord(String sessionId) {
 		Instant now = clock.instant();
 		Optional<SessionRecord> found = delegate.findRecord(sessionId);
-		if (found.isEmpty()) return Optional.empty();
+		if (!found.isPresent()) return Optional.empty();
 		SessionRecord record = found.get();
 		if (expirationPolicy.isExpired(record, now)) {
 			delegate.revoke(sessionId);

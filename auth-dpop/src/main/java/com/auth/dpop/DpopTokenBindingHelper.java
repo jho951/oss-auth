@@ -2,6 +2,7 @@ package com.auth.dpop;
 
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
+import com.auth.core.utils.Strings;
 import java.math.BigInteger;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -26,7 +27,7 @@ public final class DpopTokenBindingHelper {
 	}
 
 	public static String accessTokenHash(String accessToken) {
-		if (accessToken == null || accessToken.isBlank()) throw new IllegalArgumentException("accessToken must not be blank");
+		if (Strings.isBlank(accessToken)) throw new IllegalArgumentException("accessToken must not be blank");
 		try {
 			MessageDigest digest = MessageDigest.getInstance("SHA-256");
 			return Encoders.BASE64URL.encode(digest.digest(accessToken.getBytes(StandardCharsets.UTF_8)));
@@ -36,7 +37,7 @@ public final class DpopTokenBindingHelper {
 	}
 
 	public static String normalizeUri(String value) {
-		if (value == null || value.isBlank()) throw new IllegalArgumentException("uri must not be blank");
+		if (Strings.isBlank(value)) throw new IllegalArgumentException("uri must not be blank");
 		try {
 			URI uri = new URI(value).normalize();
 			return new URI(
@@ -57,11 +58,13 @@ public final class DpopTokenBindingHelper {
 		if (jwk == null || jwk.isEmpty()) throw new IllegalArgumentException("jwk must not be empty");
 		String kty = stringValue(jwk.get("kty"));
 		try {
-			return switch (kty) {
-				case "RSA" -> rsaPublicKey(jwk);
-				case "EC" -> ecPublicKey(jwk);
-				default -> throw new IllegalArgumentException("unsupported jwk kty: " + kty);
-			};
+			if ("RSA".equals(kty)) {
+				return rsaPublicKey(jwk);
+			}
+			if ("EC".equals(kty)) {
+				return ecPublicKey(jwk);
+			}
+			throw new IllegalArgumentException("unsupported jwk kty: " + kty);
 		} catch (Exception e) {
 			throw new IllegalArgumentException("invalid jwk", e);
 		}
@@ -70,11 +73,14 @@ public final class DpopTokenBindingHelper {
 	public static String jwkThumbprint(Map<String, Object> jwk) {
 		if (jwk == null || jwk.isEmpty()) throw new IllegalArgumentException("jwk must not be empty");
 		String kty = stringValue(jwk.get("kty"));
-		String canonical = switch (kty) {
-			case "RSA" -> "{\"e\":\"" + stringValue(jwk.get("e")) + "\",\"kty\":\"RSA\",\"n\":\"" + stringValue(jwk.get("n")) + "\"}";
-			case "EC" -> "{\"crv\":\"" + stringValue(jwk.get("crv")) + "\",\"kty\":\"EC\",\"x\":\"" + stringValue(jwk.get("x")) + "\",\"y\":\"" + stringValue(jwk.get("y")) + "\"}";
-			default -> throw new IllegalArgumentException("unsupported jwk kty: " + kty);
-		};
+		String canonical;
+		if ("RSA".equals(kty)) {
+			canonical = "{\"e\":\"" + stringValue(jwk.get("e")) + "\",\"kty\":\"RSA\",\"n\":\"" + stringValue(jwk.get("n")) + "\"}";
+		} else if ("EC".equals(kty)) {
+			canonical = "{\"crv\":\"" + stringValue(jwk.get("crv")) + "\",\"kty\":\"EC\",\"x\":\"" + stringValue(jwk.get("x")) + "\",\"y\":\"" + stringValue(jwk.get("y")) + "\"}";
+		} else {
+			throw new IllegalArgumentException("unsupported jwk kty: " + kty);
+		}
 		try {
 			MessageDigest digest = MessageDigest.getInstance("SHA-256");
 			return Encoders.BASE64URL.encode(digest.digest(canonical.getBytes(StandardCharsets.UTF_8)));
@@ -84,17 +90,19 @@ public final class DpopTokenBindingHelper {
 	}
 
 	public static Map<String, Object> publicJwk(PublicKey key, String keyId) {
-		if (key instanceof RSAPublicKey rsaPublicKey) {
-			return Map.of(
+		if (key instanceof RSAPublicKey) {
+			RSAPublicKey rsaPublicKey = (RSAPublicKey) key;
+			return com.auth.core.utils.CollectionUtils.mapOf(
 				"kty", "RSA",
 				"kid", keyId == null ? "" : keyId,
 				"n", Encoders.BASE64URL.encode(unsignedBytes(rsaPublicKey.getModulus())),
 				"e", Encoders.BASE64URL.encode(unsignedBytes(rsaPublicKey.getPublicExponent()))
 			);
 		}
-		if (key instanceof ECPublicKey ecPublicKey) {
+		if (key instanceof ECPublicKey) {
+			ECPublicKey ecPublicKey = (ECPublicKey) key;
 			String curve = curveName(ecPublicKey.getParams());
-			return Map.of(
+			return com.auth.core.utils.CollectionUtils.mapOf(
 				"kty", "EC",
 				"kid", keyId == null ? "" : keyId,
 				"crv", curve,
@@ -128,12 +136,16 @@ public final class DpopTokenBindingHelper {
 
 	private static String curveName(ECParameterSpec spec) {
 		int fieldSize = spec.getCurve().getField().getFieldSize();
-		return switch (fieldSize) {
-			case 256 -> "secp256r1";
-			case 384 -> "secp384r1";
-			case 521 -> "secp521r1";
-			default -> throw new IllegalArgumentException("unsupported EC field size: " + fieldSize);
-		};
+		switch (fieldSize) {
+			case 256:
+				return "secp256r1";
+			case 384:
+				return "secp384r1";
+			case 521:
+				return "secp521r1";
+			default:
+				throw new IllegalArgumentException("unsupported EC field size: " + fieldSize);
+		}
 	}
 
 	private static byte[] unsignedBytes(BigInteger value) {

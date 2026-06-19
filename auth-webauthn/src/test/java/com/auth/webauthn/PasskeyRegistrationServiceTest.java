@@ -12,7 +12,7 @@ class PasskeyRegistrationServiceTest {
 	@Test
 	void registersValidAttestation() {
 		PasskeyRegistrationService service = new PasskeyRegistrationService(request -> Optional.of(
-			new WebAuthnAttestationResult("cred-1", "user-1", "public-key", 0, List.of("hybrid"), Map.of("aaguid", "aaguid-1"))
+			new WebAuthnAttestationResult("cred-1", "user-1", "public-key", 0, com.auth.core.utils.CollectionUtils.listOf("hybrid"), com.auth.core.utils.CollectionUtils.mapOf("aaguid", "aaguid-1"))
 		));
 
 		Optional<WebAuthnAttestationResult> result = service.register(new WebAuthnRegistrationRequest(
@@ -22,10 +22,10 @@ class PasskeyRegistrationServiceTest {
 			"challenge",
 			"https://example.com",
 			"example.com",
-			Map.of()
+			com.auth.core.utils.CollectionUtils.mapOf()
 		));
 
 		assertThat(result).isPresent();
-		assertThat(result.orElseThrow().getCredentialId()).isEqualTo("cred-1");
+		assertThat(result.get().getCredentialId()).isEqualTo("cred-1");
 	}
 }

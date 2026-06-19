@@ -28,7 +28,7 @@ public final class WebAuthnRegistrationRequest {
 		this.challenge = challenge == null ? "" : challenge;
 		this.origin = origin == null ? "" : origin;
 		this.rpId = rpId == null ? "" : rpId;
-		this.attributes = attributes == null ? Map.of() : Map.copyOf(attributes);
+		this.attributes = attributes == null ? com.auth.core.utils.CollectionUtils.mapOf() : com.auth.core.utils.CollectionUtils.copyMap(attributes);
 	}
 
 	public String getCredentialId() {

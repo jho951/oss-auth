@@ -25,16 +25,16 @@ class DefaultSamlAssertionValidatorTest {
 			new SamlAssertion(
 				"user-1",
 				"https://idp.example.com",
-				List.of("urn:test:sp"),
+				com.auth.core.utils.CollectionUtils.listOf("urn:test:sp"),
 				"https://sp.example.com/acs",
 				"req-1",
 				"session-1",
 				Instant.parse("2026-01-01T00:00:00Z"),
 				Instant.parse("2026-01-01T00:00:00Z"),
 				Instant.parse("2026-01-01T00:05:00Z"),
-				Map.of()
+				com.auth.core.utils.CollectionUtils.mapOf()
 			),
-			new SamlAuthenticationRequest("<xml/>", "urn:test:sp", "https://sp.example.com/acs", "req-1", Map.of())
+			new SamlAuthenticationRequest("<xml/>", "urn:test:sp", "https://sp.example.com/acs", "req-1", com.auth.core.utils.CollectionUtils.mapOf())
 		)).doesNotThrowAnyException();
 	}
 
@@ -43,8 +43,8 @@ class DefaultSamlAssertionValidatorTest {
 		DefaultSamlAssertionValidator validator = new DefaultSamlAssertionValidator();
 
 		assertThatThrownBy(() -> validator.validate(
-			new SamlAssertion("user-1", "issuer", List.of("urn:other"), "", "", "", null, null, null, Map.of()),
-			new SamlAuthenticationRequest("<xml/>", "urn:test:sp", "", "", Map.of())
+			new SamlAssertion("user-1", "issuer", com.auth.core.utils.CollectionUtils.listOf("urn:other"), "", "", "", null, null, null, com.auth.core.utils.CollectionUtils.mapOf()),
+			new SamlAuthenticationRequest("<xml/>", "urn:test:sp", "", "", com.auth.core.utils.CollectionUtils.mapOf())
 		)).isInstanceOf(AuthException.class);
 	}
 }

@@ -27,7 +27,7 @@ public final class SessionRecord {
 		this.createdAt = createdAt == null ? Instant.now() : createdAt;
 		this.lastAccessedAt = lastAccessedAt == null ? this.createdAt : lastAccessedAt;
 		this.expiresAt = expiresAt;
-		this.attributes = attributes == null ? Map.of() : Map.copyOf(attributes);
+		this.attributes = attributes == null ? com.auth.core.utils.CollectionUtils.mapOf() : com.auth.core.utils.CollectionUtils.copyMap(attributes);
 	}
 
 	public String getSessionId() {return sessionId;}
@@ -38,7 +38,7 @@ public final class SessionRecord {
 	public Map<String, Object> getAttributes() {return attributes;}
 
     public static SessionRecord active(String sessionId, Principal principal) {
-        return new SessionRecord(sessionId, principal, Instant.now(), Instant.now(), null, Map.of());
+        return new SessionRecord(sessionId, principal, Instant.now(), Instant.now(), null, com.auth.core.utils.CollectionUtils.mapOf());
     }
 
     public SessionRecord accessedAt(Instant now, Instant expiresAt) {

@@ -18,8 +18,8 @@ class PasskeyAuthenticationProviderTest {
 			"public-key",
 			7,
 			"handle-1",
-			List.of("internal"),
-			Map.of()
+			com.auth.core.utils.CollectionUtils.listOf("internal"),
+			com.auth.core.utils.CollectionUtils.mapOf()
 		);
 		PasskeyAuthenticationProvider provider = new PasskeyAuthenticationProvider(
 			credentialId -> Optional.of(record),
@@ -27,12 +27,12 @@ class PasskeyAuthenticationProviderTest {
 				credentialRecord.getCredentialId(),
 				credentialRecord.getUserId(),
 				8,
-				Map.of("uv", true)
+				com.auth.core.utils.CollectionUtils.mapOf("uv", true)
 			)),
 			(assertionResult, credentialRecord) -> new Principal(
 				assertionResult.getUserId(),
-				List.of("USER"),
-				Map.of("credential_id", credentialRecord.getCredentialId(), "uv", true)
+				com.auth.core.utils.CollectionUtils.listOf("USER"),
+				com.auth.core.utils.CollectionUtils.mapOf("credential_id", credentialRecord.getCredentialId(), "uv", true)
 			)
 		);
 
@@ -45,11 +45,11 @@ class PasskeyAuthenticationProviderTest {
 			"challenge",
 			"https://example.com",
 			"example.com",
-			Map.of()
+			com.auth.core.utils.CollectionUtils.mapOf()
 		));
 
 		assertThat(result).isPresent();
-		assertThat(result.orElseThrow().getUserId()).isEqualTo("user-1");
-		assertThat(result.orElseThrow().getAttribute("credential_id")).isEqualTo("cred-1");
+		assertThat(result.get().getUserId()).isEqualTo("user-1");
+		assertThat(result.get().getAttribute("credential_id")).isEqualTo("cred-1");
 	}
 }

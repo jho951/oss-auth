@@ -39,7 +39,7 @@ class AuthServiceTest {
 			Clock.fixed(Instant.parse("2026-03-15T00:00:00Z"), ZoneOffset.UTC)
 		);
 
-		Principal principal = new Principal("oauth-user", List.of("USER"));
+		Principal principal = new Principal("oauth-user", com.auth.core.utils.CollectionUtils.listOf("USER"));
 
 		Tokens tokens = authService.login(principal);
 
@@ -54,7 +54,7 @@ class AuthServiceTest {
 	@DisplayName("username/password 로그인은 기존과 동일하게 토큰을 발급한다.")
 	void loginWithCredentials_DelegatesToPrincipalFlow() {
 		FakeRefreshTokenStore refreshTokenStore = new FakeRefreshTokenStore();
-		UserFinder userFinder = username -> Optional.of(new User("user-1", username, "hashed", List.of("ADMIN")));
+		UserFinder userFinder = username -> Optional.of(new User("user-1", username, "hashed", com.auth.core.utils.CollectionUtils.listOf("ADMIN")));
 		PasswordVerifier passwordVerifier = (rawPassword, storedHash) -> true;
 		AuthService authService = new AuthService(
 			userFinder,
@@ -75,7 +75,7 @@ class AuthServiceTest {
 	@Test
 	@DisplayName("username/password 로그인에서 상태 검사기가 사용자를 거부하면 해당 사유로 예외가 발생한다.")
 	void loginWithCredentials_StatusCheckerRejectsUser() {
-		UserFinder userFinder = username -> Optional.of(new User("user-1", username, "hashed", List.of("ADMIN")));
+		UserFinder userFinder = username -> Optional.of(new User("user-1", username, "hashed", com.auth.core.utils.CollectionUtils.listOf("ADMIN")));
 		boolean[] passwordVerifierCalled = {false};
 		PasswordVerifier passwordVerifier = (rawPassword, storedHash) -> {
 			passwordVerifierCalled[0] = true;

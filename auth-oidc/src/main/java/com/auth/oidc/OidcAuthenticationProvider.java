@@ -2,6 +2,7 @@ package com.auth.oidc;
 
 import com.auth.core.api.authentication.AuthenticationProvider;
 import com.auth.core.api.model.Principal;
+import com.auth.core.utils.Strings;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -18,7 +19,7 @@ public final class OidcAuthenticationProvider implements AuthenticationProvider<
 
 	@Override
 	public Optional<Principal> authenticate(OidcAuthenticationRequest request) {
-		if (request == null || request.idToken() == null || request.idToken().isBlank()) return Optional.empty();
+		if (request == null || Strings.isBlank(request.idToken())) return Optional.empty();
 		return Optional.of(principalMapper.map(tokenVerifier.verify(request)));
 	}
 }

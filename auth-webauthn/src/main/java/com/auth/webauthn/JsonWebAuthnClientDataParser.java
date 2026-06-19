@@ -29,7 +29,7 @@ public final class JsonWebAuthnClientDataParser implements WebAuthnClientDataPar
 
 	private static String text(JsonNode node, String fieldName) {
 		JsonNode field = node.get(fieldName);
-		if (field == null || field.isNull() || field.asText().isBlank()) {
+		if (field == null || field.isNull() || Strings.isBlank(field.asText())) {
 			throw new IllegalArgumentException("missing clientData field: " + fieldName);
 		}
 		return field.asText();

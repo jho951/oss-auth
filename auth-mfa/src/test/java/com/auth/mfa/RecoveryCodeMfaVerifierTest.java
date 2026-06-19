@@ -6,6 +6,7 @@ import com.auth.otp.Sha256RecoveryCodeVerifier;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class RecoveryCodeMfaVerifierTest {
@@ -16,24 +17,24 @@ class RecoveryCodeMfaVerifierTest {
 		RecoveryCodeMfaVerifier verifier = new RecoveryCodeMfaVerifier(hashVerifier);
 		String storedHash = hashVerifier.hash("ABCD-EFGH");
 
-		var result = verifier.verify(
+		Optional<Map<String, Object>> result = verifier.verify(
 			new MfaVerificationRequest(
 				new com.auth.core.api.model.Principal("user-1"),
 				"rc-1",
 				MfaFactorType.RECOVERY_CODE,
 				MfaChallengeContext.empty(),
-				Map.of("code", "abcd efgh")
+				com.auth.core.utils.CollectionUtils.mapOf("code", "abcd efgh")
 			),
 			new MfaEnrollment(
 				"rc-1",
 				MfaFactorType.RECOVERY_CODE,
 				Instant.parse("2026-01-01T00:00:00Z"),
-				Map.of("recovery_hashes", List.of(storedHash))
+				com.auth.core.utils.CollectionUtils.mapOf("recovery_hashes", com.auth.core.utils.CollectionUtils.listOf(storedHash))
 			)
 		);
 
 		assertThat(result).isPresent();
-		assertThat(result.orElseThrow()).containsEntry("verified_by", "recovery_code");
-		assertThat(result.orElseThrow().get("matched_recovery_code_hash")).isEqualTo(storedHash);
+		assertThat(result.get()).containsEntry("verified_by", "recovery_code");
+		assertThat(result.get().get("matched_recovery_code_hash")).isEqualTo(storedHash);
 	}
 }

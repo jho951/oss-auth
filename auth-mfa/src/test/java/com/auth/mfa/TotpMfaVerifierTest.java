@@ -9,6 +9,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class TotpMfaVerifierTest {
@@ -26,18 +27,18 @@ class TotpMfaVerifierTest {
 		);
 		TotpMfaVerifier verifier = new TotpMfaVerifier(totpVerifier);
 
-		var result = verifier.verify(
+		Optional<Map<String, Object>> result = verifier.verify(
 			new MfaVerificationRequest(
 				new com.auth.core.api.model.Principal("user-1"),
 				"totp-1",
 				MfaFactorType.TOTP,
 				MfaChallengeContext.empty(),
-				Map.of("code", "94287082")
+				com.auth.core.utils.CollectionUtils.mapOf("code", "94287082")
 			),
-			new MfaEnrollment("totp-1", MfaFactorType.TOTP, Instant.parse("2026-01-01T00:00:00Z"), Map.of("otp_secret", SECRET))
+			new MfaEnrollment("totp-1", MfaFactorType.TOTP, Instant.parse("2026-01-01T00:00:00Z"), com.auth.core.utils.CollectionUtils.mapOf("otp_secret", SECRET))
 		);
 
 		assertThat(result).isPresent();
-		assertThat(result.orElseThrow()).containsEntry("verified_by", "totp");
+		assertThat(result.get()).containsEntry("verified_by", "totp");
 	}
 }

@@ -1,6 +1,7 @@
 package com.auth.mfa;
 
 import com.auth.core.api.model.Principal;
+import com.auth.core.utils.Strings;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -25,7 +26,7 @@ public final class MfaVerificationRequest {
 		this.factorId = factorId == null ? "" : factorId.trim();
 		this.factorType = Objects.requireNonNull(factorType, "factorType");
 		this.context = context == null ? MfaChallengeContext.empty() : context;
-		this.proof = proof == null ? Map.of() : Map.copyOf(proof);
+		this.proof = proof == null ? com.auth.core.utils.CollectionUtils.mapOf() : com.auth.core.utils.CollectionUtils.copyMap(proof);
 	}
 
 	public Principal getPrincipal() {
@@ -33,7 +34,7 @@ public final class MfaVerificationRequest {
 	}
 
 	public Optional<String> getFactorId() {
-		return factorId.isBlank() ? Optional.empty() : Optional.of(factorId);
+		return Strings.isBlank(factorId) ? Optional.empty() : Optional.of(factorId);
 	}
 
 	public MfaFactorType getFactorType() {

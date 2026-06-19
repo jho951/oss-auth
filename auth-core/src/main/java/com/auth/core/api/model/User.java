@@ -22,7 +22,7 @@ public final class User {
 		this.userId = Strings.requireNonBlank(userId, "userId");
 		this.username = Strings.requireNonBlank(username, "username");
 		this.passwordHash = Strings.requireNonBlank(passwordHash, "passwordHash");
-		this.authorities = authorities == null ? List.of() : List.copyOf(authorities);
+		this.authorities = authorities == null ? com.auth.core.utils.CollectionUtils.listOf() : com.auth.core.utils.CollectionUtils.copyList(authorities);
 	}
 
 	public String getUserId() {

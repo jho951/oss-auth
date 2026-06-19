@@ -5,15 +5,30 @@ pluginManagement {
     }
 }
 
-plugins {
-    id 'com.gradleup.nmcp.settings' version '1.4.4'
+def centralPortalPublishRequested = gradle.startParameter.taskNames.any { taskName ->
+    String normalized = taskName.toLowerCase()
+    normalized.contains('centralportal') || normalized.contains('publishaggregation')
 }
 
-nmcpSettings {
-    centralPortal {
-        publishingType = 'USER_MANAGED'
-        username = System.getenv('MAVEN_CENTRAL_USERNAME')
-        password = System.getenv('MAVEN_CENTRAL_PASSWORD')
+if (centralPortalPublishRequested && JavaVersion.current().isCompatibleWith(JavaVersion.VERSION_17)) {
+    buildscript {
+        repositories {
+            gradlePluginPortal()
+            mavenCentral()
+        }
+        dependencies {
+            classpath 'com.gradleup.nmcp:nmcp:1.4.4'
+        }
+    }
+
+    apply plugin: 'com.gradleup.nmcp.settings'
+
+    nmcpSettings {
+        centralPortal {
+            publishingType = 'USER_MANAGED'
+            username = System.getenv('MAVEN_CENTRAL_USERNAME')
+            password = System.getenv('MAVEN_CENTRAL_PASSWORD')
+        }
     }
 }
 

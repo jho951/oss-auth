@@ -25,23 +25,21 @@ class DefaultWebAuthnAssertionVerifierTest {
 		Optional<WebAuthnAssertionResult> result = verifier.verify(
 			new WebAuthnAuthenticationRequest(
 				"cred-1",
-				"""
-					{"type":"webauthn.get","challenge":"challenge-1","origin":"https://example.com"}
-					""",
+				"{\"type\":\"webauthn.get\",\"challenge\":\"challenge-1\",\"origin\":\"https://example.com\"}",
 				authenticatorData("example.com", 0x05, 8),
 				"signature",
 				"handle-1",
 				"challenge-1",
 				"https://example.com",
 				"example.com",
-				Map.of("require_user_verification", true)
+				com.auth.core.utils.CollectionUtils.mapOf("require_user_verification", true)
 			),
-			new WebAuthnCredentialRecord("cred-1", "user-1", "public-key", 7, "handle-1", List.of("internal"), Map.of())
+			new WebAuthnCredentialRecord("cred-1", "user-1", "public-key", 7, "handle-1", com.auth.core.utils.CollectionUtils.listOf("internal"), com.auth.core.utils.CollectionUtils.mapOf())
 		);
 
 		assertThat(result).isPresent();
-		assertThat(result.orElseThrow().getNewSignCount()).isEqualTo(8);
-		assertThat(result.orElseThrow().getAttributes().get("user_verified")).isEqualTo(true);
+		assertThat(result.get().getNewSignCount()).isEqualTo(8);
+		assertThat(result.get().getAttributes().get("user_verified")).isEqualTo(true);
 	}
 
 	@Test
@@ -53,18 +51,16 @@ class DefaultWebAuthnAssertionVerifierTest {
 		Optional<WebAuthnAssertionResult> result = verifier.verify(
 			new WebAuthnAuthenticationRequest(
 				"cred-1",
-				"""
-					{"type":"webauthn.get","challenge":"challenge-1","origin":"https://example.com"}
-					""",
+				"{\"type\":\"webauthn.get\",\"challenge\":\"challenge-1\",\"origin\":\"https://example.com\"}",
 				authenticatorData("example.com", 0x01, 7),
 				"signature",
 				"",
 				"challenge-1",
 				"https://example.com",
 				"example.com",
-				Map.of()
+				com.auth.core.utils.CollectionUtils.mapOf()
 			),
-			new WebAuthnCredentialRecord("cred-1", "user-1", "public-key", 7, "", List.of("internal"), Map.of())
+			new WebAuthnCredentialRecord("cred-1", "user-1", "public-key", 7, "", com.auth.core.utils.CollectionUtils.listOf("internal"), com.auth.core.utils.CollectionUtils.mapOf())
 		);
 
 		assertThat(result).isEmpty();

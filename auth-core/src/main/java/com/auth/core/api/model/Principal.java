@@ -1,6 +1,5 @@
 package com.auth.core.api.model;
 
-import java.io.Serial;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +11,6 @@ import com.auth.core.utils.Strings;
 /** 인증된 주체의 신원을 표현하며, 권한 및 부가 속성을 전달합니다. */
 public final class Principal implements Serializable {
 
-	@Serial
     private static final long serialVersionUID = 1L;
 
 	/** 사용자를 유일하게 식별할 수 있는 아이디 */
@@ -23,19 +21,19 @@ public final class Principal implements Serializable {
 	private final Map<String, Object> attributes;
 
 	public Principal(String userId) {
-		this(userId, List.of(), Map.of());
+		this(userId, com.auth.core.utils.CollectionUtils.listOf(), com.auth.core.utils.CollectionUtils.mapOf());
 	}
 	public Principal(String userId, List<String> authorities) {
-		this(userId, authorities, Map.of());
+		this(userId, authorities, com.auth.core.utils.CollectionUtils.mapOf());
 	}
 	public Principal(String userId, Map<String, Object> attributes) {
-		this(userId, List.of(), attributes);
+		this(userId, com.auth.core.utils.CollectionUtils.listOf(), attributes);
 	}
 	public Principal(String userId, List<String> authorities, Map<String, Object> attributes) {
 		if (Strings.isBlank(userId)) throw new AuthException(AuthFailureReason.INVALID_INPUT, "userId must not be blank");
 		this.userId = userId;
-		this.authorities = authorities == null ? List.of() : List.copyOf(authorities);
-		this.attributes = attributes == null ? Map.of() : Map.copyOf(attributes);
+		this.authorities = authorities == null ? com.auth.core.utils.CollectionUtils.listOf() : com.auth.core.utils.CollectionUtils.copyList(authorities);
+		this.attributes = attributes == null ? com.auth.core.utils.CollectionUtils.mapOf() : com.auth.core.utils.CollectionUtils.copyMap(attributes);
 	}
 
 	public String getUserId() {return userId;}

@@ -80,6 +80,9 @@ ext.config = [
     junitVersion  : getRequiredProp("junit_version"),
     assertjVersion: getRequiredProp("assertj_version"),
     jacksonVersion: getRequiredProp("jackson_version"),
+    egovFrameMin  : optionalProp("egovframe_min_runtime", "4.0.0"),
+    egovFrameTested: optionalProp("egovframe_tested_runtime", "4.3.0"),
+    egovFrameCurrent: optionalProp("egovframe_current_runtime", "5.0.0"),
     githubOrg     : getRequiredProp("github_org"),
     githubRepo    : getRequiredProp("github_repo")
 ]
@@ -129,6 +132,14 @@ def configurePomMetadata = { pom, Map moduleMeta ->
     pom.name.set(moduleMeta.pomName)
     pom.description.set(moduleMeta.description)
     pom.url.set(githubBaseUrl)
+    pom.properties = [
+        "maven.compiler.release"      : rootProject.config.javaVersion.toString(),
+        "egovframe.compatible"        : "true",
+        "egovframe.minimum-runtime"   : rootProject.config.egovFrameMin,
+        "egovframe.tested-runtime"    : rootProject.config.egovFrameTested,
+        "egovframe.current-runtime"   : rootProject.config.egovFrameCurrent,
+        "egovframe.integration-style" : "spring-neutral-java-library"
+    ]
 
     pom.licenses {
         license {
@@ -264,13 +275,18 @@ subprojects {
         apply plugin: "java-library"
 
         extensions.configure(JavaPluginExtension) { javaExtension ->
-            javaExtension.toolchain.languageVersion = JavaLanguageVersion.of(rootProject.config.javaVersion)
+            javaExtension.sourceCompatibility = JavaVersion.VERSION_1_8
+            javaExtension.targetCompatibility = JavaVersion.VERSION_1_8
             javaExtension.withSourcesJar()
             javaExtension.withJavadocJar()
         }
 
         tasks.withType(JavaCompile).configureEach {
-            options.release = rootProject.config.javaVersion
+            sourceCompatibility = rootProject.config.javaVersion.toString()
+            targetCompatibility = rootProject.config.javaVersion.toString()
+            if (JavaVersion.current().isJava9Compatible()) {
+                options.release = rootProject.config.javaVersion
+            }
             options.encoding = rootProject.config.encoding
         }
 
@@ -286,6 +302,55 @@ subprojects {
         tasks.withType(Javadoc).configureEach {
             options.addStringOption("Xdoclint:none", "-quiet")
             options.encoding = rootProject.config.encoding
+        }
+
+        tasks.register("egovframeCompatibilityCheck") {
+            group = LifecycleBasePlugin.VERIFICATION_GROUP
+            description = "Checks that this module remains safe to consume from eGovFrame applications."
+            dependsOn tasks.named("classes")
+
+            doLast {
+                if (rootProject.config.javaVersion != 8) {
+                    throw new GradleException(
+                        "eGovFrame compatibility requires Java 8 bytecode, but java_version is ${rootProject.config.javaVersion}."
+                    )
+                }
+
+                List<String> frameworkManagedGroups = [
+                    "org.springframework",
+                    "org.springframework.boot",
+                    "org.egovframe.rte",
+                    "egovframework.rte",
+                    "jakarta",
+                    "javax.servlet"
+                ]
+
+                ["api", "implementation", "compileOnly", "runtimeOnly"].each { configurationName ->
+                    def configuration = configurations.findByName(configurationName)
+                    if (!configuration) {
+                        return
+                    }
+
+                    configuration.dependencies.each { dependency ->
+                        String groupName = dependency.group ?: ""
+                        boolean managedByEgovFrame = frameworkManagedGroups.any { managedGroup ->
+                            groupName == managedGroup || groupName.startsWith("${managedGroup}.")
+                        }
+
+                        if (managedByEgovFrame) {
+                            throw new GradleException(
+                                "${project.path} declares ${configurationName} dependency " +
+                                "${groupName}:${dependency.name}. Keep Spring, Jakarta, Servlet, and eGovFrame runtime " +
+                                "dependencies in the consuming application or a separate adapter module."
+                            )
+                        }
+                    }
+                }
+            }
+        }
+
+        tasks.named("check").configure {
+            dependsOn tasks.named("egovframeCompatibilityCheck")
         }
     }
 

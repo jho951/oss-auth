@@ -8,6 +8,15 @@
 ./gradlew clean build
 ```
 
+### 전자정부 표준프레임워크 호환성 검증
+
+```bash
+./gradlew egovframeCompatibilityCheck
+```
+
+- Java 8 bytecode 기준을 확인합니다.
+- Spring, Spring Boot, Servlet, Jakarta, eGovFrame runtime 직접 의존성이 라이브러리 본체에 들어오지 않았는지 확인합니다.
+
 ### 모듈 단위 테스트:
 
 ```bash

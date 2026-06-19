@@ -22,11 +22,11 @@ public final class AuthenticationResult {
 		this.principal = Objects.requireNonNull(principal, "principal");
 		this.source = Objects.requireNonNull(source, "source");
 		this.authenticatedAt = authenticatedAt == null ? Instant.now() : authenticatedAt;
-		this.attributes = attributes == null ? Map.of() : Map.copyOf(attributes);
+		this.attributes = attributes == null ? com.auth.core.utils.CollectionUtils.mapOf() : com.auth.core.utils.CollectionUtils.copyMap(attributes);
 	}
 
     public AuthenticationResult(Principal principal, AuthenticationSource source) {
-        this(principal, source, Instant.now(), Map.of());
+        this(principal, source, Instant.now(), com.auth.core.utils.CollectionUtils.mapOf());
     }
 
 	public Principal getPrincipal() {

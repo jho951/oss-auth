@@ -24,7 +24,8 @@ public final class X509ThumbprintUtils {
 	public static boolean matchesConfirmation(Map<String, Object> claims, X509Certificate certificate) {
 		if (claims == null || claims.isEmpty() || certificate == null) return false;
 		Object cnf = claims.get("cnf");
-		if (!(cnf instanceof Map<?, ?> cnfMap)) return false;
+		if (!(cnf instanceof Map<?, ?>)) return false;
+		Map<?, ?> cnfMap = (Map<?, ?>) cnf;
 		Object thumbprint = cnfMap.get("x5t#S256");
 		return thumbprint != null && sha256Thumbprint(certificate).equals(String.valueOf(thumbprint));
 	}

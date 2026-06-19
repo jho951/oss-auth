@@ -1,5 +1,6 @@
 package com.auth.serviceaccount;
 
+import com.auth.core.utils.Strings;
 import java.security.cert.X509Certificate;
 import java.util.Objects;
 import java.util.Set;
@@ -11,7 +12,7 @@ public final class SpiffeTrustDomainCertificateVerifier implements X509ServiceCe
 	private final String requiredPathPrefix;
 
 	public SpiffeTrustDomainCertificateVerifier(Set<String> allowedTrustDomains, String requiredPathPrefix) {
-		this.allowedTrustDomains = allowedTrustDomains == null ? Set.of() : Set.copyOf(allowedTrustDomains);
+		this.allowedTrustDomains = allowedTrustDomains == null ? com.auth.core.utils.CollectionUtils.setOf() : com.auth.core.utils.CollectionUtils.copySet(allowedTrustDomains);
 		this.requiredPathPrefix = requiredPathPrefix == null ? "" : requiredPathPrefix;
 	}
 
@@ -31,7 +32,7 @@ public final class SpiffeTrustDomainCertificateVerifier implements X509ServiceCe
 
 	private boolean allowed(SpiffeId spiffeId) {
 		boolean trustDomainAllowed = allowedTrustDomains.isEmpty() || allowedTrustDomains.contains(spiffeId.getTrustDomain());
-		boolean pathAllowed = requiredPathPrefix.isBlank() || spiffeId.getWorkloadPath().startsWith(requiredPathPrefix);
+		boolean pathAllowed = Strings.isBlank(requiredPathPrefix) || spiffeId.getWorkloadPath().startsWith(requiredPathPrefix);
 		return trustDomainAllowed && pathAllowed;
 	}
 }

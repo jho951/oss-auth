@@ -1,5 +1,6 @@
 package com.auth.support.jwt.spi;
 
+import com.auth.core.utils.Strings;
 import java.security.Key;
 import java.util.Map;
 import java.util.Objects;
@@ -14,18 +15,17 @@ public final class StaticJwtKeyResolver implements JwtKeyResolver {
 	private final Map<String, Key> keysById;
 
 	public StaticJwtKeyResolver(Key defaultKey) {
-		this(defaultKey, Map.of());
+		this(defaultKey, com.auth.core.utils.CollectionUtils.mapOf());
 	}
 
 	public StaticJwtKeyResolver(Key defaultKey, Map<String, Key> keysById) {
 		this.defaultKey = Objects.requireNonNull(defaultKey, "defaultKey");
-		this.keysById = keysById == null ? Map.of() : Map.copyOf(keysById);
+		this.keysById = keysById == null ? com.auth.core.utils.CollectionUtils.mapOf() : com.auth.core.utils.CollectionUtils.copyMap(keysById);
 	}
 
 	@Override
 	public Optional<Key> resolve(String keyId) {
-		if (keyId == null) return Optional.of(defaultKey);
-		if (keyId.isBlank()) return Optional.of(defaultKey);
+		if (Strings.isBlank(keyId)) return Optional.of(defaultKey);
 		return Optional.ofNullable(keysById.get(keyId));
 	}
 }

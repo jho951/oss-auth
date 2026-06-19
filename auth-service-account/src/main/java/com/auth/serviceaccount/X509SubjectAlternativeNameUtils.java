@@ -15,10 +15,10 @@ public final class X509SubjectAlternativeNameUtils {
 	}
 
 	public static List<URI> uriSubjectAlternativeNames(X509Certificate certificate) {
-		if (certificate == null) return List.of();
+		if (certificate == null) return com.auth.core.utils.CollectionUtils.listOf();
 		try {
 			Collection<List<?>> subjectAlternativeNames = certificate.getSubjectAlternativeNames();
-			if (subjectAlternativeNames == null) return List.of();
+			if (subjectAlternativeNames == null) return com.auth.core.utils.CollectionUtils.listOf();
 			ArrayList<URI> uris = new ArrayList<>();
 			for (List<?> entry : subjectAlternativeNames) {
 				if (entry == null || entry.size() < 2) continue;
@@ -28,7 +28,7 @@ public final class X509SubjectAlternativeNameUtils {
 					uris.add(URI.create(String.valueOf(value)));
 				}
 			}
-			return List.copyOf(uris);
+			return com.auth.core.utils.CollectionUtils.copyList(uris);
 		} catch (Exception e) {
 			throw new IllegalArgumentException("failed to read subject alternative names", e);
 		}

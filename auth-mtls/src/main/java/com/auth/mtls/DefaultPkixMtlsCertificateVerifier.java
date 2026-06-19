@@ -24,7 +24,7 @@ public final class DefaultPkixMtlsCertificateVerifier implements MtlsCertificate
 	private final Clock clock;
 
 	public DefaultPkixMtlsCertificateVerifier(Set<X509Certificate> trustAnchors) {
-		this(trustAnchors, certificate -> List.of(), Clock.systemUTC());
+		this(trustAnchors, certificate -> com.auth.core.utils.CollectionUtils.listOf(), Clock.systemUTC());
 	}
 
 	public DefaultPkixMtlsCertificateVerifier(
@@ -33,7 +33,7 @@ public final class DefaultPkixMtlsCertificateVerifier implements MtlsCertificate
 		Clock clock
 	) {
 		this.trustAnchors = toTrustAnchors(trustAnchors);
-		this.chainResolver = chainResolver == null ? certificate -> List.of() : chainResolver;
+		this.chainResolver = chainResolver == null ? certificate -> com.auth.core.utils.CollectionUtils.listOf() : chainResolver;
 		this.clock = Objects.requireNonNull(clock, "clock");
 	}
 
@@ -59,7 +59,7 @@ public final class DefaultPkixMtlsCertificateVerifier implements MtlsCertificate
 
 			CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
 			CertPath certPath = certificateFactory.generateCertPath(pathCertificates);
-			var parameters = new java.security.cert.PKIXParameters(trustAnchors);
+			java.security.cert.PKIXParameters parameters = new java.security.cert.PKIXParameters(trustAnchors);
 			parameters.setRevocationEnabled(false);
 			parameters.setDate(now());
 			X509CertSelector selector = new X509CertSelector();
@@ -86,7 +86,7 @@ public final class DefaultPkixMtlsCertificateVerifier implements MtlsCertificate
 
 	private static Set<TrustAnchor> toTrustAnchors(Set<X509Certificate> trustAnchors) {
 		if (trustAnchors == null || trustAnchors.isEmpty()) {
-			return Set.of();
+			return com.auth.core.utils.CollectionUtils.setOf();
 		}
 		LinkedHashSet<TrustAnchor> anchors = new LinkedHashSet<>();
 		for (X509Certificate trustAnchor : trustAnchors) {
@@ -94,7 +94,7 @@ public final class DefaultPkixMtlsCertificateVerifier implements MtlsCertificate
 				anchors.add(new TrustAnchor(trustAnchor, null));
 			}
 		}
-		return Set.copyOf(anchors);
+		return com.auth.core.utils.CollectionUtils.copySet(anchors);
 	}
 
 	private static boolean sameCertificate(X509Certificate left, X509Certificate right) {

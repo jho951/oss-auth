@@ -1,5 +1,6 @@
 package com.auth.saml;
 
+import com.auth.core.utils.Strings;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -30,18 +31,18 @@ public final class SamlAssertion {
 		Instant notOnOrAfter,
 		Map<String, Object> attributes
 	) {
-		if (subject == null || subject.isBlank()) throw new IllegalArgumentException("subject must not be blank");
-		if (issuer == null || issuer.isBlank()) throw new IllegalArgumentException("issuer must not be blank");
+		if (Strings.isBlank(subject)) throw new IllegalArgumentException("subject must not be blank");
+		if (Strings.isBlank(issuer)) throw new IllegalArgumentException("issuer must not be blank");
 		this.subject = subject;
 		this.issuer = issuer;
-		this.audiences = audiences == null ? List.of() : List.copyOf(audiences);
+		this.audiences = audiences == null ? com.auth.core.utils.CollectionUtils.listOf() : com.auth.core.utils.CollectionUtils.copyList(audiences);
 		this.recipient = recipient == null ? "" : recipient;
 		this.inResponseTo = inResponseTo == null ? "" : inResponseTo;
 		this.sessionIndex = sessionIndex == null ? "" : sessionIndex;
 		this.issuedAt = issuedAt;
 		this.notBefore = notBefore;
 		this.notOnOrAfter = notOnOrAfter;
-		this.attributes = attributes == null ? Map.of() : Map.copyOf(attributes);
+		this.attributes = attributes == null ? com.auth.core.utils.CollectionUtils.mapOf() : com.auth.core.utils.CollectionUtils.copyMap(attributes);
 	}
 
 	public String getSubject() {

@@ -12,6 +12,7 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 import org.junit.jupiter.api.Test;
 
 class DpopProofVerifierTest {
@@ -38,7 +39,7 @@ class DpopProofVerifierTest {
 			new InMemoryDpopReplayValidator(Clock.fixed(issuedAt.plusSeconds(30), ZoneOffset.UTC))
 		);
 
-		var result = verifier.verify(new DpopProofRequest(
+		Optional<DpopProof> result = verifier.verify(new DpopProofRequest(
 			proof,
 			"GET",
 			"https://api.example.com/resource",
@@ -47,8 +48,8 @@ class DpopProofVerifierTest {
 		));
 
 		assertThat(result).isPresent();
-		assertThat(result.orElseThrow().getTokenId()).isEqualTo("proof-1");
-		assertThat(result.orElseThrow().getMethod()).isEqualTo("GET");
+		assertThat(result.get().getTokenId()).isEqualTo("proof-1");
+		assertThat(result.get().getMethod()).isEqualTo("GET");
 	}
 
 	@Test
