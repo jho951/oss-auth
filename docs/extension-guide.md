@@ -23,7 +23,8 @@
 | MFA step-up 필요 여부 판단      | `MfaPolicy`                                   | action/risk 기반 추가 인증 요구 판정까지만 담당      |
 | MFA factor 검증                | `MfaVerifier`                                 | TOTP/passkey/recovery code 검증까지만 담당         |
 | MFA 성공 후 principal 승격     | `MfaPrincipalMapper`                          | MFA 결과를 `Principal` attribute에 반영까지만 담당 |
-| WebAuthn assertion 검증        | `WebAuthnAssertionVerifier`                   | passkey assertion 검증까지만 담당                  |
+| WebAuthn credential 조회       | `WebAuthnCredentialResolver`                  | credential id로 저장된 passkey metadata 조회까지만 담당 |
+| WebAuthn assertion 검증        | `WebAuthnAssertionVerifier`, `WebAuthnAssertionSignatureValidator` | passkey assertion 검증까지만 담당                  |
 | WebAuthn attestation 검증      | `WebAuthnAttestationVerifier`                 | registration attestation 검증까지만 담당          |
 | WebAuthn principal mapping     | `PasskeyPrincipalMapper`                      | verified passkey를 `Principal`로 바꾸는 일까지만 담당 |
 | HOTP/TOTP 검증                | `HotpVerifier`, `TotpVerifier`               | shared secret 기반 코드 검증까지만 담당            |
@@ -35,7 +36,7 @@
 | X.509 workload identity        | `X509ServiceCertificateVerifier`, `X509ServicePrincipalResolver` | machine cert를 principal로 바꾸는 일까지만 담당 |
 | 새 인증 수단 provider            | `AuthenticationProvider<C>`                   | credential을 검증해 `Principal`을 반환하는 일까지만 담당 |
 | API key 인증                  | `ApiKeyPrincipalResolver`                     | API key와 principal 매핑까지만 담당               |
-| HMAC 인증                     | `HmacSecretResolver`, `HmacSignatureVerifier` | secret 조회와 signature 검증까지만 담당             |
+| HMAC 인증                     | `HmacSecretResolver`, `HmacSignatureVerifier`, `HmacPrincipalResolver` | secret 조회, signature 검증, principal 매핑까지만 담당 |
 | OIDC 인증                     | `OidcTokenVerifier`, `OidcPrincipalMapper`    | ID token 검증과 principal 변환까지만 담당           |
 | service account 인증          | `ServiceAccountVerifier`                      | service credential 검증까지만 담당               |
 
@@ -175,7 +176,7 @@ public class DefaultOAuth2PrincipalResolver implements OAuth2PrincipalResolver {
 }
 ```
 
-### 6) Session 관련 확장 포인트
+### 7) Session 관련 확장 포인트
 
 기본값:
 
@@ -197,20 +198,20 @@ public class DefaultOAuth2PrincipalResolver implements OAuth2PrincipalResolver {
 - 저장소 외부 노출이 가능한 값과 내부 주체 값을 분리합니다.
 - 여러 인스턴스에서 일관된 만료 정책을 유지합니다.
 
-### 7) 새 인증 capability
+### 8) 새 인증 capability
 
 추가된 capability 모듈:
 
 - `auth-apikey`: `ApiKeyAuthenticationProvider`, `ApiKeyPrincipalResolver`
-- `auth-hmac`: `HmacAuthenticationProvider`, `HmacSecretResolver`, `HmacSignatureVerifier`
-- `auth-dpop`: `DpopProofVerifier`, `DpopReplayValidator`
+- `auth-hmac`: `HmacAuthenticationProvider`, `HmacSecretResolver`, `HmacSignatureVerifier`, `HmacPrincipalResolver`
+- `auth-dpop`: `DpopProofVerifier`, `DpopReplayValidator`, `InMemoryDpopReplayValidator`, `DpopTokenBindingHelper`
 - `auth-mfa`: `MfaService`, `MfaEnrollmentResolver`, `MfaPolicy`, `MfaVerifier`, `MfaPrincipalMapper`
-- `auth-mtls`: `MtlsAuthenticationProvider`, `MtlsCertificateVerifier`, `MtlsPrincipalResolver`
+- `auth-mtls`: `MtlsAuthenticationProvider`, `MtlsCertificateVerifier`, `MtlsPrincipalResolver`, `MtlsCertificateChainResolver`, `DefaultPkixMtlsCertificateVerifier`, `X509ThumbprintUtils`
 - `auth-oidc`: `OidcAuthenticationProvider`, `OidcTokenVerifier`, `OidcPrincipalMapper`
-- `auth-otp`: `HotpVerifier`, `TotpVerifier`, `Sha256RecoveryCodeVerifier`
-- `auth-saml`: `SamlAuthenticationProvider`, `SamlResponseVerifier`, `SamlAssertionValidator`, `SamlPrincipalMapper`
-- `auth-service-account`: `ServiceAccountAuthenticationProvider`, `ServiceAccountVerifier`
-- `auth-webauthn`: `PasskeyAuthenticationProvider`, `PasskeyRegistrationService`, `WebAuthnAssertionVerifier`, `WebAuthnAttestationVerifier`
+- `auth-otp`: `Base32SecretCodec`, `HotpVerifier`, `TotpVerifier`, `Sha256RecoveryCodeVerifier`, `OtpHashAlgorithm`
+- `auth-saml`: `SamlAuthenticationProvider`, `SamlResponseVerifier`, `DefaultSamlResponseVerifier`, `SamlAssertionExtractor`, `DomSamlAssertionExtractor`, `SamlAssertionValidator`, `SamlPrincipalMapper`, `SamlXmlSignatureVerifier`
+- `auth-service-account`: `ServiceAccountAuthenticationProvider`, `ServiceAccountVerifier`, `X509ServiceAccountAuthenticationProvider`, `X509ServiceCertificateVerifier`, `X509ServicePrincipalResolver`, `SpiffePrincipalResolver`, `SpiffeTrustDomainCertificateVerifier`
+- `auth-webauthn`: `PasskeyAuthenticationProvider`, `PasskeyRegistrationService`, `WebAuthnCredentialResolver`, `WebAuthnAssertionVerifier`, `WebAuthnAssertionSignatureValidator`, `WebAuthnAttestationVerifier`, `WebAuthnAttestationStatementValidator`, `WebAuthnClientDataParser`, `WebAuthnAuthenticatorDataParser`
 
 구현 기준:
 

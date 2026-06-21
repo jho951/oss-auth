@@ -23,7 +23,7 @@
 - `code`
   - TOTP와 recovery code verifier가 모두 읽는 사용자 제출 코드입니다.
 
-### 검증 성공 후 추가 attribute
+### verifier 검증 성공 후 추가 attribute
 
 - `verified_by`
   - 어떤 verifier가 성공했는지 나타냅니다.
@@ -33,12 +33,33 @@
 - `matched_recovery_code_hash`
   - 일치한 recovery code 해시 값을 기록합니다.
 
+### principal 승격 후 추가 attribute
+
+`DefaultMfaPrincipalMapper`는 검증 성공 후 반환되는 `Principal`에 아래 key를 추가합니다.
+
+- `mfa_authenticated`
+  - MFA step-up 성공 여부입니다. 기본값은 `true`입니다.
+- `mfa_factor_id`
+  - 성공한 enrollment의 factor id입니다.
+- `mfa_factor_type`
+  - 성공한 factor type을 소문자 문자열로 기록합니다. 예: `totp`, `recovery_code`
+- `mfa_authenticated_at`
+  - MFA step-up이 완료된 시각입니다.
+- `mfa_action`
+  - `MfaChallengeContext`에 action이 있으면 기록합니다.
+- `mfa_risk_level`
+  - `MfaChallengeContext`의 risk level 이름입니다.
+- `amr`
+  - 기존 `amr` 값에 성공한 factor type을 중복 없이 추가한 목록입니다.
+
 ## 2. WebAuthn 규약
 
 `auth-webauthn`은 browser ceremony 전체를 소유하지 않고, 상위 계층이 수집한 값을 정규화해 검증합니다.
 
 ### 요청 필드
 
+- `WebAuthnAuthenticationRequest.credentialId`
+  - assertion에 사용된 credential id입니다.
 - `WebAuthnAuthenticationRequest.clientDataJson`
   - 원본 `clientDataJSON` 문자열을 그대로 전달합니다.
 - `WebAuthnAuthenticationRequest.authenticatorData`
@@ -46,9 +67,29 @@
 - `WebAuthnAuthenticationRequest.signature`
   - assertion signature 원문을 전달합니다.
   - 실제 형식 해석은 `WebAuthnAssertionSignatureValidator` 구현체 책임입니다.
+- `WebAuthnAuthenticationRequest.userHandle`
+  - 값이 있으면 저장된 credential의 `userHandle`과 비교합니다.
+- `WebAuthnAuthenticationRequest.challenge`
+  - 상위 계층이 발급하고 저장한 challenge 값입니다.
+- `WebAuthnAuthenticationRequest.origin`
+  - client data의 origin과 비교할 기대 origin입니다.
+- `WebAuthnAuthenticationRequest.rpId`
+  - authenticator data의 RP ID hash와 비교할 RP ID입니다.
+- `WebAuthnRegistrationRequest.credentialId`
+  - 새로 등록할 credential id입니다.
+- `WebAuthnRegistrationRequest.clientDataJson`
+  - 원본 `clientDataJSON` 문자열을 그대로 전달합니다.
 - `WebAuthnRegistrationRequest.attestationObject`
   - attestation object 원문을 그대로 전달합니다.
   - 실제 파싱과 신뢰 체인 검증은 `WebAuthnAttestationStatementValidator` 구현체 책임입니다.
+- `WebAuthnRegistrationRequest.challenge`
+  - 상위 계층이 발급하고 저장한 registration challenge 값입니다.
+- `WebAuthnRegistrationRequest.origin`
+  - client data의 origin과 비교할 기대 origin입니다.
+- `WebAuthnRegistrationRequest.rpId`
+  - registration 흐름의 RP ID입니다.
+
+`DefaultWebAuthnRequestValidator`는 인증 요청에서 `credentialId`, `clientDataJson`, `authenticatorData`, `signature`, `challenge`, `origin`, `rpId`가 비어 있지 않아야 한다고 봅니다. 등록 요청에서는 `credentialId`, `clientDataJson`, `attestationObject`, `challenge`, `origin`, `rpId`가 비어 있지 않아야 합니다.
 
 ### 요청 attribute
 

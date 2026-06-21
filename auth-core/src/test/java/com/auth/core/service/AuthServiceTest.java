@@ -7,7 +7,6 @@ import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneOffset;
-import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.DisplayName;
@@ -23,6 +22,7 @@ import com.auth.core.spi.RefreshTokenStore;
 import com.auth.core.spi.TokenService;
 import com.auth.core.spi.UserFinder;
 import com.auth.core.spi.UserStatusChecker;
+import com.auth.core.spi.token.RefreshTokenRotation;
 
 class AuthServiceTest {
 
@@ -116,6 +116,61 @@ class AuthServiceTest {
 			.hasMessageContaining("principal");
 	}
 
+	@Test
+	@DisplayName("refresh는 rotation strategy가 발급한 다음 refresh token을 저장한다.")
+	void refresh_UsesRotationStrategy() {
+		FakeRefreshTokenStore refreshTokenStore = new FakeRefreshTokenStore();
+		refreshTokenStore.existsResult = true;
+		Instant nextExpiresAt = Instant.parse("2026-04-01T00:00:00Z");
+		AuthService authService = new AuthService(
+			username -> Optional.empty(),
+			(rawPassword, storedHash) -> false,
+			UserStatusChecker.allowAll(),
+			new FakeTokenService(),
+			refreshTokenStore,
+			Duration.ofDays(14),
+			Clock.fixed(Instant.parse("2026-03-15T00:00:00Z"), ZoneOffset.UTC),
+			(principal, currentRefreshToken) -> new RefreshTokenRotation(
+				currentRefreshToken,
+				"rotated-refresh-token",
+				nextExpiresAt
+			)
+		);
+
+		Tokens tokens = authService.refresh("valid-refresh-user-1");
+
+		assertThat(tokens.getAccessToken()).isEqualTo("access-user-1");
+		assertThat(tokens.getRefreshToken()).isEqualTo("rotated-refresh-token");
+		assertThat(refreshTokenStore.revokedUserId).isEqualTo("user-1");
+		assertThat(refreshTokenStore.revokedRefreshToken).isEqualTo("valid-refresh-user-1");
+		assertThat(refreshTokenStore.savedUserId).isEqualTo("user-1");
+		assertThat(refreshTokenStore.savedRefreshToken).isEqualTo("rotated-refresh-token");
+		assertThat(refreshTokenStore.savedExpiresAt).isEqualTo(nextExpiresAt);
+	}
+
+	@Test
+	@DisplayName("기본 refresh rotation strategy는 기존 TTL 기준으로 다음 refresh token을 저장한다.")
+	void refresh_DefaultRotationStrategyPreservesExistingBehavior() {
+		FakeRefreshTokenStore refreshTokenStore = new FakeRefreshTokenStore();
+		refreshTokenStore.existsResult = true;
+		AuthService authService = new AuthService(
+			username -> Optional.empty(),
+			(rawPassword, storedHash) -> false,
+			new FakeTokenService(),
+			refreshTokenStore,
+			Duration.ofDays(14),
+			Clock.fixed(Instant.parse("2026-03-15T00:00:00Z"), ZoneOffset.UTC)
+		);
+
+		Tokens tokens = authService.refresh("valid-refresh-user-1");
+
+		assertThat(tokens.getAccessToken()).isEqualTo("access-user-1");
+		assertThat(tokens.getRefreshToken()).isEqualTo("refresh-user-1");
+		assertThat(refreshTokenStore.revokedRefreshToken).isEqualTo("valid-refresh-user-1");
+		assertThat(refreshTokenStore.savedRefreshToken).isEqualTo("refresh-user-1");
+		assertThat(refreshTokenStore.savedExpiresAt).isEqualTo(Instant.parse("2026-03-29T00:00:00Z"));
+	}
+
 	private static final class FakeTokenService implements TokenService {
 		@Override
 		public String issueAccessToken(Principal principal) {
@@ -134,6 +189,9 @@ class AuthServiceTest {
 
 		@Override
 		public Principal verifyRefreshToken(String token) {
+			if (token != null && token.startsWith("valid-refresh-")) {
+				return new Principal(token.substring("valid-refresh-".length()));
+			}
 			throw new UnsupportedOperationException();
 		}
 	}
@@ -142,6 +200,9 @@ class AuthServiceTest {
 		private String savedUserId;
 		private String savedRefreshToken;
 		private Instant savedExpiresAt;
+		private boolean existsResult;
+		private String revokedUserId;
+		private String revokedRefreshToken;
 
 		@Override
 		public void save(String userId, String refreshToken, Instant expiresAt) {
@@ -152,11 +213,13 @@ class AuthServiceTest {
 
 		@Override
 		public boolean exists(String userId, String refreshToken) {
-			return false;
+			return existsResult;
 		}
 
 		@Override
 		public void revoke(String userId, String refreshToken) {
+			this.revokedUserId = userId;
+			this.revokedRefreshToken = refreshToken;
 		}
 	}
 }

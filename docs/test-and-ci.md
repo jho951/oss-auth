@@ -63,6 +63,7 @@
   - `PrincipalTest`
   - `TokensTest`
   - `UserTest`
+  - `AuthenticatedSubjectTest`
   - `AuthServiceTest`
   - `StringsTest`
 - `auth-jwt`
@@ -70,6 +71,7 @@
 - `auth-session`
   - `DefaultSessionAuthenticationProviderTest`
   - `SessionServiceTest`
+  - `SecureRandomSessionIdGeneratorTest`
 - `auth-apikey`
   - `ApiKeyAuthenticationProviderTest`
 - `auth-hmac`
@@ -91,10 +93,13 @@
   - `Sha256RecoveryCodeVerifierTest`
 - `auth-saml`
   - `DefaultSamlAssertionValidatorTest`
+  - `DefaultSamlResponseVerifierTest`
   - `SamlAuthenticationProviderTest`
 - `auth-service-account`
   - `X509ServiceAccountAuthenticationProviderTest`
 - `auth-webauthn`
+  - `DefaultWebAuthnAssertionVerifierTest`
+  - `DefaultWebAuthnAttestationVerifierTest`
   - `PasskeyAuthenticationProviderTest`
   - `PasskeyRegistrationServiceTest`
 

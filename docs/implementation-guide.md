@@ -480,15 +480,21 @@ MfaPolicy mfaPolicy = new ActionOrRiskBasedMfaPolicy(
     null
 );
 
-MfaVerifier totpVerifier = (request, enrollment) ->
-    totpLibrary.verify(enrollment.getAttributes(), request.getProof("code").orElse(null))
-        ? Optional.of(Collections.singletonMap("verified_by", "totp"))
-        : Optional.empty();
+MfaVerifier totpVerifier = new TotpMfaVerifier(new TotpVerifier());
 
-MfaVerifier passkeyVerifier = (request, enrollment) ->
-    passkeyLibrary.verify(request.getProof(), enrollment.getAttributes())
-        ? Optional.of(Collections.singletonMap("verified_by", "passkey"))
-        : Optional.empty();
+MfaVerifier passkeyVerifier = new MfaVerifier() {
+    @Override
+    public boolean supports(MfaFactorType factorType) {
+        return factorType == MfaFactorType.PASSKEY;
+    }
+
+    @Override
+    public Optional<Map<String, Object>> verify(MfaVerificationRequest request, MfaEnrollment enrollment) {
+        return passkeyLibrary.verify(request.getProof(), enrollment.getAttributes())
+            ? Optional.of(Collections.singletonMap("verified_by", "passkey"))
+            : Optional.empty();
+    }
+};
 
 MfaService mfaService = new MfaService(
     enrollmentResolver,

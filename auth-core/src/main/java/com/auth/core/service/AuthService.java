@@ -15,6 +15,9 @@ import com.auth.core.spi.RefreshTokenStore;
 import com.auth.core.spi.TokenService;
 import com.auth.core.spi.UserFinder;
 import com.auth.core.spi.UserStatusChecker;
+import com.auth.core.spi.token.DefaultRefreshTokenRotationStrategy;
+import com.auth.core.spi.token.RefreshTokenRotation;
+import com.auth.core.spi.token.RefreshTokenRotationStrategy;
 import com.auth.core.utils.MoreObjects;
 import com.auth.core.utils.Strings;
 
@@ -35,6 +38,8 @@ public final class AuthService {
 	private final Duration refreshTtl;
 	/** 시간 계산을 위한 클럭 (테스트 시 모킹 가능) */
 	private final Clock clock;
+	/** refresh token 교체 정책 */
+	private final RefreshTokenRotationStrategy refreshTokenRotationStrategy;
 
 	public AuthService(
 		UserFinder userFinder,
@@ -77,6 +82,19 @@ public final class AuthService {
 		Duration refreshTtl,
 		Clock clock
 	) {
+		this(userFinder, passwordVerifier, userStatusChecker, tokenService, refreshTokenStore, refreshTtl, clock, null);
+	}
+
+	public AuthService(
+		UserFinder userFinder,
+		PasswordVerifier passwordVerifier,
+		UserStatusChecker userStatusChecker,
+		TokenService tokenService,
+		RefreshTokenStore refreshTokenStore,
+		Duration refreshTtl,
+		Clock clock,
+		RefreshTokenRotationStrategy refreshTokenRotationStrategy
+	) {
         this.userFinder = Strings.requireNonNull(userFinder, "userFinder");
         this.passwordVerifier = Strings.requireNonNull(passwordVerifier, "passwordVerifier");
         this.userStatusChecker = Strings.requireNonNull(userStatusChecker, "userStatusChecker");
@@ -85,6 +103,9 @@ public final class AuthService {
         this.refreshTtl =
             (refreshTtl == null || refreshTtl.isNegative() || refreshTtl.isZero()) ? Duration.ofDays(14) : refreshTtl;
         this.clock = MoreObjects.defaultIfNull(clock, Clock.systemUTC());
+        this.refreshTokenRotationStrategy = refreshTokenRotationStrategy == null
+            ? new DefaultRefreshTokenRotationStrategy(this.tokenService, this.refreshTtl, this.clock)
+            : refreshTokenRotationStrategy;
     }
 
 	/**
@@ -162,15 +183,17 @@ public final class AuthService {
 		boolean exists = refreshTokenStore.exists(principal.getUserId(), refreshToken);
 		if (!exists) throw new AuthException(AuthFailureReason.REVOKED_TOKEN, "refresh token revoked");
 
-		refreshTokenStore.revoke(principal.getUserId(), refreshToken);
-
+		RefreshTokenRotation rotation = Strings.requireNonNull(
+			refreshTokenRotationStrategy.rotate(principal, refreshToken),
+			"refreshTokenRotation"
+		);
+		String nextRefreshToken = Strings.requireNonBlank(rotation.getNextToken(), "nextRefreshToken");
+		String previousRefreshToken = Strings.isBlank(rotation.getPreviousToken()) ? refreshToken : rotation.getPreviousToken();
+		refreshTokenStore.revoke(principal.getUserId(), previousRefreshToken);
 		String newAccess = tokenService.issueAccessToken(principal);
-		String newRefresh = tokenService.issueRefreshToken(principal);
+		refreshTokenStore.save(principal.getUserId(), nextRefreshToken, rotation.getNextExpiresAt());
 
-		Instant expiresAt = Instant.now(clock).plus(refreshTtl);
-		refreshTokenStore.save(principal.getUserId(), newRefresh, expiresAt);
-
-		return new Tokens(newAccess, newRefresh);
+		return new Tokens(newAccess, nextRefreshToken);
 	}
 
 	/**
