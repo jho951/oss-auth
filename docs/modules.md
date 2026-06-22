@@ -36,7 +36,7 @@
   - 인증의 핵심 모델과 SPI를 제공합니다.
   - `Principal`, `User`, `Tokens`, `AuthException`, `AuthFailureReason`은 이 경계 안에서만 의미가 바뀌지 않아야 합니다.
   - `UserFinder`, `PasswordVerifier`, `UserStatusChecker`, `TokenService`, `RefreshTokenStore`, `OAuth2PrincipalResolver`는 외부 구현이 따라야 하는 계약입니다.
-  - `AuthenticationProvider`, `AuthenticationResult`, `AuthenticationSource`, `AuthoritySet`, `AuthenticatedSubject`는 인증 결과를 서비스 정책 없이 표현합니다.
+  - `AuthenticationProvider`, `AuthoritySet`, `AuthenticatedSubject`는 인증 결과를 서비스 정책 없이 표현합니다.
 - `auth-bom`
   - 현재 공식 지원하는 auth 모듈 집합과 버전을 고정합니다.
   - 2계층과 소비 애플리케이션은 이 BOM을 통해 버전 정합성을 맞춥니다.
