@@ -50,8 +50,6 @@ dependencies {
 }
 ```
 
-Maven 기반 eGovFrame 프로젝트와 호환성 기준은 [전자정부 표준프레임워크 호환성](docs/egovframe-compatibility.md)을 참고하세요.
-
 ## 문서
 
 - [문서 인덱스](docs/README.md)
